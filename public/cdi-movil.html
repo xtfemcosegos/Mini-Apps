@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>RegAs 3 — CDI Móvil (Control y Conteo de Ingresos)</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CDI Móvil">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/x-icon" href="./iconos/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="./iconos/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./iconos/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="./iconos/icon-192.png">
+  <style>
+    :root {
+      --bg: #f0f4f8;
+      --card-bg: #ffffff;
+      --card-border: rgba(148, 163, 184, 0.28);
+      --card-border-subtle: rgba(226, 232, 240, 0.85);
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      
+      --accent-blue: #2563eb;
+      --accent-blue-soft: rgba(37, 99, 235, 0.08);
+      --accent-emerald: #059669;
+      --accent-emerald-soft: rgba(5, 150, 105, 0.08);
+      --accent-amber: #d97706;
+      --accent-amber-soft: rgba(217, 119, 6, 0.08);
+      --accent-purple: #7c3aed;
+      --accent-purple-soft: rgba(124, 58, 237, 0.08);
+      --accent-cyan: #0284c7;
+      --accent-rose: #ef4444;
+      --accent-rose-soft: rgba(239, 68, 68, 0.08);
+
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 5px -1px rgba(15, 23, 42, 0.04);
+      --shadow-dock: 0 4px 18px -2px rgba(15, 23, 42, 0.09), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      height: 100%;
+      height: 100dvh;
+      max-height: 100dvh;
+      overflow: hidden; /* Ajuste perfecto sin scroll en pantallas normales */
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: env(safe-area-inset-top, 5px) 10px env(safe-area-inset-bottom, 6px) 10px;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 3px 2px 6px;
+      border-bottom: 1px solid var(--card-border);
+      flex-shrink: 0;
+    }
+
+    .header-title-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-title {
+      font-size: 0.92rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .header-badge-live {
+      font-size: 0.58rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 2px 6px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.32);
+      color: #059669;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .header-badge-live::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 5px #10b981;
+      animation: pulseLive 1.8s infinite;
+    }
+
+    @keyframes pulseLive {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+    }
+
+    .header-version-btn {
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #0284c7;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .header-version-btn:active {
+      transform: scale(0.94);
+      background: rgba(56, 189, 248, 0.28);
+    }
+
+    .connection-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 5px #10b981;
+      transition: background 0.2s ease, box-shadow 0.2s ease;
+    }
+    .status-dot.syncing {
+      background: #d97706;
+      box-shadow: 0 0 5px #d97706;
+      animation: pulseSync 0.8s infinite;
+    }
+    .status-dot.offline {
+      background: #ef4444;
+      box-shadow: 0 0 5px #ef4444;
+    }
+
+    @keyframes pulseSync {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(1.2); }
+    }
+
+    /* ── CONTROLES SUPERIORES (CASETA Y MODO) ── */
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin: 4px 0 3px;
+      flex-shrink: 0;
+    }
+
+    .caseta-selector-box {
+      flex: 1;
+      position: relative;
+    }
+
+    .caseta-select {
+      width: 100%;
+      padding: 7px 30px 7px 10px;
+      background: var(--card-bg);
+      border: 1.8px solid var(--accent-blue);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 0.84rem;
+      font-weight: 700;
+      outline: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.08), var(--shadow-sm);
+    }
+
+    .mode-toggle {
+      display: inline-flex;
+      background: #e2e8f0;
+      border: 1px solid var(--card-border);
+      border-radius: 9px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .mode-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      font-weight: 800;
+      padding: 6px 10px;
+      border-radius: 7px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      transition: all 0.15s cubic-bezier(0.2, 0, 0, 1);
+    }
+    .mode-btn:active {
+      transform: scale(0.96);
+    }
+    .mode-btn.active {
+      background: var(--accent-blue);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+    }
+    .mode-btn.mode-sub.active {
+      background: #ef4444;
+      box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+    }
+
+    /* BANNER MODO CORRECCIÓN */
+    .mode-alert-banner {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 7px;
+      padding: 3px 8px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #b91c1c;
+      margin-bottom: 2px;
+      flex-shrink: 0;
+      animation: fadeIn 0.15s ease;
+    }
+    .mode-alert-banner.show {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-2px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── GRILLA DE BOTONES DE CONTEO (RESPONSIVA Y COMPACTA) ── */
+    .grid-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      margin: 2px 0;
+    }
+
+    .counter-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 8px;
+      width: 100%;
+      height: 100%;
+      max-width: 460px;
+      align-content: stretch;
+      justify-content: center;
+    }
+
+    .counter-btn {
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: 16px;
+      padding: 8px 10px;
+      width: 100%;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+      max-height: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2px;
+      color: var(--text);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      touch-action: manipulation;
+      transition: transform 0.08s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.15s ease, background 0.15s ease;
+      box-shadow: var(--shadow-md);
+    }
+
+    .counter-btn::before {
+      content: attr(data-bg-icon);
+      position: absolute;
+      bottom: -6px;
+      right: -2px;
+      font-size: 3rem;
+      line-height: 1;
+      opacity: 0.05;
+      pointer-events: none;
+      filter: grayscale(0.2);
+      transform: rotate(-8deg);
+      transition: opacity 0.15s ease;
+    }
+
+    .counter-btn:active {
+      transform: scale(0.95);
+      box-shadow: var(--shadow-sm);
+    }
+    .counter-btn:active::before {
+      opacity: 0.12;
+    }
+
+    .counter-btn.btn-internos {
+      border-top: 3.5px solid var(--accent-blue);
+    }
+    .counter-btn.btn-internos:active {
+      background: var(--accent-blue-soft);
+    }
+    .counter-btn.btn-externos {
+      border-top: 3.5px solid var(--accent-amber);
+    }
+    .counter-btn.btn-externos:active {
+      background: var(--accent-amber-soft);
+    }
+    .counter-btn.btn-prestadores {
+      border-top: 3.5px solid var(--accent-purple);
+    }
+    .counter-btn.btn-prestadores:active {
+      background: var(--accent-purple-soft);
+    }
+    .counter-btn.btn-visitas {
+      border-top: 3.5px solid var(--accent-emerald);
+    }
+    .counter-btn.btn-visitas:active {
+      background: var(--accent-emerald-soft);
+    }
+
+    body.sub-mode .counter-btn {
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-icon {
+      font-size: 1.35rem;
+      line-height: 1;
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-label {
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-count {
+      font-size: clamp(1.6rem, 5vw, 2.2rem);
+      font-weight: 800;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      margin-top: 1px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .counter-btn.btn-internos .btn-count  { color: var(--accent-blue); }
+    .counter-btn.btn-externos .btn-count  { color: var(--accent-amber); }
+    .counter-btn.btn-prestadores .btn-count { color: var(--accent-purple); }
+    .counter-btn.btn-visitas .btn-count   { color: var(--accent-emerald); }
+
+    .btn-pending-badge {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      background: #ef4444;
+      color: #fff;
+      font-size: 0.62rem;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 999px;
+      display: none;
+      box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+      animation: popIn 0.15s ease;
+      z-index: 2;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.4); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ── CONTROLES INFERIORES: DOCK (3 APPS) Y RESUMEN ── */
+    .bottom-section {
+      flex-shrink: 0;
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    /* DOCK DE 3 APLICACIONES (CHECADOR, RECORRIDOS, BITÁCORAS) */
+    .app-dock-wrapper {
+      width: 100%;
+    }
+
+    .dock-header-label {
+      font-size: 0.58rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+      padding-left: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .dock-header-label::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+    }
+
+    .app-dock {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 5px 6px;
+      box-shadow: var(--shadow-dock);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 5px;
+    }
+
+    .dock-app-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      padding: 5px 3px;
+      background: #f8fafc;
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.15s cubic-bezier(0.2, 0, 0, 1);
+      touch-action: manipulation;
+      text-align: center;
+    }
+
+    .dock-app-btn:hover {
+      background: #ffffff;
+      border-color: rgba(203, 213, 225, 1);
+      transform: translateY(-1px);
+    }
+
+    .dock-app-btn:active {
+      transform: scale(0.95);
+      background: #f1f5f9;
+    }
+
+    .dock-icon-squircle {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+
+    .dock-icon-squircle.icon-checador {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    }
+
+    .dock-icon-squircle.icon-recorridos {
+      background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+    }
+
+    .dock-icon-squircle.icon-bitacoras {
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+    }
+
+    .dock-icon-squircle svg {
+      width: 15px;
+      height: 15px;
+      stroke-width: 2.2;
+    }
+
+    .dock-app-title {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .dock-app-subtitle {
+      font-size: 0.58rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      line-height: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    /* RESUMEN FOOTER */
+    .footer-summary {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+      width: 100%;
+    }
+
+    .summary-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .summary-title {
+      font-size: 0.60rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .summary-value {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      line-height: 1.15;
+    }
+
+    /* ── TOAST NOTIFICACIONES ── */
+    .toast-sync {
+      position: fixed;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(15, 23, 42, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 9999;
+    }
+    .toast-sync.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* TOAST PRÓXIMAMENTE DESTACADO */
+    .toast-proximamente {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border: 1.5px solid rgba(56, 189, 248, 0.4);
+      color: #f8fafc;
+      padding: 10px 18px;
+      border-radius: 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(56, 189, 248, 0.2);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 99999;
+      max-width: 90%;
+      text-align: center;
+    }
+    .toast-proximamente.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* ── TEMA CLARO POR DEFECTO Y SELECTOR DE MODO OSCURO ── */
+    html[data-theme="dark"] {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: rgba(255, 255, 255, 0.1);
+      --card-border-subtle: rgba(255, 255, 255, 0.05);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --shadow-dock: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+    html[data-theme="dark"] .app-dock {
+      background: rgba(17, 24, 39, 0.92);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    html[data-theme="dark"] .dock-app-btn {
+      background: #1e293b;
+      border-color: rgba(255, 255, 255, 0.08);
+      color: #f8fafc;
+    }
+    html[data-theme="dark"] .dock-app-btn:hover {
+      background: #273549;
+    }
+    html[data-theme="dark"] .dock-app-btn:active {
+      background: #334155;
+    }
+    html[data-theme="dark"] .mode-toggle {
+      background: #1e293b;
+    }
+    html[data-theme="dark"] .caseta-select {
+      background-color: #111827;
+      color: #f8fafc;
+    }
+
+    .theme-toggle-btn {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 3px 7px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.15s ease;
+    }
+    html[data-theme="dark"] .theme-toggle-btn {
+      background: #1e293b;
+      border-color: rgba(255, 255, 255, 0.15);
+      color: #f8fafc;
+    }
+    .theme-toggle-btn:active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+<body data-theme="light">
+
+  <!-- HEADER SUPERIOR -->
+  <header class="header">
+    <div class="header-title-box">
+      <div class="header-title">
+        <span>🔢 CDI Móvil</span>
+        <span class="header-badge-live">En Vivo</span>
+        <button type="button" id="btnThemeToggle" class="theme-toggle-btn" title="Alternar modo claro / oscuro">☀️ Claro</button>
+        <button type="button" id="btnVersionBadge" class="header-version-btn" title="Versión v272. Toca para recargar y purgar caché">v272 🔄</button>
+      </div>
+    </div>
+    <div class="connection-status">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Conectando...</span>
+    </div>
+  </header>
+
+  <!-- CONTROLES SUPERIORES (CASETA Y MODO) -->
+  <div class="top-controls">
+    <div class="caseta-selector-box">
+      <select id="casetaSelect" class="caseta-select">
+        <option value="Recepción Edison">📋 Recepción Edison</option>
+        <option value="Edison">🛡️ Edison</option>
+        <option value="Impulso">⚡ Impulso</option>
+        <option value="Michelena">📍 Michelena</option>
+        <option value="Simón Bolívar">🏛️ Simón Bolívar</option>
+        <option value="Carranza">🚪 Carranza</option>
+        <option value="Universidad">🏫 Universidad</option>
+        <option value="Anexo Edison">🏭 Anexo Edison</option>
+      </select>
+    </div>
+
+    <div class="mode-toggle">
+      <button type="button" class="mode-btn active" id="btnModeAdd" title="Sumar +1">+1</button>
+      <button type="button" class="mode-btn mode-sub" id="btnModeSub" title="Restar -1 (Corregir)">−1</button>
+    </div>
+  </div>
+
+  <!-- AVISO VISUAL DE MODO CORRECCIÓN (-1) -->
+  <div class="mode-alert-banner" id="modeAlertBanner">
+    <span>⚠️ Modo Corrección (−1) activo: Cada toque descontará 1 al contador</span>
+  </div>
+
+  <!-- GRILLA DE BOTONES DE CONTEO -->
+  <div class="grid-wrapper">
+    <div class="counter-grid">
+      <!-- 1. INTERNOS -->
+      <button type="button" class="counter-btn btn-internos" data-cat="internos" data-bg-icon="🏢">
+        <span class="btn-icon">🏢</span>
+        <span class="btn-label">Internos</span>
+        <span class="btn-count" id="count-internos">0</span>
+        <span class="btn-pending-badge" id="badge-internos">+1</span>
+      </button>
+
+      <!-- 2. EXTERNOS -->
+      <button type="button" class="counter-btn btn-externos" data-cat="externos" data-bg-icon="🚗">
+        <span class="btn-icon">🚗</span>
+        <span class="btn-label">Externos</span>
+        <span class="btn-count" id="count-externos">0</span>
+        <span class="btn-pending-badge" id="badge-externos">+1</span>
+      </button>
+
+      <!-- 3. PRESTADORES -->
+      <button type="button" class="counter-btn btn-prestadores" data-cat="prestadores" data-bg-icon="🛠️">
+        <span class="btn-icon">🛠️</span>
+        <span class="btn-label">Prestadores</span>
+        <span class="btn-count" id="count-prestadores">0</span>
+        <span class="btn-pending-badge" id="badge-prestadores">+1</span>
+      </button>
+
+      <!-- 4. VISITAS -->
+      <button type="button" class="counter-btn btn-visitas" data-cat="visitas" data-bg-icon="👤">
+        <span class="btn-icon">👤</span>
+        <span class="btn-label">Visitas</span>
+        <span class="btn-count" id="count-visitas">0</span>
+        <span class="btn-pending-badge" id="badge-visitas">+1</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- SECCIÓN INFERIOR COMPACTA (RESUMEN DEBAJO DE CONTADORES + DOCK DE APPS) -->
+  <div class="bottom-section">
+    <!-- RESUMEN: CONTEO POR CASETA Y CONTEO GENERAL (DEBAJO DE LOS BOTONES CONTADORES) -->
+    <div class="footer-summary">
+      <div class="summary-item">
+        <span class="summary-title">Total Caseta</span>
+        <span class="summary-value" id="totalCaseta">0</span>
+      </div>
+      <div class="summary-item" style="text-align: right;">
+        <span class="summary-title">Total General</span>
+        <span class="summary-value" id="totalGeneral">0</span>
+      </div>
+    </div>
+
+    <!-- DOCK DE APLICACIONES DE CASETA (3 BOTONES: CHECADOR, RECORRIDOS, BITÁCORAS) -->
+    <nav class="app-dock-wrapper" aria-label="Aplicaciones de Caseta">
+      <div class="dock-header-label">Aplicaciones de Caseta</div>
+      <div class="app-dock">
+        <!-- 1. CHECADOR -->
+        <button type="button" class="dock-app-btn" id="dockBtnChecador" data-app-name="Checador">
+          <div class="dock-icon-squircle icon-checador">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+          <span class="dock-app-title">Checador</span>
+          <span class="dock-app-subtitle">Asistencia</span>
+        </button>
+
+        <!-- 2. RECORRIDOS -->
+        <button type="button" class="dock-app-btn" id="dockBtnRecorridos" data-app-name="Recorridos">
+          <div class="dock-icon-squircle icon-recorridos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+              <line x1="8" y1="2" x2="8" y2="18"/>
+              <line x1="16" y1="6" x2="16" y2="22"/>
+            </svg>
+          </div>
+          <span class="dock-app-title">Recorridos</span>
+          <span class="dock-app-subtitle">Rondines</span>
+        </button>
+
+        <!-- 3. BITÁCORAS -->
+        <button type="button" class="dock-app-btn" id="dockBtnBitacoras" data-app-name="Bitácoras">
+          <div class="dock-icon-squircle icon-bitacoras">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <span class="dock-app-title">Bitácoras</span>
+          <span class="dock-app-subtitle">Novedades</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- TOAST DE CONFIRMACIÓN DE SINCRONIZACIÓN -->
+  <div class="toast-sync" id="toastSync">
+    <span>✓ Sincronizado</span>
+  </div>
+
+  <!-- TOAST DESTACADO PRÓXIMAMENTE -->
+  <div class="toast-proximamente" id="toastProximamente">
+    <span style="font-size: 1.1rem;">🚀</span>
+    <span id="toastProximamenteText">Próximamente</span>
+  </div>
+
+  <!-- LÓGICA DE CONTROL, SINCRONIZACIÓN Y ACTUALIZACIÓN EN VIVO -->
+  <script>
+    (function() {
+      // Detección dinámica e inteligente del backend (Local, Red Caseta 10.x / 192.168.x, o Cloud Worker UBE)
+      const resolveBackendBase = () => {
+        // Limpieza preventiva de túneles trycloudflare obsoletos y Mixed Content
+        try {
+          const cur = localStorage.getItem('regas_active_api_base');
+          if (cur && (cur.includes('trycloudflare') || (window.location.protocol === 'https:' && cur.startsWith('http://')))) {
+            localStorage.removeItem('regas_active_api_base');
+          }
+        } catch(e) {}
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const qBackend = urlParams.get('backend') || urlParams.get('api');
+        if (qBackend) {
+          if (window.location.protocol === 'https:' && qBackend.startsWith('http://')) {
+            // Ignorar backend HTTP en HTTPS para evitar bloqueo de contenido mixto
+          } else {
+            try { localStorage.setItem('regas_active_api_base', qBackend); } catch(e) {}
+            return qBackend.replace(/\/+$/, '');
+          }
+        }
+        const qIp = urlParams.get('ip');
+        if (qIp && window.location.protocol !== 'https:') {
+          const formatted = `http://${qIp}:7001`;
+          try { localStorage.setItem('regas_active_api_base', formatted); } catch(e) {}
+          return formatted;
+        }
+
+        const h = window.location.hostname;
+        const p = window.location.port;
+
+        // 1. Si se sirve desde el servidor local (puerto 7000 o 7001)
+        if (p === '7000' || p === '7001') return '';
+
+        // 2. Si corre en localhost o 127.0.0.1 (solo en HTTP)
+        if (h === 'localhost' || h === '127.0.0.1') {
+          return window.location.protocol === 'https:' ? '' : 'http://127.0.0.1:7001';
+        }
+
+        // 3. Si corre desde la red interna de la caseta (10.x, 192.168.x, 172.x) en HTTP
+        if ((h.startsWith('10.') || h.startsWith('192.168.') || /^172\.(1[6-9]|2\d|3[01])\./.test(h)) && window.location.protocol !== 'https:') {
+          return `http://${h}:7001`;
+        }
+
+        // 4. Si se configuró previamente en localStorage
+        try {
+          const cached = localStorage.getItem('regas_active_api_base');
+          if (cached && !cached.includes('10.200.79.175') && !cached.includes('trycloudflare')) {
+            if (window.location.protocol === 'https:' && cached.startsWith('http://')) {
+              // Descartar HTTP en HTTPS
+            } else {
+              return cached.replace(/\/+$/, '');
+            }
+          }
+        } catch(e) {}
+
+        // 5. Fallback por defecto: Túnel Ngrok activo UBE
+        return 'https://sandworm-header-salami.ngrok-free.dev';
+      };
+
+      let BACKEND_BASE = resolveBackendBase();
+
+      const API_HEADERS = {
+        'Content-Type': 'application/json',
+        'Bypass-Tunnel-Reminder': 'true',
+        'bypass-tunnel-reminder': 'true',
+        'ngrok-skip-browser-warning': 'true'
+      };
+
+      const getTodayIso = () => {
+        try {
+          const mx = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Monterrey' }).format(new Date());
+          if (/^\d{4}-\d{2}-\d{2}$/.test(mx)) return mx;
+        } catch (e) {}
+        const d = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      };
+
+      let currentDate = getTodayIso();
+      const validCasetas = ['Recepción Edison', 'Edison', 'Impulso', 'Michelena', 'Simón Bolívar', 'Carranza', 'Universidad', 'Anexo Edison'];
+      let storedCaseta = localStorage.getItem('regas_cdi_last_caseta') || localStorage.getItem('caseta_seleccionada_cic') || 'Recepción Edison';
+      if (!validCasetas.includes(storedCaseta)) {
+        storedCaseta = 'Recepción Edison';
+        localStorage.setItem('regas_cdi_last_caseta', storedCaseta);
+        localStorage.setItem('caseta_seleccionada_cic', storedCaseta);
+      }
+      let currentCaseta = storedCaseta;
+      let currentMode = 1; // 1 = sumar, -1 = restar/corregir
+
+      const counts = {
+        internos: 0,
+        externos: 0,
+        prestadores: 0,
+        visitas: 0
+      };
+
+      const pendingDeltas = {
+        internos: 0,
+        externos: 0,
+        prestadores: 0,
+        visitas: 0
+      };
+
+      const debounceTimers = {};
+      const statusDot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
+      const toastSync = document.getElementById('toastSync');
+      const casetaSelect = document.getElementById('casetaSelect');
+      const btnModeAdd = document.getElementById('btnModeAdd');
+      const btnModeSub = document.getElementById('btnModeSub');
+      const modeAlertBanner = document.getElementById('modeAlertBanner');
+
+      // Selector de Modo Claro / Oscuro con persistencia (Modo Claro por defecto)
+      let currentAppTheme = localStorage.getItem('miniapps_theme') || 'light';
+      const applyAppTheme = (t) => {
+        currentAppTheme = t;
+        document.documentElement.setAttribute('data-theme', t);
+        if (document.body) document.body.setAttribute('data-theme', t);
+        localStorage.setItem('miniapps_theme', t);
+        const btn = document.getElementById('btnThemeToggle');
+        if (btn) {
+          btn.textContent = t === 'light' ? '☀️ Claro' : '🌙 Oscuro';
+          btn.title = `Cambiar a modo ${t === 'light' ? 'oscuro' : 'claro'}`;
+        }
+      };
+      applyAppTheme(currentAppTheme);
+      const btnThemeEl = document.getElementById('btnThemeToggle');
+      if (btnThemeEl) {
+        btnThemeEl.addEventListener('click', () => {
+          applyAppTheme(currentAppTheme === 'light' ? 'dark' : 'light');
+        });
+      }
+
+      if (btnModeAdd && btnModeSub) {
+        btnModeAdd.addEventListener('click', () => {
+          currentMode = 1;
+          btnModeAdd.classList.add('active');
+          btnModeSub.classList.remove('active');
+          document.body.classList.remove('sub-mode');
+          if (modeAlertBanner) modeAlertBanner.classList.remove('show');
+          triggerHaptic(20);
+        });
+        btnModeSub.addEventListener('click', () => {
+          currentMode = -1;
+          btnModeSub.classList.add('active');
+          btnModeAdd.classList.remove('active');
+          document.body.classList.add('sub-mode');
+          if (modeAlertBanner) modeAlertBanner.classList.add('show');
+          triggerHaptic(30);
+        });
+      }
+
+      if (currentCaseta) {
+        casetaSelect.value = currentCaseta;
+      }
+
+      casetaSelect.addEventListener('change', (e) => {
+        currentCaseta = e.target.value;
+        localStorage.setItem('regas_cdi_last_caseta', currentCaseta);
+        localStorage.setItem('caseta_seleccionada_cic', currentCaseta);
+        fetchCdiData();
+        if (typeof sendDeviceHeartbeat === 'function') {
+          sendDeviceHeartbeat();
+        }
+      });
+
+      // Feedback táctil háptico
+      const triggerHaptic = (ms = 25) => {
+        if (navigator.vibrate) {
+          try { navigator.vibrate(ms); } catch (e) {}
+        }
+      };
+
+      const showToast = (msg = '✓ Sincronizado') => {
+        toastSync.textContent = msg;
+        toastSync.classList.add('show');
+        setTimeout(() => {
+          toastSync.classList.remove('show');
+        }, 1500);
+      };
+
+      // Notificación Próximamente para los botones del Dock
+      let toastProxTimer = null;
+      const showProximamente = (nombreModulo) => {
+        triggerHaptic(35);
+        const toastEl = document.getElementById('toastProximamente');
+        const textEl = document.getElementById('toastProximamenteText');
+        if (toastEl && textEl) {
+          textEl.textContent = `Próximamente: Módulo de ${nombreModulo}`;
+          toastEl.classList.add('show');
+          if (toastProxTimer) clearTimeout(toastProxTimer);
+          toastProxTimer = setTimeout(() => {
+            toastEl.classList.remove('show');
+          }, 2000);
+        }
+      };
+
+      // Aplicar visibilidad de funciones recibidas del servidor (Checador, Recorridos, Bitácoras)
+      const applyDeviceFeatures = (features) => {
+        if (!features || typeof features !== 'object') return;
+        const map = {
+          checador:   'dockBtnChecador',
+          recorridos: 'dockBtnRecorridos',
+          bitacoras:  'dockBtnBitacoras'
+        };
+        Object.entries(map).forEach(([key, btnId]) => {
+          const btn = document.getElementById(btnId);
+          if (!btn) return;
+          const enabled = features[key] !== false; // por defecto visible si no se especifica
+          btn.style.display = enabled ? '' : 'none';
+        });
+        // Ocultar/mostrar la sección entera del dock si todas las funciones están desactivadas
+        const dockWrapper = document.querySelector('.app-dock-wrapper');
+        if (dockWrapper) {
+          const allHidden = ['checador', 'recorridos', 'bitacoras'].every(k => features[k] === false);
+          dockWrapper.style.display = allHidden ? 'none' : '';
+        }
+      };
+
+      // Escuchadores de eventos para los 3 botones del Dock: Checador, Recorridos, Bitácoras
+      const appRoutes = {
+        dockBtnChecador: 'checador-movil.html',
+        dockBtnRecorridos: 'recorrido-movil.html',
+        dockBtnBitacoras: 'bitacora-movil.html'
+      };
+
+      Object.entries(appRoutes).forEach(([id, route]) => {
+        const btn = document.getElementById(id);
+        if (btn) {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const search = window.location.search || '';
+            window.location.href = route + search;
+          });
+        }
+      });
+
+      const updateUI = () => {
+        ['internos', 'externos', 'prestadores', 'visitas'].forEach(cat => {
+          const countEl = document.getElementById(`count-${cat}`);
+          const badgeEl = document.getElementById(`badge-${cat}`);
+          if (countEl) countEl.textContent = counts[cat] || 0;
+
+          if (badgeEl) {
+            const delta = pendingDeltas[cat];
+            if (delta !== 0) {
+              badgeEl.textContent = delta > 0 ? `+${delta}` : `${delta}`;
+              badgeEl.style.display = 'inline-block';
+              badgeEl.style.background = delta > 0 ? '#ef4444' : '#64748b';
+            } else {
+              badgeEl.style.display = 'none';
+            }
+          }
+        });
+
+        const totalCas = (counts.internos || 0) + (counts.externos || 0) + (counts.prestadores || 0) + (counts.visitas || 0);
+        const totalCasEl = document.getElementById('totalCaseta');
+        if (totalCasEl) totalCasEl.textContent = totalCas;
+      };
+
+      // Despacho acumulado tras 600ms de inactividad directamente a UBE / Worker
+      const queueDispatch = (cat) => {
+        statusDot.className = 'status-dot syncing';
+        statusText.textContent = 'Guardando...';
+
+        if (debounceTimers[cat]) {
+          clearTimeout(debounceTimers[cat]);
+        }
+
+        debounceTimers[cat] = setTimeout(async () => {
+          const deltaToSend = pendingDeltas[cat];
+          if (deltaToSend === 0) return;
+
+          pendingDeltas[cat] = 0;
+          updateUI();
+
+          try {
+            const res = await fetch(`${BACKEND_BASE}/api/cdi/increment`, {
+              method: 'POST',
+              headers: API_HEADERS,
+              body: JSON.stringify({
+                fecha: currentDate,
+                caseta: currentCaseta,
+                categoria: cat,
+                category: cat,
+                count: deltaToSend,
+                delta: deltaToSend,
+                deviceId: deviceUuid,
+                location: cachedDeviceLocation || null
+              })
+            });
+
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.cdi && data.cdi.casetas && data.cdi.casetas[currentCaseta]) {
+                const cObj = data.cdi.casetas[currentCaseta];
+                counts.internos = cObj.internos || 0;
+                counts.externos = cObj.externos || 0;
+                counts.prestadores = cObj.prestadores || 0;
+                counts.visitas = cObj.visitas || 0;
+              }
+              if (data && data.cdi && data.cdi.totals) {
+                const totalGenEl = document.getElementById('totalGeneral');
+                if (totalGenEl) totalGenEl.textContent = data.cdi.totals.total || 0;
+              }
+              updateUI();
+              statusDot.className = 'status-dot';
+              statusDot.style.background = '#10b981';
+              statusText.textContent = 'En Vivo';
+              showToast();
+              if (typeof sendDeviceHeartbeat === 'function') {
+                sendDeviceHeartbeat();
+              }
+            } else {
+              throw new Error('Servidor retornó ' + res.status);
+            }
+          } catch (err) {
+            console.error('Error sincronizando CDI:', err);
+            if (BACKEND_BASE !== 'https://be-regas.segos911.workers.dev' && !BACKEND_BASE.includes('ngrok')) {
+              console.warn('[CDI] Reintentando incremento mediante Cloudflare Worker UBE...');
+              BACKEND_BASE = 'https://be-regas.segos911.workers.dev';
+              try {
+                const res2 = await fetch(`${BACKEND_BASE}/api/cdi/increment`, {
+                  method: 'POST',
+                  headers: API_HEADERS,
+                  body: JSON.stringify({
+                    fecha: currentDate,
+                    caseta: currentCaseta,
+                    categoria: cat,
+                    category: cat,
+                    count: deltaToSend,
+                    delta: deltaToSend,
+                    deviceId: deviceUuid,
+                    location: cachedDeviceLocation || null
+                  })
+                });
+                if (res2.ok) {
+                  const data = await res2.json();
+                  if (data && data.cdi && data.cdi.casetas) {
+                    const cObj = findCasetaInMap(data.cdi.casetas, currentCaseta);
+                    counts.internos = cObj.internos || 0;
+                    counts.externos = cObj.externos || 0;
+                    counts.prestadores = cObj.prestadores || 0;
+                    counts.visitas = cObj.visitas || 0;
+                  }
+                  if (data && data.cdi && data.cdi.totals) {
+                    const totalGenEl = document.getElementById('totalGeneral');
+                    if (totalGenEl) totalGenEl.textContent = data.cdi.totals.total || 0;
+                  }
+                  updateUI();
+                  statusDot.className = 'status-dot';
+                  statusDot.style.background = '#10b981';
+                  statusText.textContent = 'En Vivo';
+                  showToast();
+                  if (typeof sendDeviceHeartbeat === 'function') sendDeviceHeartbeat();
+                  return;
+                }
+              } catch (e2) {
+                console.warn('[CDI] Fallback worker también falló:', e2);
+              }
+            }
+            statusDot.className = 'status-dot offline';
+            statusText.textContent = 'Reintentando...';
+            pendingDeltas[cat] += deltaToSend;
+            updateUI();
+          }
+        }, 600);
+      };
+
+      // Toque en los 4 botones
+      document.querySelectorAll('.counter-btn').forEach(btn => {
+        btn.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          const cat = btn.dataset.cat;
+          if (!cat) return;
+
+          triggerHaptic(25);
+
+          const step = currentMode; // +1 o -1
+          const newCount = Math.max(0, (counts[cat] || 0) + step);
+          const effectiveDelta = newCount - (counts[cat] || 0);
+
+          if (effectiveDelta === 0 && step < 0) {
+            return;
+          }
+
+          counts[cat] = newCount;
+          pendingDeltas[cat] = (pendingDeltas[cat] || 0) + effectiveDelta;
+          updateUI();
+
+          queueDispatch(cat);
+        });
+      });
+
+      const normCasetaStr = s => String(s || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const findCasetaInMap = (map, target) => {
+        if (!map || typeof map !== 'object') return {};
+        if (map[target]) return map[target];
+        const targetNorm = normCasetaStr(target);
+        const k = Object.keys(map).find(key => normCasetaStr(key) === targetNorm);
+        return k ? map[k] : {};
+      };
+
+      // Cargar datos iniciales
+      let cdiRateLimitUntil = 0;
+      let evtSource = null;
+      const fetchCdiData = async () => {
+        if (Date.now() < cdiRateLimitUntil) return;
+        try {
+          const res = await fetch(`${BACKEND_BASE}/api/cdi?fecha=${currentDate}`, {
+            headers: API_HEADERS
+          });
+          if (res.status === 429) {
+            cdiRateLimitUntil = Date.now() + (10 * 60 * 1000);
+            statusDot.className = 'status-dot syncing';
+            statusText.textContent = 'Cuota Pausada (429)';
+            return;
+          }
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.cdi) {
+              const casObj = findCasetaInMap(data.cdi.casetas, currentCaseta);
+              counts.internos = casObj.internos || 0;
+              counts.externos = casObj.externos || 0;
+              counts.prestadores = casObj.prestadores || 0;
+              counts.visitas = casObj.visitas || 0;
+
+              const totalGenEl = document.getElementById('totalGeneral');
+              if (totalGenEl && data.cdi.totals) {
+                totalGenEl.textContent = data.cdi.totals.total || 0;
+              }
+            }
+            updateUI();
+            statusDot.className = 'status-dot';
+            statusDot.style.background = '#10b981';
+            statusText.textContent = 'En Vivo';
+          }
+        } catch (e) {
+          console.warn('Error al consultar datos CDI:', e);
+          if (BACKEND_BASE !== 'https://be-regas.segos911.workers.dev' && !BACKEND_BASE.includes('ngrok')) {
+            console.warn('[CDI] Fallback automático a Cloudflare Worker UBE...');
+            BACKEND_BASE = 'https://be-regas.segos911.workers.dev';
+            try {
+              const res2 = await fetch(`${BACKEND_BASE}/api/cdi?fecha=${currentDate}`, { headers: API_HEADERS });
+              if (res2.ok) {
+                const data = await res2.json();
+                if (data && data.cdi) {
+                  const casObj = findCasetaInMap(data.cdi.casetas, currentCaseta);
+                  counts.internos = casObj.internos || 0;
+                  counts.externos = casObj.externos || 0;
+                  counts.prestadores = casObj.prestadores || 0;
+                  counts.visitas = casObj.visitas || 0;
+                  const totalGenEl = document.getElementById('totalGeneral');
+                  if (totalGenEl && data.cdi.totals) totalGenEl.textContent = data.cdi.totals.total || 0;
+                }
+                updateUI();
+                statusDot.className = 'status-dot';
+                statusDot.style.background = '#10b981';
+                statusText.textContent = 'En Vivo';
+                return;
+              }
+            } catch (e2) {
+              console.warn('[CDI] Error en fallback worker:', e2);
+            }
+          }
+          statusDot.className = 'status-dot offline';
+          statusText.textContent = 'Sin conexión';
+        }
+      };
+
+      // SSE en vivo
+      const initSse = () => {
+        try {
+          if (evtSource) {
+            try { evtSource.close(); } catch(e) {}
+          }
+          evtSource = new EventSource(`${BACKEND_BASE}/api/events`);
+          evtSource.onopen = () => {
+            statusDot.className = 'status-dot';
+            statusDot.style.background = '#10b981';
+            statusText.textContent = 'En Vivo';
+          };
+          evtSource.onerror = () => {
+            statusDot.className = 'status-dot syncing';
+            statusText.textContent = 'Reconectando';
+          };
+          evtSource.onmessage = (e) => {
+            try {
+              const msg = JSON.parse(e.data);
+              if (msg && msg.type === 'cdi_force_reload' && msg.payload) {
+                const target = msg.payload.targetDeviceId || 'all';
+                if (target === 'all' || target === deviceUuid) {
+                  if (typeof handleRemoteForceReload === 'function') {
+                    handleRemoteForceReload(msg.payload.timestamp);
+                  }
+                  return;
+                }
+              }
+              // Aplicar features en tiempo real cuando el operador cambia checkboxes
+              if (msg && msg.type === 'cdi_device_update' && msg.payload) {
+                const updDev = msg.payload;
+                if (updDev && (updDev.deviceId === deviceUuid || updDev._id === deviceUuid)) {
+                  if (updDev.features) {
+                    applyDeviceFeatures(updDev.features);
+                  }
+                }
+              }
+              if (msg && msg.type === 'cdi_update' && msg.payload) {
+                const data = msg.payload;
+                if (data.fecha === currentDate || (data.cdi && data.cdi.fecha === currentDate)) {
+                  const hasPending = Object.values(pendingDeltas).some(v => v !== 0);
+                  if (data.cdi && data.cdi.casetas && !hasPending) {
+                    const casObj = findCasetaInMap(data.cdi.casetas, currentCaseta);
+                    counts.internos = casObj.internos || 0;
+                    counts.externos = casObj.externos || 0;
+                    counts.prestadores = casObj.prestadores || 0;
+                    counts.visitas = casObj.visitas || 0;
+                    updateUI();
+                  } else if (data.caseta && data.casetaCounts && !hasPending) {
+                    if (normCasetaStr(data.caseta) === normCasetaStr(currentCaseta)) {
+                      counts.internos = data.casetaCounts.internos || 0;
+                      counts.externos = data.casetaCounts.externos || 0;
+                      counts.prestadores = data.casetaCounts.prestadores || 0;
+                      counts.visitas = data.casetaCounts.visitas || 0;
+                      updateUI();
+                    }
+                  }
+                  const tGen = data.totals?.total ?? data.cdi?.totals?.total;
+                  if (typeof tGen === 'number') {
+                    const totalGenEl = document.getElementById('totalGeneral');
+                    if (totalGenEl) totalGenEl.textContent = tGen;
+                  }
+                }
+              }
+            } catch (err) {}
+          };
+        } catch (e) {
+          console.warn('SSE no disponible:', e);
+        }
+      };
+
+      // =========================================================================
+      // GESTIÓN DE INFORMACIÓN DEL DISPOSITIVO Y TECNOLOGÍA DE ACTUALIZACIÓN REMOTA
+      // =========================================================================
+      let deviceUuid = localStorage.getItem('regas_cdi_device_uuid');
+      if (!deviceUuid) {
+        deviceUuid = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 8);
+        localStorage.setItem('regas_cdi_device_uuid', deviceUuid);
+      }
+
+      let lastReloadApplied = parseInt(localStorage.getItem('regas_cdi_last_reload_applied') || '0', 10);
+      let isReloading = false;
+
+      async function handleRemoteForceReload(reloadTs) {
+        if (isReloading) return;
+        const tsNum = Number(reloadTs) || Date.now();
+        if (tsNum <= lastReloadApplied) return;
+        isReloading = true;
+        lastReloadApplied = tsNum;
+        localStorage.setItem('regas_cdi_last_reload_applied', String(tsNum));
+
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,0.96);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999999;font-family:system-ui,-apple-system,sans-serif;padding:24px;text-align:center;box-sizing:border-box;';
+        overlay.innerHTML = `
+          <div style="font-size: 3.2rem; margin-bottom: 14px; animation: spin 1s linear infinite;">🔄</div>
+          <h3 style="margin: 0 0 10px 0; font-size: 1.3rem; font-weight: 800; color: #38bdf8; letter-spacing: -0.01em;">Actualizando CDI Móvil</h3>
+          <p style="margin: 0 0 16px 0; font-size: 0.9rem; color: #94a3b8; max-width: 320px; line-height: 1.5;">El servidor ha enviado una solicitud de actualización. Purgando caché local e instalando el nuevo Dock compacto...</p>
+          <div style="width: 200px; height: 6px; background: rgba(255,255,255,0.15); border-radius: 999px; overflow: hidden; position: relative;">
+            <div style="width: 100%; height: 100%; background: #38bdf8; animation: pulseSync 1s infinite alternate;"></div>
+          </div>
+        `;
+        document.body.appendChild(overlay);
+
+        try {
+          if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (const reg of registrations) {
+              await reg.update().catch(() => {});
+              await reg.unregister().catch(() => {});
+            }
+          }
+        } catch (e) {}
+
+        try {
+          if ('caches' in window) {
+            const keys = await caches.keys();
+            for (const k of keys) {
+              await caches.delete(k);
+            }
+          }
+        } catch (e) {}
+
+        setTimeout(() => {
+          const url = new URL(window.location.href);
+          url.searchParams.set('_v', Date.now().toString());
+          window.location.replace(url.toString());
+        }, 900);
+      }
+
+      function detectDeviceInfo() {
+        const ua = navigator.userAgent || '';
+        let model = 'Dispositivo Web';
+        let type = 'pc';
+
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) || (navigator.userAgentData && navigator.userAgentData.mobile);
+        type = isMobile ? 'mobile' : 'pc';
+
+        if (/iPhone/i.test(ua)) {
+          model = 'Apple iPhone';
+        } else if (/iPad/i.test(ua)) {
+          model = 'Apple iPad';
+          type = 'mobile';
+        } else if (/Android/i.test(ua)) {
+          const match = ua.match(/Android[^;]+;\s*([^;)]+)\)/i);
+          if (match && match[1]) {
+            model = match[1].replace(/Build\/.*/i, '').trim();
+          } else {
+            model = 'Android';
+          }
+        } else if (/Windows NT/i.test(ua)) {
+          model = 'PC Windows';
+        } else if (/Macintosh|Mac OS X/i.test(ua)) {
+          model = 'Mac (macOS)';
+        } else if (/Linux/i.test(ua)) {
+          model = 'PC Linux';
+        }
+
+        if (navigator.userAgentData && navigator.userAgentData.platform) {
+          if (!model.includes('Android') && !model.includes('iPhone')) {
+            model = `${model} (${navigator.userAgentData.platform})`;
+          }
+        }
+
+        return { model, type };
+      }
+
+      const { model: deviceModel, type: deviceType } = detectDeviceInfo();
+      let cachedDeviceLocation = null;
+      let isRequestingLocation = false;
+
+      function requestDeviceLocation(onLocationReady) {
+        if (!navigator.geolocation) {
+          cachedDeviceLocation = { status: 'unsupported', error: 'GPS no soportado' };
+          if (onLocationReady) onLocationReady(cachedDeviceLocation);
+          return;
+        }
+
+        if (typeof window !== 'undefined' && window.isSecureContext === false) {
+          cachedDeviceLocation = { status: 'error', error: 'Red local HTTP (Requiere HTTPS para GPS de hardware)' };
+          if (onLocationReady) onLocationReady(cachedDeviceLocation);
+          return;
+        }
+
+        if (isRequestingLocation) return;
+        isRequestingLocation = true;
+
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            isRequestingLocation = false;
+            cachedDeviceLocation = {
+              status: 'ok',
+              lat: Number(pos.coords.latitude.toFixed(6)),
+              lng: Number(pos.coords.longitude.toFixed(6)),
+              accuracy: Math.round(pos.coords.accuracy),
+              timestamp: pos.timestamp
+            };
+            if (onLocationReady) onLocationReady(cachedDeviceLocation);
+          },
+          (err) => {
+            isRequestingLocation = false;
+            let errText = 'GPS no disponible';
+            const rawMsg = (err && err.message) ? err.message : '';
+            if (/secure origins|permanently-removed|insecure/i.test(rawMsg) || (typeof window !== 'undefined' && window.isSecureContext === false)) {
+              errText = 'Red local HTTP (Requiere HTTPS para GPS de hardware)';
+            } else if (err.code === 1) {
+              errText = 'Permiso GPS denegado por el usuario';
+            } else if (err.code === 2) {
+              errText = 'Señal GPS no disponible';
+            } else if (err.code === 3) {
+              errText = 'Tiempo de espera GPS agotado';
+            } else if (rawMsg) {
+              errText = rawMsg;
+            }
+            cachedDeviceLocation = { status: 'error', error: errText };
+            if (onLocationReady) onLocationReady(cachedDeviceLocation);
+          },
+          { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }
+        );
+      }
+
+      async function sendDeviceHeartbeat() {
+        const payload = {
+          deviceId: deviceUuid,
+          deviceModel: deviceModel,
+          deviceType: deviceType, // 'mobile' | 'pc'
+          caseta: currentCaseta,
+          location: cachedDeviceLocation,
+          lastReloadApplied: lastReloadApplied,
+          lastSeen: new Date().toISOString(),
+          timestamp: Date.now()
+        };
+
+        if (BACKEND_BASE) {
+          try {
+            const res = await fetch(`${BACKEND_BASE}/api/cdi/device-heartbeat`, {
+              method: 'POST',
+              headers: API_HEADERS,
+              body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.forceReload) {
+                handleRemoteForceReload(data.reloadTimestamp);
+              }
+              // Aplicar features que el servidor indica para este dispositivo
+              if (data && data.features) {
+                applyDeviceFeatures(data.features);
+              }
+            }
+          } catch (err) {}
+        }
+      }
+
+      // Botón manual de versión y recarga forzada en header
+      const btnVersionBadge = document.getElementById('btnVersionBadge');
+      if (btnVersionBadge) {
+        btnVersionBadge.addEventListener('click', () => {
+          if (confirm('¿Deseas forzar la actualización de CDI Móvil a la versión más reciente v271? Esto limpiará la memoria caché local y recargará la pantalla.')) {
+            handleRemoteForceReload(Date.now() + 1000);
+          }
+        });
+      }
+
+      // Enviar reporte inicial de dispositivo y solicitar geolocalización
+      sendDeviceHeartbeat();
+      requestDeviceLocation(() => {
+        sendDeviceHeartbeat();
+      });
+
+      // Reintentar geolocalización periódicamente (cada 60s) si no se tiene posición fija
+      setInterval(() => {
+        if (!cachedDeviceLocation || cachedDeviceLocation.status !== 'ok') {
+          requestDeviceLocation(() => {
+            sendDeviceHeartbeat();
+          });
+        }
+      }, 60000);
+
+      // Heartbeat periódico cada 25s
+      setInterval(sendDeviceHeartbeat, 25000);
+
+      // Heartbeat al reenfocar la pantalla
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+          sendDeviceHeartbeat();
+        }
+      });
+
+      fetchCdiData();
+      initSse();
+
+      // Failsafe polling inteligente: solo si la pestaña está visible y SSE no está conectado
+      let failsafeTicks = 0;
+      setInterval(() => {
+        if (typeof document !== 'undefined' && document.hidden) return;
+        if (Date.now() < cdiRateLimitUntil) return;
+        failsafeTicks++;
+        const isSseConnected = Boolean(evtSource && evtSource.readyState === 1);
+        // Si SSE está conectado, solo hacer comprobación pasiva cada 2 minutos (15 ticks x 8s)
+        if (isSseConnected && (failsafeTicks % 15 !== 0)) return;
+
+        const hasPending = Object.values(pendingDeltas).some(v => v !== 0);
+        if (!hasPending) {
+          fetchCdiData();
+        }
+      }, 8000);
+    })();
+  </script>
+</body>
+</html>

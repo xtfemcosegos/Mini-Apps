@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>CIC — Mini Apps (CDI, Checador, Recorridos, Bitácora)</title>
+  
+  <!-- PWA & Mobile Meta Tags -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Mini Apps">
+  <meta name="application-name" content="CIC Mini Apps">
+  <meta name="description" content="Suite de micro-aplicaciones táctiles operativas CIC OS 3: Conteo Dinámico de Ingresos (CDI), Checador Facial IA, Recorridos GPS y Bitácoras.">
+
+  <!-- Iconos PWA & Favicon -->
+  <link rel="icon" type="image/x-icon" href="./iconos/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="./iconos/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./iconos/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./iconos/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="./iconos/icon-192.png">
+
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Registro Automático de Service Worker para PWA -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js?v=7')
+          .then((reg) => {
+            console.log('[PWA] Service Worker activo con alcance:', reg.scope);
+          })
+          .catch((err) => {
+            console.warn('[PWA] Fallo al registrar Service Worker:', err);
+          });
+      });
+    }
+  </script>
+
+  <script type="module" src="./src/main.jsx"></script>
+</body>
+</html>

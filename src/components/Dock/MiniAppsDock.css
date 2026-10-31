@@ -1,0 +1,124 @@
+.miniapps-dock-wrapper {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 12px calc(env(safe-area-inset-bottom, 8px) + 6px);
+  background: var(--dock-fade);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 1000;
+  pointer-events: none;
+  transition: background 0.25s ease;
+}
+
+.miniapps-dock-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--dock-bg);
+  border: 1px solid var(--dock-border);
+  border-radius: 24px;
+  padding: 5px 8px;
+  box-shadow: var(--dock-shadow);
+  pointer-events: auto;
+  max-width: 400px;
+  width: 100%;
+  justify-content: space-around;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.dock-item-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 5px 8px;
+  border-radius: 16px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  flex: 1;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.dock-item-btn:hover {
+  background: var(--dock-btn-hover);
+}
+
+.dock-item-btn:active {
+  transform: scale(0.92);
+}
+
+.dock-item-btn.active {
+  background: var(--dock-btn-active);
+}
+
+.dock-item-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--dock-accent, #2563eb);
+  box-shadow: 0 0 6px var(--dock-accent, #2563eb);
+}
+
+.dock-icon-squircle {
+  width: 35px;
+  height: 35px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+}
+
+.dock-item-btn.active .dock-icon-squircle {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.25);
+}
+
+.icon-cdi {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  --dock-accent: #2563eb;
+}
+
+.icon-checador {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  --dock-accent: #059669;
+}
+
+.icon-recorridos {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  --dock-accent: #0284c7;
+}
+
+.icon-bitacora {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  --dock-accent: #7c3aed;
+}
+
+.dock-item-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--dock-text);
+  letter-spacing: 0.01em;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.dock-item-btn.active .dock-item-label {
+  color: var(--dock-text-active);
+  font-weight: 800;
+}

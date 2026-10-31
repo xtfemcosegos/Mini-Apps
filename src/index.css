@@ -1,0 +1,119 @@
+:root, [data-theme="light"] {
+  --theme-mode: light;
+  --bg-body: #f1f5f9;
+  --bg-shell: radial-gradient(circle at 50% -10%, #ffffff 0%, #f1f5f9 60%, #e2e8f0 100%);
+  --bg-card: #ffffff;
+  --bg-card-subtle: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-input: #ffffff;
+  --border-card: rgba(148, 163, 184, 0.28);
+  --border-subtle: rgba(226, 232, 240, 0.9);
+  --border-focus: #2563eb;
+  --text-main: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-dim: #94a3b8;
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 14px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 10px 25px -3px rgba(15, 23, 42, 0.1), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
+  
+  --dock-bg: rgba(255, 255, 255, 0.92);
+  --dock-border: rgba(148, 163, 184, 0.35);
+  --dock-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(15, 23, 42, 0.06);
+  --dock-fade: linear-gradient(180deg, rgba(241, 245, 249, 0) 0%, rgba(241, 245, 249, 0.88) 45%, rgba(241, 245, 249, 0.98) 100%);
+  --dock-btn-hover: rgba(15, 23, 42, 0.05);
+  --dock-btn-active: rgba(37, 99, 235, 0.1);
+  --dock-text: #64748b;
+  --dock-text-active: #0f172a;
+
+  --total-banner-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  --total-banner-text: #ffffff;
+  --total-banner-sub: #94a3b8;
+
+  --primary: #2563eb;
+  --accent-green: #059669;
+  --accent-amber: #d97706;
+  --accent-purple: #7c3aed;
+  --accent-cyan: #0284c7;
+  --accent-red: #ef4444;
+}
+
+[data-theme="dark"] {
+  --theme-mode: dark;
+  --bg-body: #090d16;
+  --bg-shell: radial-gradient(circle at 50% 0%, #1e293b 0%, #090d16 80%);
+  --bg-card: #101626;
+  --bg-card-subtle: #182238;
+  --bg-surface: #131c31;
+  --bg-input: #0f172a;
+  --border-card: rgba(255, 255, 255, 0.1);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-focus: #38bdf8;
+  --text-main: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 14px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.5);
+
+  --dock-bg: rgba(30, 41, 59, 0.88);
+  --dock-border: rgba(255, 255, 255, 0.12);
+  --dock-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.6);
+  --dock-fade: linear-gradient(180deg, rgba(9, 13, 22, 0) 0%, rgba(9, 13, 22, 0.85) 45%, rgba(9, 13, 22, 0.98) 100%);
+  --dock-btn-hover: rgba(255, 255, 255, 0.08);
+  --dock-btn-active: rgba(255, 255, 255, 0.14);
+  --dock-text: #94a3b8;
+  --dock-text-active: #f8fafc;
+
+  --total-banner-bg: linear-gradient(135deg, #182238 0%, #0d1424 100%);
+  --total-banner-text: #f8fafc;
+  --total-banner-sub: #38bdf8;
+
+  --primary: #3b82f6;
+  --accent-green: #10b981;
+  --accent-amber: #f59e0b;
+  --accent-purple: #8b5cf6;
+  --accent-cyan: #38bdf8;
+  --accent-red: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg-body);
+  color: var(--text-main);
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+.miniapps-app-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: var(--bg-shell);
+  overflow: hidden;
+  transition: background 0.25s ease;
+}
+
+.miniapps-content-view {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}

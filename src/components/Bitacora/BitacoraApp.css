@@ -1,0 +1,166 @@
+.bitacora-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 10px 14px calc(env(safe-area-inset-bottom, 12px) + 84px) 14px;
+  box-sizing: border-box;
+  color: var(--text-main);
+}
+
+.bitacora-header-card {
+  background: var(--bg-card);
+  border-radius: 20px;
+  padding: 14px 16px;
+  border: 1px solid var(--border-card);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 12px;
+}
+
+.bitacora-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.bitacora-title-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bitacora-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.bitacora-template-selector {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: var(--bg-input);
+  border: 1.5px solid var(--border-card);
+  color: var(--text-main);
+  font-weight: 700;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+/* FORM WRAPPER */
+.bitacora-form-scroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 2px;
+}
+
+.form-group-card {
+  background: rgba(30, 41, 59, 0.6);
+  border-radius: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.field-input, .field-textarea, .field-select {
+  background: #090d16;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 9px 12px;
+  color: #f8fafc;
+  font-size: 0.88rem;
+  font-weight: 600;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.field-input:focus, .field-textarea:focus, .field-select:focus {
+  border-color: #8b5cf6;
+}
+
+.field-textarea {
+  min-height: 70px;
+  resize: vertical;
+}
+
+/* CHECKLIST MATRIX */
+.checklist-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.checklist-item:last-child {
+  border-bottom: none;
+}
+
+.checklist-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  flex: 1;
+}
+
+.checklist-options {
+  display: flex;
+  gap: 4px;
+}
+
+.opt-pill {
+  padding: 4px 9px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.opt-pill.active {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+}
+
+/* SUBMIT BUTTON */
+.btn-submit-bitacora {
+  width: 100%;
+  padding: 13px 0;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  color: #ffffff;
+  font-size: 0.98rem;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+  transition: all 0.2s ease;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-submit-bitacora:active {
+  transform: scale(0.98);
+}

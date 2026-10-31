@@ -1,0 +1,3124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>RegAs 3 — Recorridos de Seguridad Móvil</title>
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2'><polygon points='1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6'/><line x1='8' y1='2' x2='8' y2='18'/><line x1='16' y1='6' x2='16' y2='22'/></svg>">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --bg-card: #131b2e;
+      --bg-surface: #1e293b;
+      --bg-input: #0f172a;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #38bdf8;
+      --accent-green: #10b981;
+      --accent-emerald: #059669;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-purple: #8b5cf6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --border-active: rgba(56, 189, 248, 0.5);
+      --radius: 14px;
+      --radius-sm: 8px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font);
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding-bottom: 2rem;
+      overflow-x: hidden;
+    }
+
+    /* HEADER */
+    .mobile-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #2563eb, #38bdf8);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.1rem;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+    }
+
+    .brand-app-name {
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      background: linear-gradient(to right, #ffffff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-status-pills {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .status-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid transparent;
+    }
+
+    .status-pill.online {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .status-pill.gps-lock {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border-color: rgba(56, 189, 248, 0.3);
+    }
+
+    .status-pill.gps-search {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border-color: rgba(245, 158, 11, 0.3);
+      animation: pulseAnim 1.5s infinite;
+    }
+
+    @keyframes pulseAnim {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* CONTAINER & VIEWS */
+    .mobile-container {
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .view-step {
+      display: none;
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+
+    .view-step.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* CARDS */
+    .app-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 1.15rem;
+      margin-bottom: 1rem;
+      box-shadow: var(--shadow);
+    }
+
+    .card-header-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #f1f5f9;
+    }
+
+    .card-header-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      line-height: 1.4;
+    }
+
+    /* FORM CONTROLS */
+    .form-group {
+      margin-bottom: 0.9rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-bottom: 0.35rem;
+    }
+
+    .form-subtitle {
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      margin-top: -0.2rem;
+      margin-bottom: 0.35rem;
+      line-height: 1.3;
+    }
+
+    .form-control {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      padding: 0.65rem 0.85rem;
+      font-size: 0.92rem;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+    }
+
+    textarea.form-control {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    /* RECORRIDO SELECTOR CARDS */
+    .type-card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .type-card-btn {
+      background: var(--bg-surface);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 1rem 0.75rem;
+      text-align: center;
+      cursor: pointer;
+      color: var(--text-main);
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .type-card-btn.selected {
+      border-color: #38bdf8;
+      background: rgba(37, 99, 235, 0.18);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
+    }
+
+    .type-card-icon {
+      font-size: 1.8rem;
+    }
+
+    .type-card-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .type-card-badge {
+      font-size: 0.68rem;
+      padding: 2px 6px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+    }
+
+    /* BUTTONS */
+    .btn-action {
+      width: 100%;
+      padding: 0.85rem 1.25rem;
+      border-radius: var(--radius);
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-primary-action {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #ffffff;
+    }
+
+    .btn-primary-action:active {
+      transform: scale(0.98);
+      background: #1d4ed8;
+    }
+
+    .btn-success-action {
+      background: linear-gradient(135deg, #059669, #047857);
+      color: #ffffff;
+    }
+
+    .btn-danger-action {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      color: #ffffff;
+    }
+
+    .btn-outline-action {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    /* ACTIVE MONITORING HUD */
+    .hud-banner {
+      background: linear-gradient(135deg, rgba(5, 150, 105, 0.25), rgba(16, 185, 129, 0.1));
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      border-radius: var(--radius);
+      padding: 0.85rem 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .hud-pulse-circle {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: hudPulse 1.8s infinite;
+      display: inline-block;
+      margin-right: 6px;
+    }
+
+    @keyframes hudPulse {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    .hud-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.4rem;
+      margin-bottom: 0.75rem;
+    }
+
+    @media (max-width: 380px) {
+      .hud-metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .hud-metric-pill {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 0.5rem;
+      text-align: center;
+    }
+
+    .hud-metric-val {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #38bdf8;
+      font-family: monospace, monospace;
+    }
+
+    .hud-metric-lbl {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    /* MINI MAP & SEGUIMIENTO GPS */
+    .mini-map-container {
+      width: 100%;
+      height: 220px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+      margin-bottom: 0.4rem;
+      position: relative;
+      background: #0b1120;
+      transition: height 0.25s ease;
+    }
+
+    .mini-map-container.expanded {
+      height: 380px;
+    }
+
+    #mobileMiniMap {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* CONTROLES FLOTANTES EN EL MAPA MÓVIL */
+    .map-top-bar {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      right: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 500;
+      pointer-events: none;
+    }
+
+    .map-status-pill {
+      pointer-events: auto;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #34d399;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    .map-status-pill.paused {
+      color: #f59e0b;
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    .map-accuracy-pill {
+      pointer-events: auto;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 4px 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    .map-bottom-controls {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      right: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      z-index: 500;
+      pointer-events: none;
+    }
+
+    .map-bottom-left, .map-bottom-right {
+      display: flex;
+      gap: 6px;
+      pointer-events: auto;
+    }
+
+    .btn-map-follow-toggle {
+      background: #10b981;
+      color: #ffffff;
+      border: none;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(16, 185, 129, 0.45);
+      transition: all 0.2s ease;
+    }
+
+    .btn-map-follow-toggle.paused {
+      background: rgba(30, 41, 59, 0.92);
+      color: #f1f5f9;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    .btn-map-mini-icon {
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #f8fafc;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.85rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      transition: all 0.2s ease;
+    }
+
+    .btn-map-mini-icon:active {
+      transform: scale(0.92);
+    }
+
+    /* BARRA DE INFORMACIÓN DE GPS DEBAJO DEL MAPA */
+    .map-info-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 5px 10px;
+      margin-bottom: 0.85rem;
+    }
+
+    .map-info-bar b {
+      color: #38bdf8;
+      font-family: monospace;
+    }
+
+    /* TARJETA CAMPO GPS DINÁMICO */
+    .gps-field-card {
+      background: var(--bg-surface);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .gps-field-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #38bdf8;
+      font-family: monospace;
+    }
+
+    .gps-field-meta {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* ANIMACIÓN MARCADOR OFICIAL MÓVIL */
+    .custom-guard-leaflet-icon {
+      background: transparent !important;
+      border: none !important;
+    }
+
+    .mobile-guard-marker {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mobile-guard-pulse {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(37, 99, 235, 0.45);
+      animation: mobilePulse 1.8s infinite;
+      z-index: 1;
+    }
+
+    .mobile-guard-icon-core {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #2563eb;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid white;
+      box-shadow: 0 0 10px rgba(37,99,235,0.8);
+      font-size: 14px;
+      position: relative;
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    .guard-marker-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      display: block;
+    }
+
+    @keyframes mobilePulse {
+      0% { transform: scale(0.6); opacity: 1; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+
+    /* CHECKLIST MATRIX TOUCH STYLING */
+    .touch-matrix-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 6px;
+      margin-top: 0.4rem;
+    }
+
+    .touch-matrix-row {
+      background: var(--bg-surface);
+      border-radius: var(--radius-sm);
+    }
+
+    .touch-matrix-label {
+      padding: 0.6rem 0.75rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      border-top-left-radius: var(--radius-sm);
+      border-bottom-left-radius: var(--radius-sm);
+    }
+
+    .touch-matrix-options {
+      padding: 0.4rem 0.5rem;
+      text-align: right;
+      border-top-right-radius: var(--radius-sm);
+      border-bottom-right-radius: var(--radius-sm);
+      white-space: nowrap;
+    }
+
+    .btn-touch-opt {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      margin-left: 3px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-touch-opt.active-good {
+      background: #059669;
+      color: #ffffff;
+      border-color: #10b981;
+    }
+
+    .btn-touch-opt.active-warn {
+      background: #d97706;
+      color: #ffffff;
+      border-color: #f59e0b;
+    }
+
+    .btn-touch-opt.active-bad {
+      background: #dc2626;
+      color: #ffffff;
+      border-color: #ef4444;
+    }
+
+    .btn-touch-opt.active-na {
+      background: #475569;
+      color: #ffffff;
+      border-color: #64748b;
+    }
+
+    /* PHOTO CAPTURE PREVIEW */
+    .photo-capture-box {
+      border: 2px dashed var(--border-color);
+      border-radius: var(--radius);
+      padding: 1rem;
+      text-align: center;
+      background: var(--bg-input);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .photo-preview-img {
+      max-width: 100%;
+      max-height: 160px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      display: none;
+      margin: 0.5rem auto;
+    }
+
+    /* CANVAS SIGNATURE */
+    .signature-pad-container {
+      background: #ffffff;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--border-color);
+      touch-action: none;
+      position: relative;
+      margin-top: 0.4rem;
+    }
+
+    #signatureCanvas {
+      width: 100%;
+      height: 130px;
+      display: block;
+      cursor: crosshair;
+    }
+
+    .sig-clear-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      padding: 3px 8px;
+      font-size: 0.7rem;
+      border-radius: 4px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* STAR RATING */
+    .star-rating-box {
+      display: flex;
+      gap: 0.5rem;
+      font-size: 1.6rem;
+      cursor: pointer;
+      color: #475569;
+      margin: 0.3rem 0;
+    }
+
+    .star-rating-box .star.active {
+      color: #fbbf24;
+    }
+
+    /* TOAST */
+    .toast-msg {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      color: white;
+      padding: 0.7rem 1.2rem;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      z-index: 9999;
+      display: none;
+      animation: toastIn 0.3s ease-out forwards;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translate(-50%, 15px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    /* SOCIO SEARCH COMPONENT */
+    .socio-search-box {
+      margin-bottom: 1rem;
+    }
+
+    .socio-input-wrap {
+      display: flex;
+      gap: 0.5rem;
+      align-items: stretch;
+      margin-top: 0.35rem;
+    }
+
+    .socio-input-field {
+      flex: 1;
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      font-family: monospace, -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 0.75rem 0.9rem;
+      background: var(--bg-input);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .socio-input-field:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+    }
+
+    .btn-search-socio {
+      padding: 0 1.15rem;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .btn-search-socio:active {
+      transform: scale(0.97);
+      background: #1d4ed8;
+    }
+
+    /* MATCH CANDIDATES LIST */
+    .socio-results-dropdown {
+      margin-top: 0.4rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-active);
+      border-radius: var(--radius-sm);
+      max-height: 200px;
+      overflow-y: auto;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+      display: none;
+    }
+
+    .socio-result-item {
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.15s ease;
+    }
+
+    .socio-result-item:last-child {
+      border-bottom: none;
+    }
+
+    .socio-result-item:hover, .socio-result-item:active {
+      background: rgba(56, 189, 248, 0.18);
+    }
+
+    .socio-result-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+
+    .socio-result-meta {
+      font-size: 0.73rem;
+      color: var(--text-muted);
+    }
+
+    .socio-result-badge {
+      font-size: 0.75rem;
+      font-weight: 800;
+      font-family: monospace;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    /* SELECTED OFFICER CARD */
+    .officer-selected-card {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(16, 185, 129, 0.1));
+      border: 1.5px solid rgba(56, 189, 248, 0.45);
+      border-radius: var(--radius);
+      padding: 0.85rem 1rem;
+      margin-top: 0.5rem;
+      display: none;
+      align-items: center;
+      gap: 0.85rem;
+      position: relative;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .officer-selected-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #1e293b;
+      border: 2px solid #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      flex-shrink: 0;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .officer-selected-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .officer-selected-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .officer-selected-name {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+
+    .officer-selected-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 3px;
+    }
+
+    .officer-pill {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .officer-pill.socio-id {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      font-family: monospace;
+    }
+
+    .officer-pill.puesto {
+      background: rgba(139, 92, 246, 0.15);
+      color: #c084fc;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .officer-pill.verified {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-clear-officer {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 5px 9px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      align-self: flex-start;
+    }
+
+    .btn-clear-officer:hover, .btn-clear-officer:active {
+      background: rgba(239, 68, 68, 0.18);
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    /* RECENT SOCIO QUICK CHIP */
+    .recent-socio-chip {
+      margin-top: 0.45rem;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .recent-socio-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+      padding: 3px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.74rem;
+      font-weight: 700;
+      font-family: monospace;
+      transition: all 0.15s ease;
+    }
+
+    .recent-socio-btn:active {
+      background: rgba(56, 189, 248, 0.2);
+    }
+
+    /* STATUS FEEDBACK MESSAGE */
+    .socio-feedback-msg {
+      margin-top: 0.4rem;
+      font-size: 0.78rem;
+      display: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+      line-height: 1.4;
+    }
+
+    .socio-feedback-msg.error {
+      background: rgba(239, 68, 68, 0.15);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+
+    .socio-feedback-msg.info {
+      background: rgba(56, 189, 248, 0.15);
+      color: #7dd3fc;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="mobile-header">
+    <div class="brand-title-wrap">
+      <div class="brand-logo-icon">🛡️</div>
+      <div>
+        <div class="brand-app-name">RegAs 3 Recorridos</div>
+      </div>
+    </div>
+    <div class="header-status-pills">
+      <span class="status-pill online" id="pillConnection">🟢 En Línea</span>
+      <span class="status-pill gps-search" id="pillGps">📍 GPS Buscando</span>
+    </div>
+  </header>
+
+  <main class="mobile-container">
+
+    <!-- PASO 1: INICIO DE RECORRIDO (SELECCIÓN DE OFICIAL Y TIPO) -->
+    <section class="view-step active" id="stepStartRecorrido">
+      <div class="app-card">
+        <h2 class="card-header-title">
+          <span>🚶 Iniciar Recorrido Operativo</span>
+        </h2>
+        <p class="card-header-desc">
+          Selecciona tu perfil de oficial y la modalidad de patrullaje a realizar. La aplicación transmitirá tu posición en tiempo real al Centro de Control.
+        </p>
+
+        <!-- Búsqueda de Oficial por No. de Socio -->
+        <div class="form-group socio-search-box">
+          <label class="form-label" for="inputGuardSocio">👮 Número de Socio del Oficial:</label>
+          <div class="form-subtitle">Ingresa tu número de socio para identificarte en el recorrido</div>
+
+          <!-- Campo de búsqueda -->
+          <div class="socio-input-wrap" id="socioInputWrap">
+            <input 
+              type="tel" 
+              id="inputGuardSocio" 
+              class="socio-input-field" 
+              placeholder="Ej. 3750920" 
+              inputmode="numeric" 
+              pattern="[0-9]*" 
+              autocomplete="off" 
+              autocapitalize="off" 
+              spellcheck="false"
+            >
+            <button type="button" id="btnBuscarSocio" class="btn-search-socio">
+              <span>🔍</span>
+              <span>Buscar</span>
+            </button>
+          </div>
+
+          <!-- Coincidencias al escribir -->
+          <div class="socio-results-dropdown" id="socioResultsDropdown"></div>
+
+          <!-- Mensaje de retroalimentación / error -->
+          <div class="socio-feedback-msg" id="socioFeedbackMsg"></div>
+
+          <!-- Chip de último socio usado en este dispositivo -->
+          <div class="recent-socio-chip" id="recentSocioChip">
+            <span>Último usado:</span>
+            <button type="button" class="recent-socio-btn" id="btnUseRecentSocio"></button>
+          </div>
+
+          <!-- Tarjeta de Oficial Seleccionado -->
+          <div class="officer-selected-card" id="cardSelectedOfficer">
+            <div class="officer-selected-avatar" id="officerAvatarWrap">
+              <span id="officerAvatarEmoji">👮</span>
+            </div>
+            <div class="officer-selected-info">
+              <div class="officer-selected-name" id="officerSelectedName">Nombre Oficial</div>
+              <div class="officer-selected-pills">
+                <span class="officer-pill socio-id" id="officerSelectedSocio">Socio #---</span>
+                <span class="officer-pill puesto" id="officerSelectedPuesto">Seguridad</span>
+                <span class="officer-pill verified">✓ Verificado</span>
+              </div>
+            </div>
+            <button type="button" class="btn-clear-officer" id="btnClearOfficer" title="Cambiar oficial">
+              Cambiar
+            </button>
+          </div>
+        </div>
+
+        <!-- Caseta / Sector Origen -->
+        <div class="form-group">
+          <label class="form-label" for="selectGuardCaseta">Caseta / Sector de Origen:</label>
+          <select id="selectGuardCaseta" class="form-control">
+            <option value="Edison">Caseta Edison</option>
+            <option value="Impulso">Caseta Impulso</option>
+            <option value="Michelena">Caseta Michelena</option>
+            <option value="Carranza">Caseta Carranza</option>
+            <option value="Simón Bolívar">Simón Bolívar // Call Center</option>
+            <option value="Recepción Edison">Recepción Edison</option>
+            <option value="Centro de Control">Centro de Control OS</option>
+          </select>
+        </div>
+
+        <!-- Selector de Tipo de Recorrido -->
+        <label class="form-label">Tipo de Recorrido a Ejecutar:</label>
+        <div class="type-card-grid">
+          <div class="type-card-btn selected" id="btnTypePerimetral" data-type="recorrido_perimetral">
+            <div class="type-card-icon">🛡️</div>
+            <div class="type-card-title">Perimetral</div>
+            <div class="type-card-badge">Accesos y Bardas</div>
+          </div>
+          <div class="type-card-btn" id="btnTypeInterior" data-type="recorrido_interior">
+            <div class="type-card-icon">🏢</div>
+            <div class="type-card-title">Interior</div>
+            <div class="type-card-badge">Racks e Instalaciones</div>
+          </div>
+        </div>
+
+        <!-- Botón de Inicio -->
+        <button type="button" class="btn-action btn-primary-action" id="btnStartPatrol">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          <span>INICIAR RECORRIDO Y TRANSMITIR GPS</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- PASO 2: RECORRIDO ACTIVO (MONITOREO GPS EN VIVO Y FORMULARIO DINÁMICO) -->
+    <section class="view-step" id="stepActiveRecorrido">
+      
+      <!-- HUD DE ESTADO EN VIVO -->
+      <div class="hud-banner">
+        <div style="display: flex; align-items: center;">
+          <span class="hud-pulse-circle"></span>
+          <div>
+            <div style="font-size: 0.86rem; font-weight: 800; color: #10b981;" id="activePatrolTitle">RECORRIDO EN CURSO</div>
+            <div style="font-size: 0.72rem; color: var(--text-muted);" id="activeGuardSub">Transmitiendo ubicación al CCO</div>
+          </div>
+        </div>
+        <button type="button" class="btn-action btn-danger-action" id="btnPanicAlert" style="width: auto; padding: 4px 10px; font-size: 0.75rem; border-radius: 8px;">
+          🚨 AUXILIO
+        </button>
+      </div>
+
+      <!-- MÉTRICAS EN VIVO -->
+      <div class="hud-metrics-grid">
+        <div class="hud-metric-pill">
+          <div class="hud-metric-val" id="hudTimer">00:00:00</div>
+          <div class="hud-metric-lbl">Tiempo</div>
+        </div>
+        <div class="hud-metric-pill">
+          <div class="hud-metric-val" id="hudDistancia">0 m</div>
+          <div class="hud-metric-lbl">Distancia</div>
+        </div>
+        <div class="hud-metric-pill">
+          <div class="hud-metric-val" id="hudPuntos">0</div>
+          <div class="hud-metric-lbl">Puntos</div>
+        </div>
+        <div class="hud-metric-pill">
+          <div class="hud-metric-val" id="hudAccuracy">±0m</div>
+          <div class="hud-metric-lbl">Margen GPS</div>
+        </div>
+      </div>
+
+      <!-- BADGE SEGUNDO PLANO Y PANTALLA APAGADA -->
+      <div id="bgTrackingBanner" style="display: flex; align-items: center; justify-content: space-between; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 8px; padding: 6px 10px; margin-bottom: 0.65rem; font-size: 0.74rem;">
+        <div style="display: flex; align-items: center; gap: 6px; color: #34d399; font-weight: 600;">
+          <span style="font-size: 0.8rem; animation: hudPulse 1.8s infinite; display: inline-block;">🛰️</span>
+          <span>Rastreo activo en 2do plano (pantalla apagada permitida)</span>
+        </div>
+        <span id="bgNotifStatusBadge" style="font-size: 0.68rem; background: rgba(16, 185, 129, 0.25); color: #a7f3d0; padding: 1px 6px; border-radius: 10px; font-weight: 700;">Notif Activa</span>
+      </div>
+
+      <!-- MINI MAPA LEAFLET EN VIVO CON SEGUIMIENTO GPS -->
+      <div class="mini-map-container" id="miniMapContainer">
+        <div id="mobileMiniMap"></div>
+
+        <!-- Barra superior del mapa con estado de seguimiento -->
+        <div class="map-top-bar">
+          <div class="map-status-pill" id="mapFollowStatusPill">
+            <span style="font-size: 0.7rem;">🟢</span>
+            <span id="mapFollowStatusText">Siguiendo por GPS</span>
+          </div>
+          <div class="map-accuracy-pill" id="mapLiveAccPill">±--m</div>
+        </div>
+
+        <!-- Controles inferiores flotantes sobre el mapa -->
+        <div class="map-bottom-controls">
+          <div class="map-bottom-left">
+            <button type="button" class="btn-map-follow-toggle" id="btnToggleFollowGps" title="Alternar seguimiento continuo por GPS">
+              <span>🎯</span>
+              <span id="btnToggleFollowGpsText">Seguir por GPS</span>
+            </button>
+          </div>
+          <div class="map-bottom-right">
+            <button type="button" class="btn-map-mini-icon" id="btnRecenterGps" title="Centrar mi posición actual">
+              📍
+            </button>
+            <button type="button" class="btn-map-mini-icon" id="btnToggleExpandMap" title="Expandir / Reducir tamaño del mapa">
+              ⛶
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de estado GPS en tiempo real -->
+      <div class="map-info-bar">
+        <span>📡 Posición: <b id="lblGpsLiveCoords">Esperando satélites GPS...</b></span>
+        <span>Velocidad: <b id="lblGpsLiveSpeed">0 km/h</b></span>
+      </div>
+
+      <!-- BOTÓN REGISTRAR CHECKPOINT RÁPIDO -->
+      <button type="button" class="btn-action btn-outline-action" id="btnQuickCheckpoint" style="margin-bottom: 1rem; border-color: #38bdf8; color: #38bdf8;">
+        📍 Registrar Checkpoint / Punto Actual
+      </button>
+
+      <!-- FORMULARIO DINÁMICO SEGÚN EL ESQUEMA CONFIGURADO -->
+      <div class="app-card">
+        <h3 class="card-header-title">
+          <span>📋 Formulario de Verificación del Recorrido</span>
+        </h3>
+        <p class="card-header-desc">
+          Diligencia los puntos de control e incidencias conforme avanzas en tu ruta de seguridad.
+        </p>
+
+        <form id="formRecorridoMobile" style="display: flex; flex-direction: column; gap: 0.85rem;">
+          <div id="dynamicRecorridoFields">
+            <!-- Renderizado dinámico desde el esquema de recorridos -->
+          </div>
+
+          <!-- BOTONES DE ACCIÓN FINAL -->
+          <div style="display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1rem;">
+            <button type="submit" class="btn-action btn-success-action" id="btnFinishPatrol">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              <span>CONCLUIR RECORRIDO Y TRANSMITIR</span>
+            </button>
+            <button type="button" class="btn-action btn-outline-action" id="btnCancelPatrol" style="font-size: 0.82rem; padding: 0.6rem;">
+              Cancelar / Descartar Recorrido
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </section>
+
+    <!-- PASO 3: CONFIRMACIÓN Y FOLIO -->
+    <section class="view-step" id="stepSuccessRecorrido">
+      <div class="app-card" style="text-align: center; padding: 2rem 1.25rem;">
+        <div style="font-size: 3.5rem; margin-bottom: 0.5rem;">✅</div>
+        <h2 style="font-size: 1.25rem; font-weight: 800; color: #34d399; margin-bottom: 0.4rem;">¡Recorrido Registrado con Éxito!</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;" id="successSummaryText">
+          Tu informe y recorrido GPS han sido transmitidos al sistema central y guardados en la bitácora operativa.
+        </p>
+        <div style="background: var(--bg-surface); padding: 0.85rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; text-align: left; font-size: 0.85rem; line-height: 1.6;" id="successDetailsBox">
+          <!-- Detalles del folio -->
+        </div>
+        <button type="button" class="btn-action btn-primary-action" id="btnNewPatrolStart">
+          Iniciar Otro Recorrido
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="toast-msg" id="mobileToast">Mensaje</div>
+
+  <!-- LEAFLET JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+  <!-- LÓGICA DEL RECORRIDO MÓVIL -->
+  <script>
+    (function() {
+      // ESTADO DE LA APLICACIÓN MÓVIL
+      const state = {
+        activeRecorridoId: null,
+        schemaId: 'recorrido_perimetral',
+        schemas: {},
+        elementos: [],
+        currentGuard: null,
+        isTracking: false,
+        autoFollowGps: true,
+        watchId: null,
+        pollIntervalId: null,
+        pingIntervalId: null,
+        timerIntervalId: null,
+        startTime: null,
+        secondsElapsed: 0,
+        currentPos: null,
+        routePath: [],
+        checkpoints: [],
+        map: null,
+        guardMarker: null,
+        accuracyCircle: null,
+        routePolyline: null,
+        routeGlowPolyline: null,
+        totalDistanceMeters: 0,
+        checkpointMarkers: [],
+        wakeLockSentinel: null,
+        silentAudioEl: null,
+        audioCtx: null,
+        audioOscillator: null,
+        heartbeatWorker: null,
+        lastNotifUpdateSeconds: 0,
+        activeNotification: null,
+        isMapExpanded: false,
+        signatureCanvas: null,
+        signatureCtx: null,
+        isDrawingSig: false,
+        signatureData: null,
+        photoData: {}
+      };
+
+      // ELEMENTOS DOM
+      const stepStart = document.getElementById('stepStartRecorrido');
+      const stepActive = document.getElementById('stepActiveRecorrido');
+      const stepSuccess = document.getElementById('stepSuccessRecorrido');
+      const inputGuardSocio = document.getElementById('inputGuardSocio');
+      const btnBuscarSocio = document.getElementById('btnBuscarSocio');
+      const socioInputWrap = document.getElementById('socioInputWrap');
+      const socioResultsDropdown = document.getElementById('socioResultsDropdown');
+      const socioFeedbackMsg = document.getElementById('socioFeedbackMsg');
+      const recentSocioChip = document.getElementById('recentSocioChip');
+      const btnUseRecentSocio = document.getElementById('btnUseRecentSocio');
+      const cardSelectedOfficer = document.getElementById('cardSelectedOfficer');
+      const officerAvatarWrap = document.getElementById('officerAvatarWrap');
+      const officerSelectedName = document.getElementById('officerSelectedName');
+      const officerSelectedSocio = document.getElementById('officerSelectedSocio');
+      const officerSelectedPuesto = document.getElementById('officerSelectedPuesto');
+      const btnClearOfficer = document.getElementById('btnClearOfficer');
+      const selectCaseta = document.getElementById('selectGuardCaseta');
+      const btnPerimetral = document.getElementById('btnTypePerimetral');
+      const btnInterior = document.getElementById('btnTypeInterior');
+      const btnStart = document.getElementById('btnStartPatrol');
+      const btnFinish = document.getElementById('btnFinishPatrol');
+      const btnCancel = document.getElementById('btnCancelPatrol');
+      const btnQuickCheck = document.getElementById('btnQuickCheckpoint');
+      const btnPanic = document.getElementById('btnPanicAlert');
+      const btnNewPatrol = document.getElementById('btnNewPatrolStart');
+      const dynamicFieldsContainer = document.getElementById('dynamicRecorridoFields');
+      const hudTimer = document.getElementById('hudTimer');
+      const hudDistancia = document.getElementById('hudDistancia');
+      const hudPuntos = document.getElementById('hudPuntos');
+      const hudAccuracy = document.getElementById('hudAccuracy');
+      const pillGps = document.getElementById('pillGps');
+      const pillConnection = document.getElementById('pillConnection');
+      const activePatrolTitle = document.getElementById('activePatrolTitle');
+      const bgTrackingBanner = document.getElementById('bgTrackingBanner');
+      const bgNotifStatusBadge = document.getElementById('bgNotifStatusBadge');
+
+      // INICIALIZACIÓN
+      async function init() {
+        initNetworkMonitor();
+        initServiceWorker();
+        initVisibilityHandler();
+        setupTypeSelectors();
+        setupButtons();
+        await loadSchemas();
+        await loadElementos();
+        initGeolocationWatch();
+      }
+
+      // ============================================================
+      // SERVICIOS EN SEGUNDO PLANO Y NOTIFICACIÓN PERSISTENTE
+      // ============================================================
+      const SILENT_WAV_BASE64 = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==';
+
+      function initServiceWorker() {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('./sw.js', { scope: './' })
+            .then(reg => {
+              console.log('[Mobile SW] Registrado correctamente:', reg.scope);
+            })
+            .catch(err => {
+              console.warn('[Mobile SW] Error registrando SW:', err);
+            });
+        }
+      }
+
+      function initVisibilityHandler() {
+        document.addEventListener('visibilitychange', async () => {
+          if (state.isTracking) {
+            if (document.visibilityState === 'visible') {
+              await requestScreenWakeLock();
+              if (state.map) {
+                state.map.invalidateSize();
+                if (state.currentPos && state.autoFollowGps) {
+                  state.map.panTo([state.currentPos.lat, state.currentPos.lng]);
+                }
+              }
+            }
+          }
+        });
+      }
+
+      async function requestScreenWakeLock() {
+        if ('wakeLock' in navigator) {
+          try {
+            state.wakeLockSentinel = await navigator.wakeLock.request('screen');
+            state.wakeLockSentinel.addEventListener('release', () => {
+              state.wakeLockSentinel = null;
+            });
+          } catch (e) {
+            console.log('[WakeLock]', e.message);
+          }
+        }
+      }
+
+      function releaseScreenWakeLock() {
+        if (state.wakeLockSentinel) {
+          try { state.wakeLockSentinel.release(); } catch(e) {}
+          state.wakeLockSentinel = null;
+        }
+      }
+
+      function startBackgroundAudioLoop() {
+        // 1. Audio HTML5 en loop
+        try {
+          if (!state.silentAudioEl) {
+            state.silentAudioEl = new Audio(SILENT_WAV_BASE64);
+            state.silentAudioEl.loop = true;
+            state.silentAudioEl.volume = 0.001;
+          }
+          const p = state.silentAudioEl.play();
+          if (p !== undefined) {
+            p.catch(e => console.log('[Silent Audio]', e.message));
+          }
+        } catch(e) {
+          console.warn('[Silent Audio Error]', e);
+        }
+
+        // 2. Web Audio Oscillator fallback
+        try {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            if (!state.audioCtx) {
+              state.audioCtx = new AudioContextClass();
+            }
+            if (state.audioCtx.state === 'suspended') {
+              state.audioCtx.resume();
+            }
+            if (!state.audioOscillator) {
+              const osc = state.audioCtx.createOscillator();
+              const gain = state.audioCtx.createGain();
+              gain.gain.value = 0.0001;
+              osc.connect(gain);
+              gain.connect(state.audioCtx.destination);
+              osc.start(0);
+              state.audioOscillator = osc;
+            }
+          }
+        } catch (e) {
+          console.warn('[WebAudio KeepAlive]', e);
+        }
+      }
+
+      function stopBackgroundAudioLoop() {
+        if (state.silentAudioEl) {
+          try {
+            state.silentAudioEl.pause();
+            state.silentAudioEl.currentTime = 0;
+          } catch(e) {}
+        }
+        if (state.audioOscillator) {
+          try { state.audioOscillator.stop(); } catch(e) {}
+          state.audioOscillator = null;
+        }
+        if (state.audioCtx) {
+          try { state.audioCtx.close(); } catch(e) {}
+          state.audioCtx = null;
+        }
+      }
+
+      function startWorkerHeartbeat() {
+        if (state.heartbeatWorker) return;
+        try {
+          const workerCode = `
+            let timer = null;
+            self.onmessage = function(e) {
+              if (e.data === 'start') {
+                if (timer) clearInterval(timer);
+                timer = setInterval(function() {
+                  self.postMessage('tick');
+                }, 3500);
+              } else if (e.data === 'stop') {
+                if (timer) clearInterval(timer);
+                timer = null;
+              }
+            };
+          `;
+          const blob = new Blob([workerCode], { type: 'application/javascript' });
+          const workerUrl = URL.createObjectURL(blob);
+          state.heartbeatWorker = new Worker(workerUrl);
+          state.heartbeatWorker.onmessage = function(e) {
+            if (e.data === 'tick' && state.isTracking) {
+              requestHighAccuracyPosition();
+            }
+          };
+          state.heartbeatWorker.postMessage('start');
+        } catch (e) {
+          console.warn('[Worker Heartbeat Error]', e);
+        }
+      }
+
+      function stopWorkerHeartbeat() {
+        if (state.heartbeatWorker) {
+          try {
+            state.heartbeatWorker.postMessage('stop');
+            state.heartbeatWorker.terminate();
+          } catch(e) {}
+          state.heartbeatWorker = null;
+        }
+      }
+
+      async function showPersistentNotification(title, body) {
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+        const notifTitle = title || '🛡️ RegAs 3 - Recorrido Activo';
+        const notifOptions = {
+          body: body || 'Transmitiendo ubicación GPS en tiempo real...',
+          icon: './iconos/icon-192.png',
+          badge: './iconos/icon-192.png',
+          tag: 'regas-patrol-ongoing',
+          renotify: false,
+          requireInteraction: true,
+          silent: true,
+          ongoing: true,
+          data: { url: './recorrido-movil.html' }
+        };
+
+        // Enviar a Service Worker si está listo
+        try {
+          if ('serviceWorker' in navigator) {
+            const reg = await navigator.serviceWorker.ready;
+            if (reg && reg.showNotification) {
+              await reg.showNotification(notifTitle, notifOptions);
+              return;
+            }
+          }
+        } catch(e) {}
+
+        // Fallback directo con API Notification
+        try {
+          if (state.activeNotification) {
+            try { state.activeNotification.close(); } catch(e) {}
+          }
+          state.activeNotification = new Notification(notifTitle, notifOptions);
+        } catch(e) {}
+      }
+
+      function updateRoutePersistentNotification() {
+        if (!state.isTracking) return;
+        const nowSec = state.secondsElapsed;
+        if (nowSec - state.lastNotifUpdateSeconds < 8 && state.lastNotifUpdateSeconds > 0) return;
+        state.lastNotifUpdateSeconds = nowSec;
+
+        const hrs = String(Math.floor(nowSec / 3600)).padStart(2, '0');
+        const mins = String(Math.floor((nowSec % 3600) / 60)).padStart(2, '0');
+        const secs = String(nowSec % 60).padStart(2, '0');
+        const timeStr = `${hrs}:${mins}:${secs}`;
+        const distStr = formatDistance(state.totalDistanceMeters);
+        const guardName = state.currentGuard ? (state.currentGuard.nombre || state.currentGuard.Nombre || 'Oficial') : 'Oficial';
+        const acc = state.currentPos ? `±${Math.round(state.currentPos.accuracy)}m` : 'Buscando GPS';
+
+        showPersistentNotification(
+          '🛡️ Recorrido en Curso - GPS Activo',
+          `👮 ${guardName} • ⏱️ ${timeStr} • 📏 ${distStr} • 📍 ${acc} • 📌 ${state.checkpoints.length} pts`
+        );
+      }
+
+      function closePersistentNotification() {
+        try {
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(reg => {
+              if (reg && reg.getNotifications) {
+                reg.getNotifications({ tag: 'regas-patrol-ongoing' }).then(notifs => {
+                  notifs.forEach(n => n.close());
+                });
+              }
+            });
+            if (navigator.serviceWorker.controller) {
+              navigator.serviceWorker.controller.postMessage({ type: 'CLOSE_PERSISTENT_NOTIFICATION' });
+            }
+          }
+        } catch(e) {}
+        if (state.activeNotification) {
+          try { state.activeNotification.close(); } catch(e) {}
+          state.activeNotification = null;
+        }
+      }
+
+      function startBackgroundKeepAlive() {
+        requestScreenWakeLock();
+        startBackgroundAudioLoop();
+        startWorkerHeartbeat();
+        const guardName = state.currentGuard ? (state.currentGuard.nombre || state.currentGuard.Nombre || 'Oficial') : 'Oficial';
+        showPersistentNotification(
+          '🛡️ Recorrido Iniciado - GPS Activo',
+          `👮 ${guardName} • Transmitiendo ubicación continua en segundo plano`
+        );
+        if (bgNotifStatusBadge) {
+          bgNotifStatusBadge.textContent = 'Notif Activa';
+          bgNotifStatusBadge.style.background = 'rgba(16, 185, 129, 0.25)';
+          bgNotifStatusBadge.style.color = '#a7f3d0';
+        }
+      }
+
+      function stopBackgroundKeepAlive() {
+        releaseScreenWakeLock();
+        stopBackgroundAudioLoop();
+        stopWorkerHeartbeat();
+        closePersistentNotification();
+        if (bgNotifStatusBadge) {
+          bgNotifStatusBadge.textContent = 'Detenido';
+          bgNotifStatusBadge.style.background = 'rgba(100, 116, 139, 0.25)';
+          bgNotifStatusBadge.style.color = '#94a3b8';
+        }
+      }
+
+      function formatDistance(meters) {
+        if (!meters || meters < 0) return '0 m';
+        if (meters < 1000) return `${Math.round(meters)} m`;
+        return `${(meters / 1000).toFixed(2)} km`;
+      }
+
+      function showToast(msg, duration = 3000) {
+        const toast = document.getElementById('mobileToast');
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, duration);
+      }
+
+      function initNetworkMonitor() {
+        window.addEventListener('online', () => {
+          pillConnection.className = 'status-pill online';
+          pillConnection.textContent = '🟢 En Línea';
+        });
+        window.addEventListener('offline', () => {
+          pillConnection.className = 'status-pill';
+          pillConnection.style.background = 'rgba(239,68,68,0.2)';
+          pillConnection.style.color = '#ef4444';
+          pillConnection.textContent = '🔴 Desconectado';
+        });
+      }
+
+      function setupTypeSelectors() {
+        btnPerimetral.addEventListener('click', () => {
+          btnPerimetral.classList.add('selected');
+          btnInterior.classList.remove('selected');
+          state.schemaId = 'recorrido_perimetral';
+        });
+
+        btnInterior.addEventListener('click', () => {
+          btnInterior.classList.add('selected');
+          btnPerimetral.classList.remove('selected');
+          state.schemaId = 'recorrido_interior';
+        });
+      }
+
+      // Endpoint único y exclusivo del Backend (Cloudflare Worker)
+      const BACKEND_URL = 'https://be-regas.segos911.workers.dev';
+
+      async function getApiBase() {
+        return BACKEND_URL;
+      }
+
+      async function apiFetch(endpoint, options = {}) {
+        const base = await getApiBase();
+        const url = base ? `${base}${endpoint.startsWith('/') ? '' : '/'}${endpoint}` : endpoint;
+        const headers = {
+          'Bypass-Tunnel-Reminder': 'true',
+          'bypass-tunnel-reminder': 'true',
+          ...(options.headers || {})
+        };
+        return fetch(url, { ...options, headers });
+      }
+
+      async function loadSchemas() {
+        try {
+          const res = await apiFetch('/api/config/recorrido_schemas');
+          if (res.ok) {
+            state.schemas = await res.json() || {};
+          }
+        } catch (e) {
+          console.warn('[Mobile] Error al cargar esquemas:', e);
+        }
+      }
+
+      async function loadElementos() {
+        // Cargar inmediatamente desde caché local para disponibilidad instantánea offline
+        try {
+          const cached = localStorage.getItem('regas_cached_elementos');
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              state.elementos = parsed;
+              checkRecentSocio();
+            }
+          }
+        } catch (e) {}
+
+        try {
+          const res = await apiFetch('/api/elementos');
+          if (res.ok) {
+            const list = await res.json();
+            if (Array.isArray(list) && list.length > 0) {
+              state.elementos = list;
+              try {
+                localStorage.setItem('regas_cached_elementos', JSON.stringify(list));
+              } catch (e) {}
+              checkRecentSocio();
+            }
+          }
+        } catch (e) {
+          console.warn('[Mobile] Error al cargar elementos:', e);
+        }
+      }
+
+      function checkRecentSocio() {
+        if (state.currentGuard) return;
+        try {
+          const recentId = localStorage.getItem('regas_last_socio_id');
+          const recentName = localStorage.getItem('regas_last_socio_name');
+          if (recentId && recentSocioChip && btnUseRecentSocio) {
+            btnUseRecentSocio.textContent = `Socio #${recentId}${recentName ? ' (' + recentName.split(' ')[0] + ')' : ''}`;
+            recentSocioChip.style.display = 'flex';
+          }
+        } catch (e) {}
+      }
+
+      function findElementoBySocio(socioVal) {
+        if (!socioVal || !Array.isArray(state.elementos)) return null;
+        const clean = String(socioVal).trim().toLowerCase();
+        if (!clean) return null;
+
+        // 1. Coincidencia exacta por id / ID
+        let match = state.elementos.find(el => {
+          const elId = String(el.id || el.ID || '').trim().toLowerCase();
+          return elId === clean;
+        });
+        if (match) return match;
+
+        // 2. Coincidencia exacta por _id
+        match = state.elementos.find(el => {
+          const elId = String(el._id || '').trim().toLowerCase();
+          return elId === clean;
+        });
+        return match || null;
+      }
+
+      function filterElementosBySocio(query) {
+        if (!query || !Array.isArray(state.elementos)) return [];
+        const clean = String(query).trim().toLowerCase();
+        if (clean.length < 2) return [];
+
+        return state.elementos.filter(el => {
+          const idStr = String(el.id || el.ID || '').toLowerCase();
+          const nameStr = String(el.nombre || el.Nombre || '').toLowerCase();
+          return idStr.includes(clean) || nameStr.includes(clean);
+        }).slice(0, 5);
+      }
+
+      function selectOfficer(el) {
+        state.currentGuard = el;
+        const socioId = String(el.id || el.ID || el._id || '');
+        const name = el.nombre || el.Nombre || `Elemento #${socioId}`;
+        const puesto = el.Puesto || el.puesto || 'Oficial de Seguridad';
+        const foto = el.foto || el.Foto || (socioId ? `data/fotos/elementos/${socioId}.webp` : '');
+
+        // Ocultar campo de búsqueda, feedback y dropdown
+        if (socioInputWrap) socioInputWrap.style.display = 'none';
+        if (socioFeedbackMsg) socioFeedbackMsg.style.display = 'none';
+        if (socioResultsDropdown) socioResultsDropdown.style.display = 'none';
+        if (recentSocioChip) recentSocioChip.style.display = 'none';
+
+        // Renderizar tarjeta de verificación
+        if (officerSelectedName) officerSelectedName.textContent = name;
+        if (officerSelectedSocio) officerSelectedSocio.textContent = `Socio #${socioId}`;
+        if (officerSelectedPuesto) officerSelectedPuesto.textContent = puesto;
+
+        if (officerAvatarWrap) {
+          if (foto) {
+            officerAvatarWrap.innerHTML = `<img src="${foto}" alt="${name}" onerror="this.onerror=null; this.parentElement.innerHTML='👮';">`;
+          } else {
+            officerAvatarWrap.innerHTML = `<span>👮</span>`;
+          }
+        }
+
+        if (cardSelectedOfficer) cardSelectedOfficer.style.display = 'flex';
+
+        // Guardar como último socio utilizado
+        try {
+          localStorage.setItem('regas_last_socio_id', socioId);
+          localStorage.setItem('regas_last_socio_name', name);
+        } catch (e) {}
+
+        if (navigator.vibrate) navigator.vibrate(50);
+        showToast(`✓ Oficial ${name} identificado`);
+      }
+
+      function clearSelectedOfficer() {
+        state.currentGuard = null;
+        if (cardSelectedOfficer) cardSelectedOfficer.style.display = 'none';
+        if (socioInputWrap) socioInputWrap.style.display = 'flex';
+        if (inputGuardSocio) {
+          inputGuardSocio.value = '';
+          inputGuardSocio.focus();
+        }
+        if (socioFeedbackMsg) socioFeedbackMsg.style.display = 'none';
+        if (socioResultsDropdown) socioResultsDropdown.style.display = 'none';
+        checkRecentSocio();
+      }
+
+      function showSocioFeedback(msg, type = 'info') {
+        if (!socioFeedbackMsg) return;
+        socioFeedbackMsg.textContent = msg;
+        socioFeedbackMsg.className = `socio-feedback-msg ${type}`;
+        socioFeedbackMsg.style.display = 'block';
+      }
+
+      function handleSearchSocio() {
+        const val = inputGuardSocio ? (inputGuardSocio.value || '').trim() : '';
+        if (!val) {
+          showSocioFeedback('Por favor ingresa un número de socio', 'info');
+          if (inputGuardSocio) inputGuardSocio.focus();
+          return;
+        }
+
+        const match = findElementoBySocio(val);
+        if (match) {
+          selectOfficer(match);
+        } else {
+          const candidates = filterElementosBySocio(val);
+          if (candidates.length === 1) {
+            selectOfficer(candidates[0]);
+          } else if (candidates.length > 1) {
+            renderDropdownResults(candidates);
+            showSocioFeedback(`Se encontraron ${candidates.length} coincidencias. Pulsa tu nombre:`, 'info');
+          } else {
+            showSocioFeedback(`⚠️ No se encontró ningún elemento con el No. de Socio "${val}". Verifica el número.`, 'error');
+            if (socioResultsDropdown) socioResultsDropdown.style.display = 'none';
+            if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+          }
+        }
+      }
+
+      let socioInputDebounce = null;
+      function handleSocioInputDebounced() {
+        clearTimeout(socioInputDebounce);
+        const val = inputGuardSocio ? (inputGuardSocio.value || '').trim() : '';
+        if (!val) {
+          if (socioResultsDropdown) socioResultsDropdown.style.display = 'none';
+          if (socioFeedbackMsg) socioFeedbackMsg.style.display = 'none';
+          return;
+        }
+
+        // Si ya coincide exactamente con un socio de 4 o más caracteres, mostrarlo para selección inmediata
+        const directMatch = findElementoBySocio(val);
+        if (directMatch && val.length >= 4) {
+          renderDropdownResults([directMatch]);
+          return;
+        }
+
+        socioInputDebounce = setTimeout(() => {
+          if (val.length >= 2) {
+            const matches = filterElementosBySocio(val);
+            if (matches.length > 0) {
+              renderDropdownResults(matches);
+            } else {
+              if (socioResultsDropdown) socioResultsDropdown.style.display = 'none';
+            }
+          } else {
+            if (socioResultsDropdown) socioResultsDropdown.style.display = 'none';
+          }
+        }, 250);
+      }
+
+      function renderDropdownResults(list) {
+        if (!socioResultsDropdown) return;
+        if (!list || list.length === 0) {
+          socioResultsDropdown.style.display = 'none';
+          return;
+        }
+
+        let html = '';
+        list.forEach(el => {
+          const sId = String(el.id || el.ID || el._id || '');
+          const sNom = el.nombre || el.Nombre || `Elemento #${sId}`;
+          const sPuesto = el.Puesto || el.puesto || 'Oficial';
+          html += `
+            <div class="socio-result-item" data-socio-id="${sId}">
+              <div>
+                <div class="socio-result-name">${sNom}</div>
+                <div class="socio-result-meta">${sPuesto}</div>
+              </div>
+              <span class="socio-result-badge">#${sId}</span>
+            </div>
+          `;
+        });
+
+        socioResultsDropdown.innerHTML = html;
+        socioResultsDropdown.style.display = 'block';
+
+        socioResultsDropdown.querySelectorAll('.socio-result-item').forEach(item => {
+          item.addEventListener('click', () => {
+            const itemId = item.dataset.socioId;
+            const match = findElementoBySocio(itemId);
+            if (match) {
+              selectOfficer(match);
+            }
+          });
+        });
+      }
+
+      // GEOLOCALIZACIÓN Y SEGUIMIENTO GPS
+      function initGeolocationWatch() {
+        if (!('geolocation' in navigator)) {
+          if (pillGps) pillGps.textContent = '❌ Sin GPS';
+          return;
+        }
+
+        // Obtener fix satelital de alta precisión de inmediato
+        requestHighAccuracyPosition();
+
+        // Iniciar observación reactiva continua de posición
+        try {
+          if (state.watchId !== null) navigator.geolocation.clearWatch(state.watchId);
+        } catch(e) {}
+
+        state.watchId = navigator.geolocation.watchPosition(
+          (pos) => handleGeolocationSuccess(pos),
+          (err) => handleGeolocationError(err),
+          { enableHighAccuracy: true, maximumAge: 1500, timeout: 12000 }
+        );
+      }
+
+      function requestHighAccuracyPosition() {
+        if (!('geolocation' in navigator)) return;
+        navigator.geolocation.getCurrentPosition(
+          (pos) => handleGeolocationSuccess(pos),
+          (err) => handleGeolocationError(err),
+          { enableHighAccuracy: true, maximumAge: 0, timeout: 8000 }
+        );
+      }
+
+      function handleGeolocationSuccess(pos) {
+        if (!pos || !pos.coords) return;
+        const { latitude, longitude, accuracy, speed, heading, altitude } = pos.coords;
+        const isFirstFix = !state.currentPos;
+
+        state.currentPos = {
+          lat: latitude,
+          lng: longitude,
+          accuracy: accuracy || 5,
+          speed: (speed !== null && !isNaN(speed) && speed >= 0) ? Math.round(speed * 3.6) : 0,
+          heading: (heading !== null && !isNaN(heading)) ? Math.round(heading) : null,
+          altitude: (altitude !== null && !isNaN(altitude)) ? Math.round(altitude) : null,
+          timestamp: new Date().toISOString()
+        };
+
+        if (pillGps) {
+          pillGps.className = 'status-pill gps-lock';
+          pillGps.textContent = `📍 GPS ±${Math.round(accuracy)}m`;
+        }
+        if (hudAccuracy) {
+          hudAccuracy.textContent = `±${Math.round(accuracy)}m`;
+        }
+        const accPill = document.getElementById('mapLiveAccPill');
+        if (accPill) accPill.textContent = `±${Math.round(accuracy)}m`;
+
+        const coordsLbl = document.getElementById('lblGpsLiveCoords');
+        if (coordsLbl) {
+          coordsLbl.textContent = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+        }
+        const speedLbl = document.getElementById('lblGpsLiveSpeed');
+        if (speedLbl) {
+          speedLbl.textContent = `${state.currentPos.speed} km/h`;
+        }
+
+        // Actualizar campo dinámico del formulario
+        updateDynamicGpsField(latitude, longitude, accuracy);
+
+        if (state.isTracking) {
+          // Registrar en la ruta recorrida si es el primer punto o se desplazó más de 2 metros
+          const lastPoint = state.routePath.length > 0 ? state.routePath[state.routePath.length - 1] : null;
+          let shouldAdd = false;
+          let stepDist = 0;
+          if (!lastPoint) {
+            shouldAdd = true;
+          } else {
+            stepDist = getHaversineDistance(lastPoint.lat, lastPoint.lng, latitude, longitude);
+            if (stepDist >= 2.0) {
+              shouldAdd = true;
+            }
+          }
+
+          if (shouldAdd) {
+            state.routePath.push({
+              lat: latitude,
+              lng: longitude,
+              accuracy: accuracy,
+              speed: state.currentPos.speed,
+              timestamp: new Date().toISOString()
+            });
+            if (lastPoint && stepDist > 0) {
+              state.totalDistanceMeters += stepDist;
+            }
+            if (hudDistancia) {
+              hudDistancia.textContent = formatDistance(state.totalDistanceMeters);
+            }
+          }
+
+          updateMapLivePosition(latitude, longitude, accuracy);
+          updateRoutePersistentNotification();
+        } else if (state.map && isFirstFix) {
+          updateMapLivePosition(latitude, longitude, accuracy);
+        }
+      }
+
+      function handleGeolocationError(err) {
+        console.warn('[GPS Warning]', err ? err.message : 'Error GPS');
+        if (!state.currentPos && pillGps) {
+          pillGps.className = 'status-pill gps-search';
+          pillGps.textContent = '⚠️ Buscando GPS';
+        }
+      }
+
+      function getHaversineDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371000;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+      }
+
+      function setAutoFollow(enabled) {
+        state.autoFollowGps = Boolean(enabled);
+        const btnToggle = document.getElementById('btnToggleFollowGps');
+        const btnText = document.getElementById('btnToggleFollowGpsText');
+        const statusPill = document.getElementById('mapFollowStatusPill');
+        const statusText = document.getElementById('mapFollowStatusText');
+
+        if (state.autoFollowGps) {
+          if (btnToggle) btnToggle.className = 'btn-map-follow-toggle';
+          if (btnText) btnText.textContent = 'Seguir por GPS: ON';
+          if (statusPill) statusPill.className = 'map-status-pill';
+          if (statusText) statusText.textContent = 'Siguiendo por GPS';
+        } else {
+          if (btnToggle) btnToggle.className = 'btn-map-follow-toggle paused';
+          if (btnText) btnText.textContent = 'Seguir GPS (Pausado)';
+          if (statusPill) statusPill.className = 'map-status-pill paused';
+          if (statusText) statusText.textContent = 'Vista manual (toca centrar)';
+        }
+      }
+
+      function centerAndFollowGps() {
+        setAutoFollow(true);
+        requestHighAccuracyPosition();
+        if (state.currentPos && state.map) {
+          state.map.setView([state.currentPos.lat, state.currentPos.lng], 18, { animate: true });
+          updateMapLivePosition(state.currentPos.lat, state.currentPos.lng, state.currentPos.accuracy);
+          showToast('🎯 Centrado y siguiendo ubicación en tiempo real');
+        } else {
+          showToast('📡 Adquiriendo señal satelital GPS...');
+        }
+      }
+
+      function updateDynamicGpsField(lat, lng, accuracy) {
+        const inp = document.getElementById('dyn_gps_ubicacion');
+        const txt = document.getElementById('gpsFieldCoordsText');
+        const meta = document.getElementById('gpsFieldMetaText');
+        const valStr = `${lat.toFixed(6)}, ${lng.toFixed(6)} (±${Math.round(accuracy || 5)}m)`;
+        if (inp) inp.value = valStr;
+        if (txt) txt.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+        if (meta) meta.textContent = `🎯 Precisión GPS: ±${Math.round(accuracy || 5)}m | ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+      }
+
+      function setupButtons() {
+        btnStart.addEventListener('click', startPatrolSession);
+        btnCancel.addEventListener('click', cancelPatrolSession);
+        btnQuickCheck.addEventListener('click', registerQuickCheckpoint);
+        btnPanic.addEventListener('click', triggerPanicAlert);
+        btnNewPatrol.addEventListener('click', resetToStartScreen);
+
+        // Controles de mapa y seguimiento GPS
+        const btnToggleFollow = document.getElementById('btnToggleFollowGps');
+        if (btnToggleFollow) {
+          btnToggleFollow.addEventListener('click', () => {
+            if (state.autoFollowGps) {
+              setAutoFollow(false);
+              showToast('⏸️ Seguimiento automático pausado. Puedes mover el mapa.');
+            } else {
+              centerAndFollowGps();
+            }
+          });
+        }
+
+        const btnRecenter = document.getElementById('btnRecenterGps');
+        if (btnRecenter) {
+          btnRecenter.addEventListener('click', () => {
+            centerAndFollowGps();
+          });
+        }
+
+        const btnExpand = document.getElementById('btnToggleExpandMap');
+        const miniMapContainer = document.getElementById('miniMapContainer');
+        if (btnExpand && miniMapContainer) {
+          btnExpand.addEventListener('click', () => {
+            state.isMapExpanded = !state.isMapExpanded;
+            if (state.isMapExpanded) {
+              miniMapContainer.classList.add('expanded');
+              btnExpand.textContent = '🗗';
+              btnExpand.title = 'Reducir tamaño del mapa';
+            } else {
+              miniMapContainer.classList.remove('expanded');
+              btnExpand.textContent = '⛶';
+              btnExpand.title = 'Expandir mapa';
+            }
+            setTimeout(() => {
+              if (state.map) {
+                state.map.invalidateSize();
+                if (state.currentPos) {
+                  state.map.panTo([state.currentPos.lat, state.currentPos.lng]);
+                }
+              }
+            }, 300);
+          });
+        }
+
+        // Búsqueda de oficial por número de socio
+        if (btnBuscarSocio) {
+          btnBuscarSocio.addEventListener('click', handleSearchSocio);
+        }
+        if (inputGuardSocio) {
+          inputGuardSocio.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleSearchSocio();
+            }
+          });
+          inputGuardSocio.addEventListener('input', handleSocioInputDebounced);
+        }
+        if (btnClearOfficer) {
+          btnClearOfficer.addEventListener('click', clearSelectedOfficer);
+        }
+        if (btnUseRecentSocio) {
+          btnUseRecentSocio.addEventListener('click', () => {
+            try {
+              const recentId = localStorage.getItem('regas_last_socio_id');
+              if (recentId) {
+                const match = findElementoBySocio(recentId);
+                if (match) {
+                  selectOfficer(match);
+                } else {
+                  if (inputGuardSocio) inputGuardSocio.value = recentId;
+                  handleSearchSocio();
+                }
+              }
+            } catch (e) {}
+          });
+        }
+
+        // Ocultar dropdown de sugerencias al tocar fuera
+        document.addEventListener('click', (e) => {
+          if (!e.target.closest('.socio-search-box')) {
+            if (socioResultsDropdown) socioResultsDropdown.style.display = 'none';
+          }
+        });
+
+        const form = document.getElementById('formRecorridoMobile');
+        if (form) {
+          form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            finishPatrolSession();
+          });
+        }
+      }
+
+      // INICIAR PATRULLAJE
+      async function startPatrolSession() {
+        // Si no se ha seleccionado oficial pero hay algo escrito en el input, intentar buscarlo
+        if (!state.currentGuard && inputGuardSocio) {
+          const val = (inputGuardSocio.value || '').trim();
+          if (val) {
+            const match = findElementoBySocio(val);
+            if (match) {
+              selectOfficer(match);
+            }
+          }
+        }
+
+        if (!state.currentGuard) {
+          showToast('⚠️ Ingresa tu No. de Socio para identificarte');
+          showSocioFeedback('Por favor ingresa y valida tu número de socio para comenzar', 'error');
+          if (inputGuardSocio) inputGuardSocio.focus();
+          return;
+        }
+
+        const guardObj = state.currentGuard;
+        state.activeRecorridoId = `rec_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+        state.startTime = new Date();
+        state.secondsElapsed = 0;
+        state.totalDistanceMeters = 0;
+        state.lastNotifUpdateSeconds = 0;
+        state.checkpoints = [];
+        state.checkpointMarkers = [];
+        state.isTracking = true;
+        state.autoFollowGps = true;
+        setAutoFollow(true);
+        if (hudDistancia) hudDistancia.textContent = '0 m';
+
+        // Solicitar permisos de notificación si están pendientes
+        if ('Notification' in window && Notification.permission === 'default') {
+          try { await Notification.requestPermission(); } catch(e) {}
+        }
+
+        // Iniciar servicios para persistencia en segundo plano (pantalla apagada)
+        startBackgroundKeepAlive();
+
+        // Inicializar ruta con posición actual si ya existe
+        if (state.currentPos) {
+          state.routePath = [{
+            lat: state.currentPos.lat,
+            lng: state.currentPos.lng,
+            accuracy: state.currentPos.accuracy,
+            timestamp: new Date().toISOString()
+          }];
+        } else {
+          state.routePath = [];
+          requestHighAccuracyPosition();
+        }
+
+        const currentSchema = state.schemas[state.schemaId] || {};
+        activePatrolTitle.textContent = (currentSchema.title || 'RECORRIDO').toUpperCase();
+
+        const activeGuardSub = document.getElementById('activeGuardSub');
+        if (activeGuardSub) {
+          const guardName = guardObj.nombre || guardObj.Nombre || 'Oficial';
+          const guardSocio = guardObj.id || guardObj.ID || '';
+          activeGuardSub.textContent = `Oficial: ${guardName} (Socio: #${guardSocio})`;
+        }
+
+        // Cambiar vista
+        stepStart.classList.remove('active');
+        stepActive.classList.add('active');
+        window.scrollTo(0, 0);
+
+        // Iniciar temporizador
+        startTimer();
+
+        // Renderizar formulario dinámico del esquema
+        renderDynamicForm(state.schemaId);
+
+        // Inicializar mapa Leaflet y centrar de inmediato
+        setTimeout(() => {
+          initMobileMap();
+          if (state.currentPos) {
+            updateMapLivePosition(state.currentPos.lat, state.currentPos.lng, state.currentPos.accuracy);
+          }
+        }, 150);
+
+        // Iniciar refresco activo de alta precisión cada 4 segundos como respaldo continuo
+        if (state.pollIntervalId) clearInterval(state.pollIntervalId);
+        state.pollIntervalId = setInterval(() => {
+          if (state.isTracking) {
+            requestHighAccuracyPosition();
+          }
+        }, 4000);
+
+        // Iniciar pings automáticos de ubicación GPS al backend cada 5 segundos
+        startLocationPings();
+
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+        showToast('🚀 Recorrido iniciado. Transmitiendo GPS en vivo.');
+      }
+
+      function startTimer() {
+        if (state.timerIntervalId) clearInterval(state.timerIntervalId);
+        state.timerIntervalId = setInterval(() => {
+          state.secondsElapsed++;
+          const hrs = String(Math.floor(state.secondsElapsed / 3600)).padStart(2, '0');
+          const mins = String(Math.floor((state.secondsElapsed % 3600) / 60)).padStart(2, '0');
+          const secs = String(state.secondsElapsed % 60).padStart(2, '0');
+          if (hudTimer) hudTimer.textContent = `${hrs}:${mins}:${secs}`;
+          if (state.secondsElapsed % 10 === 0) {
+            updateRoutePersistentNotification();
+          }
+        }, 1000);
+      }
+
+      function startLocationPings() {
+        if (state.pingIntervalId) clearInterval(state.pingIntervalId);
+        
+        // Primer ping inmediato
+        sendLocationPing();
+
+        state.pingIntervalId = setInterval(() => {
+          sendLocationPing();
+        }, 5000);
+      }
+
+      async function sendLocationPing(checkpointData = null) {
+        if (!state.isTracking || !state.currentPos || !state.activeRecorridoId) return;
+
+        let batteryLevel = null;
+        try {
+          if ('getBattery' in navigator) {
+            const b = await navigator.getBattery();
+            batteryLevel = Math.round(b.level * 100);
+          }
+        } catch(e) {}
+
+        const guardObj = state.currentGuard || {};
+        const gId = String(guardObj.id || guardObj.ID || guardObj._id || '');
+        const gName = guardObj.nombre || guardObj.Nombre || 'Oficial en Recorrido';
+        const currentSchema = state.schemas[state.schemaId] || {};
+        const gPhoto = guardObj.foto || guardObj.Foto || (gId ? `data/fotos/elementos/${gId}.webp` : '');
+
+        const payload = {
+          recorridoId: state.activeRecorridoId,
+          id: state.activeRecorridoId,
+          elementoId: gId,
+          guardId: gId,
+          elementoNombre: gName,
+          guardName: gName,
+          guardPhoto: gPhoto,
+          elementoFoto: gPhoto,
+          foto: gPhoto,
+          tipoRecorrido: state.schemaId,
+          tipo: state.schemaId,
+          schemaTitle: currentSchema.title || state.schemaId,
+          lat: state.currentPos.lat,
+          lng: state.currentPos.lng,
+          accuracy: state.currentPos.accuracy,
+          speed: state.currentPos.speed,
+          heading: state.currentPos.heading,
+          altitude: state.currentPos.altitude,
+          battery: batteryLevel,
+          breadcrumbs: state.routePath.length > 500 ? state.routePath.slice(-500) : state.routePath,
+          checkpointsCount: state.checkpoints.length,
+          distancia_metros: Math.round(state.totalDistanceMeters),
+          distancia_formato: formatDistance(state.totalDistanceMeters),
+          timestamp: new Date().toISOString(),
+          checkpoint: checkpointData
+        };
+
+        try {
+          await apiFetch('/api/recorridos/location', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        } catch (e) {
+          console.warn('[Mobile] Error enviando ping GPS:', e);
+        }
+      }
+
+      // MAPA LEAFLET EN TIEMPO REAL
+      function initMobileMap() {
+        const container = document.getElementById('mobileMiniMap');
+        if (!container || typeof L === 'undefined') return;
+
+        const defaultLat = state.currentPos ? state.currentPos.lat : 25.6866;
+        const defaultLng = state.currentPos ? state.currentPos.lng : -100.3161;
+
+        if (!state.map) {
+          state.map = L.map('mobileMiniMap', {
+            zoomControl: false,
+            attributionControl: false
+          }).setView([defaultLat, defaultLng], 18);
+
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+          }).addTo(state.map);
+
+          const guardObj = state.currentGuard || {};
+          const gId = String(guardObj.id || guardObj.ID || guardObj._id || '');
+          const guardPhoto = guardObj.foto || guardObj.Foto || (gId ? `data/fotos/elementos/${gId}.webp` : '');
+          const guardName = guardObj.nombre || guardObj.Nombre || 'Oficial';
+
+          const guardHtml = `
+            <div class="mobile-guard-marker">
+              <div class="mobile-guard-pulse"></div>
+              <div class="mobile-guard-icon-core">
+                ${guardPhoto ? `<img src="${guardPhoto}" class="guard-marker-photo" alt="${guardName}" onerror="this.onerror=null; this.parentElement.innerHTML='👮';">` : '👮'}
+              </div>
+            </div>
+          `;
+
+          const guardIcon = L.divIcon({
+            className: 'custom-guard-leaflet-icon',
+            html: guardHtml,
+            iconSize: [36, 36],
+            iconAnchor: [18, 18]
+          });
+
+          state.guardMarker = L.marker([defaultLat, defaultLng], { icon: guardIcon }).addTo(state.map);
+
+          // Círculo indicador de margen de precisión GPS
+          const accRadius = state.currentPos ? state.currentPos.accuracy : 15;
+          state.accuracyCircle = L.circle([defaultLat, defaultLng], {
+            radius: accRadius,
+            color: '#38bdf8',
+            fillColor: '#0284c7',
+            fillOpacity: 0.15,
+            weight: 1.5
+          }).addTo(state.map);
+
+          const initialPoints = state.routePath.length > 0
+            ? state.routePath.map(p => [p.lat, p.lng])
+            : [[defaultLat, defaultLng]];
+
+          // Resplandor exterior para contraste sobre calles
+          state.routeGlowPolyline = L.polyline(initialPoints, {
+            color: '#0369a1',
+            weight: 7,
+            opacity: 0.65,
+            lineJoin: 'round',
+            lineCap: 'round'
+          }).addTo(state.map);
+
+          // Línea luminosa continua por donde avanza el oficial
+          state.routePolyline = L.polyline(initialPoints, {
+            color: '#38bdf8',
+            weight: 4.5,
+            opacity: 0.95,
+            lineJoin: 'round',
+            lineCap: 'round'
+          }).addTo(state.map);
+
+          // Si el oficial arrastra el mapa manualmente, pausar auto-follow
+          state.map.on('dragstart', () => {
+            setAutoFollow(false);
+          });
+        } else {
+          state.map.invalidateSize();
+          if (state.currentPos) {
+            state.map.setView([state.currentPos.lat, state.currentPos.lng], 18);
+          }
+        }
+      }
+
+      function updateMapLivePosition(lat, lng, accuracy = 5) {
+        if (!state.map) return;
+
+        if (state.guardMarker) {
+          state.guardMarker.setLatLng([lat, lng]);
+        }
+        if (state.accuracyCircle) {
+          state.accuracyCircle.setLatLng([lat, lng]);
+          state.accuracyCircle.setRadius(accuracy || 5);
+        }
+
+        // Si auto-follow está activado, centrar mapa en el oficial suavemente
+        if (state.autoFollowGps) {
+          state.map.panTo([lat, lng], { animate: true, duration: 0.5 });
+        }
+
+        if (state.routePath.length > 0) {
+          const latlngs = state.routePath.map(p => [p.lat, p.lng]);
+          if (state.routePolyline) {
+            state.routePolyline.setLatLngs(latlngs);
+          }
+          if (state.routeGlowPolyline) {
+            state.routeGlowPolyline.setLatLngs(latlngs);
+          }
+        }
+      }
+
+      // REGISTRAR CHECKPOINT RÁPIDO
+      function registerQuickCheckpoint() {
+        if (!state.currentPos) {
+          showToast('Esperando señal GPS precisa...');
+          return;
+        }
+
+        const count = state.checkpoints.length + 1;
+        const punto = {
+          folio: `CP-${count}`,
+          hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+          lat: state.currentPos.lat,
+          lng: state.currentPos.lng,
+          accuracy: state.currentPos.accuracy,
+          tipo: 'Punto de Control',
+          timestamp: new Date().toISOString()
+        };
+
+        state.checkpoints.push(punto);
+        if (hudPuntos) hudPuntos.textContent = state.checkpoints.length;
+
+        // Añadir pin en mapa con folio numerado
+        if (state.map && typeof L !== 'undefined') {
+          const pinIcon = L.divIcon({
+            html: `<div style="background:#059669;color:white;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid white;font-size:11px;font-weight:bold;box-shadow:0 2px 6px rgba(0,0,0,0.4);">${count}</div>`,
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
+          });
+          const marker = L.marker([punto.lat, punto.lng], { icon: pinIcon })
+            .addTo(state.map)
+            .bindPopup(`<b>Punto ${count}</b><br>${punto.hora}`);
+          state.checkpointMarkers.push(marker);
+        }
+
+        // Transmitir checkpoint al servidor
+        sendLocationPing(punto);
+        updateRoutePersistentNotification();
+
+        if (navigator.vibrate) navigator.vibrate([80, 50, 80]);
+        showToast(`📍 Checkpoint #${count} registrado`);
+      }
+
+      // BOTÓN DE PÁNICO
+      async function triggerPanicAlert() {
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]);
+        showToast('🚨 ALERTA DE AUXILIO ENVIADA AL CENTRO DE CONTROL', 5000);
+        
+        const alertData = {
+          tipo: 'ALERTA_AUXILIO',
+          hora: new Date().toISOString(),
+          observaciones: 'El oficial activó el Botón de Auxilio Inmediato desde el celular.'
+        };
+        sendLocationPing(alertData);
+      }
+
+      // RENDERIZAR FORMULARIO DINÁMICO
+      function renderDynamicForm(schemaId) {
+        const schema = state.schemas[schemaId];
+        if (!schema || !schema.fields || !dynamicFieldsContainer) return;
+
+        let html = '';
+
+        schema.fields.forEach(f => {
+          // Omitir campo de selección de elemento si ya se seleccionó al inicio
+          if (f.key === 'elemento') return;
+
+          const reqAttr = f.required ? 'required' : '';
+          const reqStar = f.required ? '<span style="color:#ef4444;">*</span>' : '';
+          const subtitleHtml = f.subtitle ? `<div class="form-subtitle">${f.subtitle}</div>` : '';
+
+          if (f.type === 'matrix_checklist') {
+            const subfields = f.subfields || [];
+            const opts = f.options || ['BIEN', 'REGULAR', 'FALLA', 'N/A'];
+            
+            html += `
+              <div class="form-group" style="margin-top: 0.5rem;">
+                <label class="form-label">${f.label} ${reqStar}</label>
+                ${subtitleHtml}
+                <table class="touch-matrix-table" data-matrix-key="${f.key}">
+                  <tbody>
+                    ${subfields.map(sf => `
+                      <tr class="touch-matrix-row" data-subfield-key="${sf.key}">
+                        <td class="touch-matrix-label">${sf.label}</td>
+                        <td class="touch-matrix-options">
+                          ${opts.map(opt => {
+                            let optClass = 'active-good';
+                            if (opt === 'REGULAR' || opt === 'NO') optClass = 'active-warn';
+                            if (opt === 'FALLA' || opt === 'MAL') optClass = 'active-bad';
+                            if (opt === 'N/A') optClass = 'active-na';
+                            return `<button type="button" class="btn-touch-opt" data-opt-val="${opt}" data-opt-class="${optClass}">${opt}</button>`;
+                          }).join('')}
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `;
+          } else if (f.type === 'select') {
+            const opts = f.options || [];
+            html += `
+              <div class="form-group">
+                <label class="form-label" for="dyn_${f.key}">${f.label} ${reqStar}</label>
+                ${subtitleHtml}
+                <select id="dyn_${f.key}" name="${f.key}" class="form-control" ${reqAttr}>
+                  <option value="">-- Seleccionar --</option>
+                  ${opts.map(o => `<option value="${o}">${o}</option>`).join('')}
+                </select>
+              </div>
+            `;
+          } else if (f.type === 'radio') {
+            const opts = f.options || ['Sí', 'No'];
+            html += `
+              <div class="form-group">
+                <label class="form-label">${f.label} ${reqStar}</label>
+                ${subtitleHtml}
+                <div style="display: flex; gap: 0.75rem; margin-top: 0.25rem;">
+                  ${opts.map(o => `
+                    <label style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.88rem; cursor: pointer;">
+                      <input type="radio" name="${f.key}" value="${o}" ${reqAttr}>
+                      <span>${o}</span>
+                    </label>
+                  `).join('')}
+                </div>
+              </div>
+            `;
+          } else if (f.type === 'textarea') {
+            html += `
+              <div class="form-group">
+                <label class="form-label" for="dyn_${f.key}">${f.label} ${reqStar}</label>
+                ${subtitleHtml}
+                <textarea id="dyn_${f.key}" name="${f.key}" class="form-control" placeholder="${f.placeholder || 'Escribe aquí...'}" ${reqAttr}></textarea>
+              </div>
+            `;
+          } else if (f.type === 'foto') {
+            html += `
+              <div class="form-group">
+                <label class="form-label">${f.label} ${reqStar}</label>
+                ${subtitleHtml}
+                <div class="photo-capture-box" data-photo-key="${f.key}">
+                  <input type="file" accept="image/*" capture="environment" class="photo-input" data-photo-target="${f.key}" style="display:none;">
+                  <button type="button" class="btn-action btn-outline-action btn-trigger-photo" style="font-size:0.82rem; padding: 0.5rem;">
+                    📷 Tomar Foto con Cámara
+                  </button>
+                  <img src="" class="photo-preview-img" id="preview_${f.key}">
+                </div>
+              </div>
+            `;
+          } else if (f.type === 'rating') {
+            html += `
+              <div class="form-group">
+                <label class="form-label">${f.label} ${reqStar}</label>
+                ${subtitleHtml}
+                <div class="star-rating-box" data-rating-key="${f.key}">
+                  <span class="star" data-val="1">★</span>
+                  <span class="star" data-val="2">★</span>
+                  <span class="star" data-val="3">★</span>
+                  <span class="star" data-val="4">★</span>
+                  <span class="star" data-val="5">★</span>
+                </div>
+                <input type="hidden" name="${f.key}" id="dyn_${f.key}" value="5">
+              </div>
+            `;
+          } else if (f.type === 'firma') {
+            html += `
+              <div class="form-group">
+                <label class="form-label">${f.label} ${reqStar}</label>
+                ${subtitleHtml}
+                <div class="signature-pad-container">
+                  <canvas id="signatureCanvas"></canvas>
+                  <button type="button" class="sig-clear-btn" id="btnClearSig">Borrar Firma</button>
+                </div>
+              </div>
+            `;
+          } else if (f.type === 'gps_location' || f.key === 'gps_ubicacion') {
+            const currentCoordsText = state.currentPos
+              ? `${state.currentPos.lat.toFixed(6)}, ${state.currentPos.lng.toFixed(6)}`
+              : 'Transmitiendo ubicación GPS en tiempo real...';
+            const currentAccText = state.currentPos
+              ? `🎯 Precisión GPS: ±${Math.round(state.currentPos.accuracy)}m`
+              : 'Sincronizando satélites GPS...';
+            const initVal = state.currentPos
+              ? `${state.currentPos.lat.toFixed(6)}, ${state.currentPos.lng.toFixed(6)} (±${Math.round(state.currentPos.accuracy)}m)`
+              : '';
+
+            html += `
+              <div class="form-group">
+                <label class="form-label">${f.label} ${reqStar}</label>
+                ${subtitleHtml}
+                <div class="gps-field-card" id="cardGpsLiveField">
+                  <div class="gps-field-status">
+                    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 6px #10b981;"></span>
+                    <span id="gpsFieldCoordsText">${currentCoordsText}</span>
+                  </div>
+                  <div class="gps-field-meta" id="gpsFieldMetaText">${currentAccText}</div>
+                  <input type="hidden" name="${f.key}" id="dyn_${f.key}" value="${initVal}">
+                </div>
+              </div>
+            `;
+          } else {
+            // text, number, date, time, datetime
+            const inputType = f.type === 'datetime' ? 'datetime-local' : (f.type === 'number' ? 'number' : (f.type === 'date' ? 'date' : (f.type === 'time' ? 'time' : 'text')));
+            html += `
+              <div class="form-group">
+                <label class="form-label" for="dyn_${f.key}">${f.label} ${reqStar}</label>
+                ${subtitleHtml}
+                <input type="${inputType}" id="dyn_${f.key}" name="${f.key}" class="form-control" placeholder="${f.placeholder || ''}" ${reqAttr}>
+              </div>
+            `;
+          }
+        });
+
+        dynamicFieldsContainer.innerHTML = html;
+
+        // Activar manejadores de eventos en controles táctiles
+        initDynamicFormHandlers();
+      }
+
+      function initDynamicFormHandlers() {
+        // Manejador de Matriz Checklist
+        document.querySelectorAll('.touch-matrix-table').forEach(tbl => {
+          tbl.querySelectorAll('.btn-touch-opt').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const row = btn.closest('.touch-matrix-row');
+              const optClass = btn.dataset.optClass;
+              row.querySelectorAll('.btn-touch-opt').forEach(b => {
+                b.className = 'btn-touch-opt';
+              });
+              btn.classList.add(optClass);
+              row.dataset.selectedVal = btn.dataset.optVal;
+            });
+          });
+        });
+
+        // Manejador de Fotos
+        document.querySelectorAll('.btn-trigger-photo').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const parent = btn.closest('.photo-capture-box');
+            const input = parent.querySelector('.photo-input');
+            if (input) input.click();
+          });
+        });
+
+        document.querySelectorAll('.photo-input').forEach(input => {
+          input.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const key = input.dataset.photoTarget;
+            const preview = document.getElementById(`preview_${key}`);
+            
+            // Comprimir imagen a base64
+            const base64 = await compressImage(file);
+            state.photoData[key] = base64;
+            if (preview) {
+              preview.src = base64;
+              preview.style.display = 'block';
+            }
+          });
+        });
+
+        // Manejador de Rating Stars
+        document.querySelectorAll('.star-rating-box').forEach(box => {
+          const key = box.dataset.ratingKey;
+          const hiddenInput = document.getElementById(`dyn_${key}`);
+          box.querySelectorAll('.star').forEach(star => {
+            star.addEventListener('click', () => {
+              const val = parseInt(star.dataset.val, 10);
+              if (hiddenInput) hiddenInput.value = val;
+              box.querySelectorAll('.star').forEach(s => {
+                const sVal = parseInt(s.dataset.val, 10);
+                s.classList.toggle('active', sVal <= val);
+              });
+            });
+          });
+          // Default 5 stars
+          box.querySelectorAll('.star').forEach(s => s.classList.add('active'));
+        });
+
+        // Manejador de Firma Canvas
+        initSignaturePad();
+      }
+
+      function compressImage(file) {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const maxDim = 800;
+              let width = img.width;
+              let height = img.height;
+
+              if (width > height) {
+                if (width > maxDim) {
+                  height = Math.round((height * maxDim) / width);
+                  width = maxDim;
+                }
+              } else {
+                if (height > maxDim) {
+                  width = Math.round((width * maxDim) / height);
+                  height = maxDim;
+                }
+              }
+
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+              resolve(canvas.toDataURL('image/jpeg', 0.7));
+            };
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function initSignaturePad() {
+        const canvas = document.getElementById('signatureCanvas');
+        if (!canvas) return;
+
+        state.signatureCanvas = canvas;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width || 320;
+        canvas.height = 130;
+
+        const ctx = canvas.getContext('2d');
+        state.signatureCtx = ctx;
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2.5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        const btnClear = document.getElementById('btnClearSig');
+        if (btnClear) {
+          btnClear.addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            state.signatureData = null;
+          });
+        }
+
+        const getPos = (e) => {
+          const r = canvas.getBoundingClientRect();
+          const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+          const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+          return {
+            x: clientX - r.left,
+            y: clientY - r.top
+          };
+        };
+
+        const startDraw = (e) => {
+          e.preventDefault();
+          state.isDrawingSig = true;
+          const pos = getPos(e);
+          ctx.beginPath();
+          ctx.moveTo(pos.x, pos.y);
+        };
+
+        const draw = (e) => {
+          if (!state.isDrawingSig) return;
+          e.preventDefault();
+          const pos = getPos(e);
+          ctx.lineTo(pos.x, pos.y);
+          ctx.stroke();
+        };
+
+        const stopDraw = () => {
+          if (state.isDrawingSig) {
+            state.isDrawingSig = false;
+            state.signatureData = canvas.toDataURL('image/png');
+          }
+        };
+
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', draw);
+        window.addEventListener('mouseup', stopDraw);
+
+        canvas.addEventListener('touchstart', startDraw, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        canvas.addEventListener('touchend', stopDraw);
+      }
+
+      // FINALIZAR Y ENVIAR RECORRIDO
+      async function finishPatrolSession() {
+        if (!confirm('¿Deseas finalizar este recorrido y enviar el reporte al Centro de Control?')) {
+          return;
+        }
+
+        // Detener inmediatamente el GPS del dispositivo y los intervalos de transmisión
+        state.isTracking = false;
+        if (state.watchId !== null) {
+          try { navigator.geolocation.clearWatch(state.watchId); } catch(e) {}
+          state.watchId = null;
+        }
+        clearInterval(state.timerIntervalId);
+        clearInterval(state.pingIntervalId);
+        if (state.pollIntervalId) clearInterval(state.pollIntervalId);
+
+        // Detener servicios de fondo y cerrar notificación persistente
+        stopBackgroundKeepAlive();
+
+        const endTime = new Date();
+        const durationMin = Math.round(state.secondsElapsed / 60);
+
+        // Recopilar respuestas del formulario dinámico
+        const formEl = document.getElementById('formRecorridoMobile');
+        const formData = new FormData(formEl);
+        const reportValues = {};
+
+        formData.forEach((val, key) => {
+          reportValues[key] = val;
+        });
+
+        // Recopilar matrices checklist
+        document.querySelectorAll('.touch-matrix-table').forEach(tbl => {
+          const matrixKey = tbl.dataset.matrixKey;
+          const matrixObj = {};
+          tbl.querySelectorAll('.touch-matrix-row').forEach(row => {
+            const subKey = row.dataset.subfieldKey;
+            matrixObj[subKey] = row.dataset.selectedVal || 'BIEN';
+          });
+          reportValues[matrixKey] = matrixObj;
+        });
+
+        // Añadir fotos y firma
+        Object.keys(state.photoData).forEach(k => {
+          reportValues[k] = state.photoData[k];
+        });
+
+        if (state.signatureData) {
+          reportValues['firma_guardia'] = state.signatureData;
+        }
+
+        const currentSchema = state.schemas[state.schemaId] || {};
+        const guardName = state.currentGuard ? (state.currentGuard.nombre || state.currentGuard.Nombre || 'Oficial') : 'Oficial';
+        const casetaVal = selectCaseta.value;
+
+        const completeDoc = {
+          id: state.activeRecorridoId,
+          folio: `REC-${Date.now().toString().slice(-6)}`,
+          schemaId: state.schemaId,
+          tipo_recorrido: currentSchema.title || state.schemaId,
+          elementoId: state.currentGuard ? (state.currentGuard.id || state.currentGuard._id) : '',
+          elementoNombre: guardName,
+          guardPhoto: state.currentGuard ? (state.currentGuard.foto || state.currentGuard.Foto || (state.currentGuard.id ? `data/fotos/elementos/${state.currentGuard.id}.webp` : '')) : '',
+          elementoFoto: state.currentGuard ? (state.currentGuard.foto || state.currentGuard.Foto || (state.currentGuard.id ? `data/fotos/elementos/${state.currentGuard.id}.webp` : '')) : '',
+          foto: state.currentGuard ? (state.currentGuard.foto || state.currentGuard.Foto || (state.currentGuard.id ? `data/fotos/elementos/${state.currentGuard.id}.webp` : '')) : '',
+          caseta: casetaVal,
+          fecha_inicio: state.startTime.toISOString(),
+          fecha_fin: endTime.toISOString(),
+          duracion_segundos: state.secondsElapsed,
+          duracion_formato: `${Math.floor(state.secondsElapsed / 60)} min ${state.secondsElapsed % 60} seg`,
+          lat: state.currentPos ? state.currentPos.lat : null,
+          lng: state.currentPos ? state.currentPos.lng : null,
+          accuracy: state.currentPos ? state.currentPos.accuracy : null,
+          puntos_control: state.checkpoints,
+          checkpoints: state.checkpoints,
+          ruta_gps: state.routePath,
+          breadcrumbs: state.routePath,
+          distancia_metros: Math.round(state.totalDistanceMeters),
+          distancia_formato: formatDistance(state.totalDistanceMeters),
+          estado: 'completado',
+          datos_formulario: reportValues,
+          ...reportValues,
+          createdAt: state.startTime,
+          updatedAt: endTime
+        };
+
+        try {
+          showToast('Transmitiendo reporte completo...');
+          const res = await apiFetch('/api/recorridos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(completeDoc)
+          });
+
+          if (res.ok) {
+            renderSuccessScreen(completeDoc);
+          } else {
+            showToast('Error al guardar en el servidor. Guardado localmente.');
+            renderSuccessScreen(completeDoc);
+          }
+        } catch (e) {
+          console.warn('[Mobile] Error enviando reporte final:', e);
+          renderSuccessScreen(completeDoc);
+        }
+      }
+
+      function renderSuccessScreen(doc) {
+        stepActive.classList.remove('active');
+        stepSuccess.classList.add('active');
+        window.scrollTo(0, 0);
+
+        const detailsBox = document.getElementById('successDetailsBox');
+        if (detailsBox) {
+          detailsBox.innerHTML = `
+            <div><b>Folio:</b> ${doc.folio}</div>
+            <div><b>Tipo:</b> ${doc.tipo_recorrido}</div>
+            <div><b>Oficial:</b> ${doc.elementoNombre}</div>
+            <div><b>Duración:</b> ${doc.duracion_formato}</div>
+            <div><b>Distancia Recorrida:</b> ${doc.distancia_formato || '0 m'}</div>
+            <div><b>Puntos Marcados:</b> ${doc.puntos_control.length}</div>
+            <div><b>Puntos GPS Registrados:</b> ${doc.ruta_gps ? doc.ruta_gps.length : 0}</div>
+            <div><b>Coordenadas Finales:</b> ${doc.lat ? `${doc.lat.toFixed(5)}, ${doc.lng.toFixed(5)}` : 'N/D'}</div>
+          `;
+        }
+
+        if (navigator.vibrate) navigator.vibrate([100, 100, 200]);
+      }
+
+      async function cancelPatrolSession() {
+        if (!confirm('¿Estás seguro de cancelar este recorrido? Se detendrá la transmisión.')) return;
+        // Detener inmediatamente el GPS del dispositivo y los intervalos de transmisión
+        state.isTracking = false;
+        if (state.watchId !== null) {
+          try { navigator.geolocation.clearWatch(state.watchId); } catch(e) {}
+          state.watchId = null;
+        }
+        clearInterval(state.timerIntervalId);
+        clearInterval(state.pingIntervalId);
+        if (state.pollIntervalId) clearInterval(state.pollIntervalId);
+
+        // Detener servicios de fondo y cerrar notificación persistente
+        stopBackgroundKeepAlive();
+
+        // Notificar al backend la cancelación inmediata para actualizar la interfaz del operador
+        try {
+          const gId = state.currentGuard ? String(state.currentGuard.id || state.currentGuard.ID || state.currentGuard._id || '') : '';
+          await apiFetch('/api/recorridos/active/cancel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              recorridoId: state.activeRecorridoId,
+              id: state.activeRecorridoId,
+              elementoId: gId,
+              guardId: gId
+            })
+          });
+        } catch (e) {
+          console.warn('[Mobile] Error al notificar cancelación al backend:', e);
+        }
+
+        resetToStartScreen();
+        showToast('Recorrido cancelado y transmisión detenida');
+      }
+
+      function resetToStartScreen() {
+        state.isTracking = false;
+        state.activeRecorridoId = null;
+        if (state.watchId !== null) {
+          try { navigator.geolocation.clearWatch(state.watchId); } catch(e) {}
+          state.watchId = null;
+        }
+        stepActive.classList.remove('active');
+        stepSuccess.classList.remove('active');
+        stepStart.classList.add('active');
+        window.scrollTo(0, 0);
+
+        // Limpiar marcadores y capas del recorrido anterior en el mapa
+        if (state.map && state.checkpointMarkers && state.checkpointMarkers.length > 0) {
+          state.checkpointMarkers.forEach(m => {
+            try { state.map.removeLayer(m); } catch(e) {}
+          });
+          state.checkpointMarkers = [];
+        }
+
+        if (state.routePolyline) {
+          try { state.routePolyline.setLatLngs([]); } catch(e) {}
+        }
+        if (state.routeGlowPolyline) {
+          try { state.routeGlowPolyline.setLatLngs([]); } catch(e) {}
+        }
+
+        state.routePath = [];
+        state.checkpoints = [];
+        state.totalDistanceMeters = 0;
+        state.secondsElapsed = 0;
+        if (hudDistancia) hudDistancia.textContent = '0 m';
+        if (hudPuntos) hudPuntos.textContent = '0';
+        if (hudTimer) hudTimer.textContent = '00:00:00';
+
+        if (!state.currentGuard) {
+          checkRecentSocio();
+        }
+      }
+
+      // INICIAR AL CARGAR
+      window.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
+
+  <!-- DOCK DE NAVEGACIÓN -->
+  <div style="position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: center; padding: 8px 12px calc(env(safe-area-inset-bottom, 8px) + 8px); background: linear-gradient(180deg, rgba(9, 13, 22, 0) 0%, rgba(9, 13, 22, 0.85) 40%, rgba(9, 13, 22, 0.98) 100%); backdrop-filter: blur(16px); z-index: 1000; pointer-events: none;">
+    <nav style="display: flex; gap: 8px; background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 28px; padding: 6px 12px; max-width: 420px; width: 100%; justify-content: space-around; pointer-events: auto; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);">
+      <a href="cdi-movil.html" style="display: flex; flex-direction: column; align-items: center; background: transparent; border: none; cursor: pointer; padding: 4px 10px; border-radius: 16px; color: #94a3b8; text-decoration: none; font-size: 0.68rem; font-weight: 700; gap: 3px;">
+        <div style="width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #ffffff; background: #2563eb;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 12h10M12 7v10"/></svg>
+        </div>
+        <span>CDI</span>
+      </a>
+
+      <a href="checador-movil.html" style="display: flex; flex-direction: column; align-items: center; background: transparent; border: none; cursor: pointer; padding: 4px 10px; border-radius: 16px; color: #94a3b8; text-decoration: none; font-size: 0.68rem; font-weight: 700; gap: 3px;">
+        <div style="width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #ffffff; background: #059669;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <span>Checador</span>
+      </a>
+
+      <a href="recorrido-movil.html" style="display: flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.12); border: none; cursor: pointer; padding: 4px 10px; border-radius: 16px; color: #ffffff; text-decoration: none; font-size: 0.68rem; font-weight: 700; gap: 3px;">
+        <div style="width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #ffffff; background: #0284c7;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
+        </div>
+        <span>Recorridos</span>
+      </a>
+
+      <a href="bitacora-movil.html" style="display: flex; flex-direction: column; align-items: center; background: transparent; border: none; cursor: pointer; padding: 4px 10px; border-radius: 16px; color: #94a3b8; text-decoration: none; font-size: 0.68rem; font-weight: 700; gap: 3px;">
+        <div style="width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #ffffff; background: #7c3aed;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <span>Bitácora</span>
+      </a>
+    </nav>
+  </div>
+</body>
+</html>
