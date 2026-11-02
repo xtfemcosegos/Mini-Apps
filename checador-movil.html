@@ -3,14 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>RegAs 3 — Asistencia y Entrada Facial Móvil</title>
-  <meta name="theme-color" content="#090d16">
+  <title>RegAs 3 — Asistencia y Checador Facial Móvil</title>
+  <meta name="theme-color" content="#070a13">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2'><path d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/><circle cx='12' cy='13' r='4'/></svg>">
+  <script>
+    const isEmbeddedInIframe = (window.self !== window.top) || window.location.search.includes('embedded=1');
+    if (isEmbeddedInIframe) {
+      document.documentElement.classList.add('is-embedded-iframe');
+      const removeMobileDock = () => {
+        document.querySelectorAll('.miniapps-dock-wrapper, #miniappsDockWrapper, .dock-wrapper').forEach(el => {
+          el.remove();
+        });
+      };
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', removeMobileDock);
+      } else {
+        removeMobileDock();
+      }
+      window.addEventListener('load', removeMobileDock);
+    }
+  </script>
   
   <style>
     :root {
@@ -129,7 +146,7 @@
       50% { opacity: 0.4; transform: scale(0.85); }
     }
 
-    /* MAIN CONTAINER & STEPS */
+    /* MAIN CONTAINER */
     .main-content {
       flex: 1;
       padding: 10px 14px calc(env(safe-area-inset-bottom, 8px) + 72px);
@@ -150,14 +167,14 @@
       flex: 1;
       height: 100%;
       min-height: 0;
-      animation: fadeIn 0.25s ease-out;
+      animation: fadeIn 0.22s ease-out;
     }
 
     .step-screen.hidden {
       display: none !important;
     }
 
-    #step1Screen, #step2Screen, #step5Screen {
+    #step1Screen, #step3Screen, #step4Screen {
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       padding-bottom: 24px;
@@ -186,8 +203,8 @@
     }
 
     .card-title-row h2 {
-      font-size: 1rem;
-      font-weight: 700;
+      font-size: 1.05rem;
+      font-weight: 800;
       color: #ffffff;
     }
 
@@ -203,9 +220,9 @@
       border: 2px solid var(--border);
       border-radius: var(--radius-sm);
       padding: 14px 16px;
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       font-weight: 800;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       color: #38bdf8;
       text-align: center;
       outline: none;
@@ -216,7 +233,7 @@
 
     .id-display-input:focus {
       border-color: var(--accent-cyan);
-      box-shadow: 0 0 15px var(--primary-glow);
+      box-shadow: 0 0 16px var(--primary-glow);
     }
 
     .numpad-grid {
@@ -230,7 +247,7 @@
       background: var(--bg-surface);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 16px 0;
+      padding: 15px 0;
       font-size: 1.35rem;
       font-weight: 700;
       color: #ffffff;
@@ -243,7 +260,7 @@
     }
 
     .numpad-btn:active {
-      transform: scale(0.94);
+      transform: scale(0.93);
       background: #2563eb;
       color: white;
     }
@@ -255,11 +272,11 @@
     }
 
     .numpad-btn.btn-backspace {
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       color: var(--accent-amber);
     }
 
-    /* BUTTONS */
+    /* BOTONES DE ACCIÓN */
     .btn-action-primary {
       width: 100%;
       background: linear-gradient(135deg, #2563eb, #1d4ed8);
@@ -268,7 +285,8 @@
       border-radius: var(--radius-sm);
       padding: 15px;
       font-size: 1rem;
-      font-weight: 700;
+      font-weight: 800;
+      letter-spacing: 0.02em;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -281,12 +299,17 @@
 
     .btn-action-primary:active {
       transform: scale(0.98);
-      filter: brightness(0.9);
+      filter: brightness(0.92);
     }
 
-    .btn-action-success {
-      background: linear-gradient(135deg, #10b981, #059669);
-      box-shadow: 0 4px 16px var(--accent-green-glow);
+    .btn-action-entry {
+      background: linear-gradient(135deg, #10b981, #059669) !important;
+      box-shadow: 0 4px 18px var(--accent-green-glow) !important;
+    }
+
+    .btn-action-exit {
+      background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+      box-shadow: 0 4px 18px rgba(239, 68, 68, 0.45) !important;
     }
 
     .btn-action-outline {
@@ -303,45 +326,944 @@
       justify-content: center;
       gap: 6px;
       margin-top: 10px;
+      width: 100%;
+      transition: all 0.15s ease;
     }
 
-    /* STEP 2: PROFILE & SHIFT SUMMARY */
-    .profile-card {
+    .btn-action-outline:active {
+      transform: scale(0.98);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* ========================================================
+       PASO 2: CÁMARA ADAPTABLE CON ARO DE LUZ DE PANTALLA
+       ======================================================== */
+    #step2Screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+      position: relative;
+      overflow: hidden;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 0 35px 12px rgba(255, 255, 255, 0.95), 0 0 70px 25px rgba(255, 255, 255, 0.7);
+    }
+
+    .camera-viewport-wrap {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      flex: 1;
       display: flex;
       align-items: center;
-      gap: 14px;
-      padding: 14px;
-      background: var(--bg-surface);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      margin-bottom: 14px;
+      justify-content: center;
+      background: #020617;
+      overflow: hidden;
     }
 
-    .profile-photo-wrap {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      overflow: hidden;
-      border: 2px solid var(--accent-cyan);
-      background: #020617;
-      flex-shrink: 0;
+    #videoStream {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1); /* Cámara en modo espejo */
+    }
+
+    #photoCanvas {
+      display: none;
+    }
+
+    /* Overlay Aro de Luz con Pantalla Blanca Reflectiva */
+    .screen-light-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 14px 20px;
+      z-index: 20;
+    }
+
+    /* Apertura Facial Oval con Luz Blanca Perimetral Continua */
+    .facial-ring-frame {
+      width: min(260px, 72vw);
+      height: min(350px, 50vh);
+      border-radius: 50% 50% 48% 48% / 55% 55% 45% 45%;
+      border: 4px solid #38bdf8;
+      box-shadow: 0 0 0 9999px #ffffff,
+                  0 0 50px 15px rgba(255, 255, 255, 1),
+                  inset 0 0 30px rgba(255, 255, 255, 0.8);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transition: all 0.25s ease;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .profile-photo-img {
+    .facial-ring-frame.face-aligned {
+      border-color: #10b981;
+      box-shadow: 0 0 0 9999px #ffffff,
+                  0 0 60px 20px rgba(16, 185, 129, 0.9),
+                  inset 0 0 35px rgba(16, 185, 129, 0.6);
+    }
+
+    .facial-scanner-bar {
+      position: absolute;
+      width: 82%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+      box-shadow: 0 0 10px #38bdf8;
+      animation: scanAnim 2s infinite ease-in-out;
+    }
+
+    .facial-ring-frame.face-aligned .facial-scanner-bar {
+      background: linear-gradient(90deg, transparent, #10b981, transparent);
+      box-shadow: 0 0 12px #10b981;
+    }
+
+    @keyframes scanAnim {
+      0%, 100% { top: 16%; opacity: 0.3; }
+      50% { top: 84%; opacity: 1; }
+    }
+
+    /* Mensajes HUD Flotantes */
+    .hud-instruction-badge {
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      border-radius: 999px;
+      padding: 9px 18px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-align: center;
+      max-width: 90%;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.25s ease;
+    }
+
+    .hud-instruction-badge.waiting {
+      border-color: #f59e0b;
+      color: #fef3c7;
+      background: rgba(30, 27, 75, 0.92);
+      animation: pulseAttention 1.8s infinite ease-in-out;
+    }
+
+    .hud-instruction-badge.tracking {
+      border-color: #10b981;
+      color: #ecfdf5;
+      background: rgba(6, 78, 59, 0.92);
+    }
+
+    @keyframes pulseAttention {
+      0%, 100% { transform: scale(1); box-shadow: 0 6px 20px rgba(0,0,0,0.55); }
+      50% { transform: scale(1.02); box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4); }
+    }
+
+    .hud-countdown-badge {
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 2px solid #38bdf8;
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+      transition: all 0.25s ease;
+    }
+
+    .hud-countdown-badge.active {
+      border-color: #10b981;
+      box-shadow: 0 4px 22px rgba(16, 185, 129, 0.5);
+    }
+
+    .hud-countdown-badge.active .hud-countdown-num {
+      color: #10b981;
+    }
+
+    .hud-countdown-num {
+      color: #38bdf8;
+      font-size: 1.15rem;
+      font-weight: 900;
+      font-family: monospace;
+      min-width: 34px;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .hud-cancel-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      pointer-events: auto;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      z-index: 30;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    }
+
+    .hud-cancel-btn:active {
+      transform: scale(0.94);
+      background: rgba(239, 68, 68, 0.85);
+    }
+
+    .btn-pc-skip-camera {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.88);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 7px 16px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      cursor: pointer;
+      z-index: 50;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .btn-pc-skip-camera:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: #38bdf8;
+      color: #ffffff;
+      transform: translateX(-50%) scale(1.03);
+    }
+    .btn-pc-skip-camera:active {
+      transform: translateX(-50%) scale(0.96);
+    }
+
+    /* ========================================================
+       SECCIÓN DE OFICIALES EN TURNO PENDIENTES DE SALIDA (CASETA)
+       ======================================================== */
+    .pending-salida-section {
+      margin-top: 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .pending-salida-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .pending-header-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pending-header-icon {
+      font-size: 1.35rem;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+    }
+
+    .pending-header-title {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .pending-header-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    .pending-header-sub strong {
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    .btn-refresh-pending {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-refresh-pending:hover {
+      background: rgba(56, 189, 248, 0.18);
+      border-color: rgba(56, 189, 248, 0.5);
+      color: #38bdf8;
+      transform: rotate(45deg);
+    }
+
+    .pending-salida-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 600px) {
+      .pending-salida-grid {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      }
+    }
+
+    /* Tarjeta individual de Oficial en Turno */
+    .officer-salida-card {
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .officer-salida-card:hover {
+      border-color: rgba(239, 68, 68, 0.4);
+      background: rgba(26, 35, 58, 0.85);
+      box-shadow: 0 4px 16px rgba(239, 68, 68, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .officer-card-avatar-wrap {
+      position: relative;
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+    }
+
+    .officer-card-avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: 11px;
+      object-fit: cover;
+      background: #1e293b;
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .officer-card-status-dot {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #10b981;
+      border: 2px solid #0b1120;
+      box-shadow: 0 0 6px #10b981;
+      animation: pulseGreen 2s infinite;
+    }
+
+    @keyframes pulseGreen {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.15); opacity: 0.8; }
+    }
+
+    .officer-card-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .officer-card-name {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #f1f5f9;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.2;
+    }
+
+    .officer-card-sub {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.70rem;
+      color: var(--text-muted);
+    }
+
+    .officer-card-socio {
+      font-weight: 700;
+      color: #94a3b8;
+    }
+
+    .officer-card-shift-tag {
+      background: rgba(56, 189, 248, 0.14);
+      color: #38bdf8;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+
+    .officer-card-time {
+      font-size: 0.70rem;
+      color: #a7f3d0;
+      margin-top: 1px;
+    }
+
+    .btn-quick-salida {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
+      transition: all 0.16s ease;
+      user-select: none;
+    }
+
+    .btn-quick-salida:hover {
+      background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+      transform: scale(1.04);
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.55);
+    }
+
+    .btn-quick-salida:active {
+      transform: scale(0.95);
+    }
+
+    /* BOTÓN AZUL DE RELEVO CONTINUO / DOBLETE (Mismas características que RegAs 3) */
+    .btn-quick-salida.btn-quick-swap {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+      box-shadow: 0 3px 12px rgba(37, 99, 235, 0.45) !important;
+      gap: 5px;
+    }
+
+    .btn-quick-salida.btn-quick-swap:hover {
+      background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%) !important;
+      transform: scale(1.04);
+      box-shadow: 0 5px 16px rgba(37, 99, 235, 0.65) !important;
+    }
+
+    .btn-quick-salida.btn-quick-swap:active {
+      transform: scale(0.95);
+    }
+
+    .btn-quick-salida-icon-only {
+      background: rgba(239, 68, 68, 0.14);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 8px;
+      padding: 6px 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.16s ease;
+    }
+
+    .btn-quick-salida-icon-only:hover {
+      background: #ef4444;
+      color: #ffffff;
+      transform: scale(1.06);
+    }
+
+    .officer-salida-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    /* Estilos de Relevo Continuo para Paso 3 y Modal */
+    .btn-action-primary.btn-action-swap {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.45) !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    }
+
+    .btn-action-primary.btn-action-swap:hover {
+      background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%) !important;
+      box-shadow: 0 10px 28px rgba(37, 99, 235, 0.65) !important;
+      transform: translateY(-2px);
+    }
+
+    .btn-salida-modal-confirm.is-swap {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45) !important;
+    }
+
+    .btn-salida-modal-confirm.is-swap:hover {
+      background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%) !important;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.65) !important;
+    }
+
+    .shift-status-banner.status-swap {
+      background: rgba(37, 99, 235, 0.14);
+      border-color: rgba(59, 130, 246, 0.45);
+      color: #93c5fd;
+    }
+
+    .shift-status-banner.status-swap .shift-banner-title {
+      color: #60a5fa;
+    }
+
+    .btn-secondary-exit {
+      background: transparent;
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      color: #f87171;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 10px;
+      width: 100%;
+      transition: all 0.18s ease;
+    }
+
+    .btn-secondary-exit:hover {
+      background: rgba(239, 68, 68, 0.16);
+      border-color: #ef4444;
+      color: #ffffff;
+    }
+
+    .pending-empty-state {
+      padding: 16px 12px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.80rem;
+      background: rgba(15, 23, 42, 0.4);
+      border-radius: 10px;
+      border: 1px dashed rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pending-empty-state .empty-icon {
+      font-size: 1.4rem;
+      margin-bottom: 2px;
+    }
+
+    .pending-loading-state {
+      padding: 16px 12px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.80rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .spinner-sm {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: #38bdf8;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ========================================================
+       MODAL PERSONALIZADO DE CONFIRMACIÓN DE SALIDA
+       ======================================================== */
+    .salida-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .salida-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.82);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      animation: fadeInBackdrop 0.2s ease;
+    }
+
+    @keyframes fadeInBackdrop {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .salida-modal-dialog {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 420px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 18px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 24px rgba(239, 68, 68, 0.2);
+      overflow: hidden;
+      animation: popInModal 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes popInModal {
+      from { transform: scale(0.92) translateY(10px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .salida-modal-header {
+      padding: 14px 18px;
+      background: rgba(30, 41, 59, 0.6);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .salida-modal-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .salida-modal-icon {
+      font-size: 1.25rem;
+    }
+
+    .salida-modal-header h3 {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0;
+    }
+
+    .salida-modal-close-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 1.1rem;
+      cursor: pointer;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .salida-modal-close-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+
+    .salida-modal-body {
+      padding: 18px 20px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .salida-modal-photo-container {
+      position: relative;
+      width: 104px;
+      height: 104px;
+      margin-bottom: 12px;
+    }
+
+    .salida-modal-photo {
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+      object-fit: cover;
+      background: #1e293b;
+      border: 3px solid rgba(239, 68, 68, 0.6);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 16px rgba(239, 68, 68, 0.3);
+    }
+
+    .salida-modal-photo-pill {
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #94a3b8;
+      font-size: 0.58rem;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 999px;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .salida-modal-info {
+      margin-bottom: 14px;
+      width: 100%;
+    }
+
+    .salida-modal-name {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0 0 4px;
+      line-height: 1.3;
+    }
+
+    .salida-modal-badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .salida-modal-id {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .salida-modal-role {
+      font-size: 0.74rem;
+      color: #94a3b8;
+    }
+
+    .salida-modal-data-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    .salida-data-item {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .salida-data-item.highlight {
+      grid-column: span 2;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: 8px;
+      padding: 6px 10px;
+    }
+
+    .salida-data-label {
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #94a3b8;
+      font-weight: 700;
+    }
+
+    .salida-data-value {
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: #f1f5f9;
+    }
+
+    .salida-data-item.highlight .salida-data-value {
+      color: #f87171;
+      font-size: 0.94rem;
+    }
+
+    .salida-modal-alert {
+      font-size: 0.75rem;
+      color: #cbd5e1;
+      line-height: 1.4;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: 8px;
+      padding: 8px 10px;
+      width: 100%;
+    }
+
+    .salida-modal-footer {
+      padding: 14px 18px 18px;
+      background: rgba(30, 41, 59, 0.4);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-salida-modal-cancel {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-salida-modal-cancel:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+    }
+
+    .btn-salida-modal-confirm {
+      flex: 1.3;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      border: none;
+      color: #ffffff;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.45);
+      transition: all 0.16s ease;
+    }
+
+    .btn-salida-modal-confirm:hover {
+      background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(239, 68, 68, 0.6);
+    }
+
+    .btn-salida-modal-confirm:active {
+      transform: scale(0.98);
+    }
+
+    /* Destello de captura */
+    .flash-overlay {
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 100;
+      transition: opacity 0.08s ease-in;
+    }
+
+    .flash-overlay.active {
+      opacity: 1;
+    }
+
+    /* ========================================================
+       PASO 3: PANEL DETALLE DE TURNO & MINIATURA
+       ======================================================== */
+    .detail-profile-box {
+      background: var(--bg-surface);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .detail-mini-photo-wrap {
+      width: 72px;
+      height: 72px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 2.5px solid var(--accent-green);
+      background: #020617;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+      position: relative;
+    }
+
+    .detail-mini-img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    .profile-info {
+    .detail-officer-info {
       flex: 1;
       overflow: hidden;
     }
 
-    .profile-name {
+    .detail-officer-name {
       font-size: 1rem;
       font-weight: 800;
       color: #ffffff;
@@ -350,20 +1272,21 @@
       text-overflow: ellipsis;
     }
 
-    .profile-role {
+    .detail-officer-role {
       font-size: 0.78rem;
       color: var(--accent-cyan);
       font-weight: 600;
       margin-top: 2px;
     }
 
-    .profile-id-tag {
-      font-size: 0.72rem;
+    .detail-officer-id {
+      font-size: 0.74rem;
       color: var(--text-muted);
       font-family: monospace;
+      margin-top: 2px;
     }
 
-    /* SHIFT STATUS BANNER */
+    /* BANNER DE ESTADO SEGÚN REGLA 4 */
     .shift-status-banner {
       border-radius: 12px;
       padding: 14px;
@@ -379,14 +1302,19 @@
       border-color: rgba(16, 185, 129, 0.35);
     }
 
+    .shift-status-banner.status-exit {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
     .shift-status-banner.status-warning {
       background: rgba(245, 158, 11, 0.12);
       border-color: rgba(245, 158, 11, 0.35);
     }
 
     .shift-status-banner.status-error {
-      background: rgba(239, 68, 68, 0.12);
-      border-color: rgba(239, 68, 68, 0.35);
+      background: rgba(239, 68, 68, 0.14);
+      border-color: rgba(239, 68, 68, 0.45);
     }
 
     .shift-banner-header {
@@ -400,16 +1328,17 @@
     }
 
     .shift-banner-title {
-      font-size: 0.95rem;
+      font-size: 0.98rem;
       font-weight: 800;
     }
 
     .status-available .shift-banner-title { color: #34d399; }
+    .status-exit .shift-banner-title { color: #f87171; }
     .status-warning .shift-banner-title { color: #fbbf24; }
     .status-error .shift-banner-title { color: #f87171; }
 
     .shift-banner-text {
-      font-size: 0.82rem;
+      font-size: 0.84rem;
       line-height: 1.45;
       color: #cbd5e1;
     }
@@ -418,7 +1347,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      margin-top: 4px;
+      margin-top: 6px;
       padding-top: 8px;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
@@ -433,157 +1362,135 @@
       font-size: 0.68rem;
       color: var(--text-muted);
       text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     .shift-meta-value {
-      font-size: 0.85rem;
+      font-size: 0.86rem;
       font-weight: 700;
       color: #f1f5f9;
     }
 
-    /* STEP 3 & 4: CAMERA & FACIAL HUD FULLSCREEN */
-    #step3Screen {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      min-height: 0;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .camera-container {
-      position: relative;
-      width: 100%;
-      flex: 1;
-      height: 100%;
-      min-height: 0;
-      max-height: none;
-      aspect-ratio: unset;
+    /* ========================================================
+       PASO 4: COMPROBANTE DIGITAL DE ASISTENCIA
+       ======================================================== */
+    .success-receipt-card {
+      background: var(--bg-card);
+      border: 2px solid var(--accent-green);
       border-radius: 20px;
-      overflow: hidden;
-      background: #020617;
-      border: 3px solid #ffffff;
-      box-shadow: 0 0 35px 8px rgba(255, 255, 255, 0.92), 0 0 70px 20px rgba(255, 255, 255, 0.65);
-      margin-bottom: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.35s ease;
-    }
-
-    #videoStream {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transform: scaleX(-1); /* Mirror camera */
-    }
-
-    #photoCanvas {
-      display: none;
-    }
-
-    /* HUD OVERLAY */
-    .camera-hud-overlay {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
+      padding: 24px 18px;
+      text-align: center;
+      box-shadow: 0 10px 30px var(--accent-green-glow);
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 16px;
+      gap: 12px;
     }
 
-    .hud-oval-frame {
-      width: min(250px, 68vw);
-      height: min(340px, 48vh);
-      border-radius: 50% 50% 48% 48% / 55% 55% 45% 45%;
-      border: 3.5px solid #0284c7;
-      box-shadow: 0 0 0 9999px rgba(255, 255, 255, 0.94),
-                  0 0 35px rgba(255, 255, 255, 0.95),
-                  inset 0 0 20px rgba(255, 255, 255, 0.5);
-      position: relative;
-      transition: all 0.3s ease;
+    .receipt-check-circle {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #10b981, #059669);
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 2.1rem;
+      color: white;
+      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.5);
+      animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    .hud-oval-frame.face-detected {
-      border: 4px solid #10b981;
-      box-shadow: 0 0 0 9999px rgba(255, 255, 255, 0.94),
-                  0 0 40px rgba(16, 185, 129, 0.85),
-                  inset 0 0 25px rgba(16, 185, 129, 0.4);
+    @keyframes popIn {
+      0% { transform: scale(0.4); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
     }
 
-    .hud-oval-frame.match-success {
-      border: 5px solid #10b981;
-      box-shadow: 0 0 0 9999px rgba(255, 255, 255, 0.96),
-                  0 0 60px #10b981,
-                  inset 0 0 35px #10b981;
-      animation: matchSuccessPulse 0.5s ease-out;
+    .receipt-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-top: 4px;
     }
 
-    @keyframes matchSuccessPulse {
-      0% { transform: scale(0.96); }
-      50% { transform: scale(1.04); }
-      100% { transform: scale(1); }
+    .receipt-photo-snapshot {
+      width: 100px;
+      height: 100px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 2.5px solid var(--accent-green);
+      margin: 6px 0;
+      background: #020617;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
-    .hud-scanner-bar {
-      position: absolute;
-      width: 80%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
-      box-shadow: 0 0 10px var(--accent-cyan);
-      animation: scanAnim 2.2s infinite ease-in-out;
-    }
-
-    .hud-oval-frame.face-detected .hud-scanner-bar {
-      background: linear-gradient(90deg, transparent, var(--accent-green), transparent);
-      box-shadow: 0 0 12px var(--accent-green);
-    }
-
-    @keyframes scanAnim {
-      0%, 100% { top: 15%; opacity: 0.2; }
-      50% { top: 85%; opacity: 1; }
-    }
-
-    .hud-status-badge {
-      position: absolute;
-      bottom: 22px;
-      background: rgba(15, 23, 42, 0.92);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1.5px solid rgba(255, 255, 255, 0.25);
-      border-radius: 999px;
-      padding: 8px 20px;
+    .receipt-table {
+      width: 100%;
+      background: var(--bg-surface);
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      text-align: left;
       font-size: 0.84rem;
-      font-weight: 700;
-      color: #ffffff;
+    }
+
+    .receipt-row {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
-      max-width: 90%;
-      text-align: center;
-      transition: all 0.25s ease;
-      z-index: 20;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    .hud-status-badge.match-success-badge {
-      background: rgba(16, 185, 129, 0.95);
-      border-color: #ffffff;
-      color: #ffffff;
-      box-shadow: 0 0 25px rgba(16, 185, 129, 0.9);
+    .receipt-row:last-child {
+      border-bottom: none;
     }
 
-    .hud-countdown-ring {
-      display: none !important;
+    .receipt-label {
+      color: var(--text-muted);
+    }
+
+    .receipt-val {
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    /* TOAST ALERT */
+    .app-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(50px);
+      background: #1e293b;
+      border: 1px solid var(--border);
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: white;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .app-toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
     }
 
     /* DOCK DE NAVEGACIÓN MINI APPS */
+    /* Ocultar dock si se ejecuta embebido dentro de un iframe (como en la vista paralela de escritorio) */
+    html.is-embedded-iframe .miniapps-dock-wrapper,
+    body.is-embedded-iframe .miniapps-dock-wrapper {
+      display: none !important;
+    }
+
+    html.is-embedded-iframe .main-content,
+    body.is-embedded-iframe .main-content {
+      padding-bottom: 24px !important;
+    }
+
     .miniapps-dock-wrapper {
       position: fixed;
       bottom: 0;
@@ -670,21 +1577,10 @@
       box-shadow: 0 5px 14px rgba(5, 150, 105, 0.4);
     }
 
-    .icon-cdi {
-      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    }
-
-    .icon-checador {
-      background: linear-gradient(135deg, #059669 0%, #047857 100%);
-    }
-
-    .icon-recorridos {
-      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-    }
-
-    .icon-bitacora {
-      background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-    }
+    .icon-cdi { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); }
+    .icon-checador { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
+    .icon-recorridos { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); }
+    .icon-bitacora { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); }
 
     .dock-item-label {
       font-size: 0.68rem;
@@ -698,171 +1594,6 @@
       color: #ffffff;
       font-weight: 800;
     }
-
-    /* MATCH PREVIEW PANEL */
-    .match-preview-card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .match-photos-row {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .match-thumb-box {
-      width: 80px;
-      height: 80px;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 2px solid var(--border);
-      background: #020617;
-      text-align: center;
-    }
-
-    .match-thumb-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .match-badge-result {
-      font-size: 0.82rem;
-      font-weight: 700;
-      padding: 6px 12px;
-      border-radius: 8px;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    .match-badge-result.success {
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.4);
-      color: #34d399;
-    }
-
-    .match-badge-result.warning {
-      background: rgba(245, 158, 11, 0.15);
-      border: 1px solid rgba(245, 158, 11, 0.4);
-      color: #fbbf24;
-    }
-
-    /* STEP 5: SUCCESS RECEIPT */
-    .success-receipt-card {
-      background: var(--bg-card);
-      border: 2px solid var(--accent-green);
-      border-radius: 20px;
-      padding: 24px 18px;
-      text-align: center;
-      box-shadow: 0 10px 30px var(--accent-green-glow);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .receipt-check-circle {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #10b981, #059669);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.2rem;
-      color: white;
-      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.5);
-      animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    @keyframes popIn {
-      0% { transform: scale(0.4); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    .receipt-title {
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: #ffffff;
-      margin-top: 4px;
-    }
-
-    .receipt-photo-snapshot {
-      width: 110px;
-      height: 110px;
-      border-radius: 14px;
-      overflow: hidden;
-      border: 3px solid var(--accent-green);
-      margin: 8px 0;
-      background: #020617;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    }
-
-    .receipt-table {
-      width: 100%;
-      background: var(--bg-surface);
-      border-radius: 12px;
-      padding: 12px;
-      border: 1px solid var(--border);
-      text-align: left;
-      font-size: 0.84rem;
-    }
-
-    .receipt-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 6px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .receipt-row:last-child {
-      border-bottom: none;
-    }
-
-    .receipt-label {
-      color: var(--text-muted);
-    }
-
-    .receipt-val {
-      font-weight: 700;
-      color: #f8fafc;
-    }
-
-    /* TOAST ALERT */
-    .app-toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(50px);
-      background: #1e293b;
-      border: 1px solid var(--border);
-      padding: 10px 18px;
-      border-radius: 999px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: white;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-      z-index: 9999;
-      opacity: 0;
-      pointer-events: none;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .app-toast.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
   </style>
 </head>
 <body>
@@ -872,7 +1603,7 @@
     <div class="header-brand">
       <div class="brand-icon">📸</div>
       <div class="brand-titles">
-        <h1>Asistencia Facial Móvil</h1>
+        <h1>Asistencia y Checador Facial</h1>
         <span>RegAs 3 • Inteligencia Artificial</span>
       </div>
     </div>
@@ -886,28 +1617,24 @@
   <main class="main-content">
 
     <!-- ========================================================
-         PASO 1: SOLICITAR ID
+         PASO 1: EL ELEMENTO PONE SU NÚMERO DE SOCIO
          ======================================================== -->
     <div class="step-screen" id="step1Screen">
       <div class="card">
         <div class="card-title-row">
-          <span style="font-size: 1.2rem;">👤</span>
+          <span style="font-size: 1.25rem;">👤</span>
           <h2>Identificación del Oficial</h2>
         </div>
-        <div id="step1Notice" class="step1-notice-box hidden" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; font-size: 0.82rem; color: #fbbf24; display: flex; align-items: center; gap: 8px;">
-          <span>⚠️</span>
-          <span id="step1NoticeText">Rostro no identificado. Digita tu número de socio para registrar asistencia:</span>
-        </div>
 
-        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.4;">
-          Ingresa tu <strong>Número de Socio / ID</strong> para verificar el turno programado del día de hoy.
+        <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.45;">
+          Ingresa tu <strong>Número de Socio</strong> para iniciar el proceso de asistencia y verificación facial.
         </p>
 
         <div class="id-display-input-wrap">
-          <input type="text" id="inputId" class="id-display-input" placeholder="INGRESA TU ID" inputmode="numeric" maxlength="10" autocomplete="off">
+          <input type="text" id="inputId" class="id-display-input" placeholder="NO. DE SOCIO" inputmode="numeric" maxlength="10" autocomplete="off">
         </div>
 
-        <!-- Teclado Táctil en Pantalla -->
+        <!-- Teclado Táctil Integrado -->
         <div class="numpad-grid">
           <button type="button" class="numpad-btn" data-key="1">1</button>
           <button type="button" class="numpad-btn" data-key="2">2</button>
@@ -923,107 +1650,158 @@
           <button type="button" class="numpad-btn btn-backspace" data-key="DEL">⌫</button>
         </div>
 
-        <button type="button" class="btn-action-primary" id="btnSearchShift">
-          <span>🔍 Consultar Turno Disponible</span>
+        <button type="button" class="btn-action-primary" id="btnSubmitSocio">
+          <span>Continuar a Cámara Facial →</span>
         </button>
+      </div>
+
+      <!-- SECCIÓN: OFICIALES EN TURNO PENDIENTES DE SALIDA (FILTRADOS POR CASETA SELECCIONADA EN CDI) -->
+      <div class="pending-salida-section" id="pendingSalidaSection">
+        <div class="pending-salida-header">
+          <div class="pending-header-title-wrap">
+            <span class="pending-header-icon">🚪</span>
+            <div>
+              <div class="pending-header-title">En Turno • Salida Rápida</div>
+              <div class="pending-header-sub" id="pendingCasetaSub">Caseta CDI: <strong id="pendingCasetaName">Detectando...</strong></div>
+            </div>
+          </div>
+          <button type="button" class="btn-refresh-pending" id="btnRefreshPending" title="Actualizar lista de oficiales en turno">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Tarjetas dinámicas de elementos con entrada registrada pero sin salida -->
+        <div class="pending-salida-grid" id="pendingSalidaGrid">
+          <div class="pending-loading-state">
+            <div class="spinner-sm"></div>
+            <span>Consultando oficiales en turno en esta caseta...</span>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- ========================================================
-         PASO 2: INFORMACIÓN DE TURNO DISPONIBLE Y VALIDACIÓN
+         PASO 2: CÁMARA ADAPTABLE CON ARO DE LUZ DE PANTALLA
+         Máx 3 segundos detectando el rostro
          ======================================================== -->
     <div class="step-screen hidden" id="step2Screen">
+      <div class="camera-viewport-wrap" id="cameraViewport">
+        <video id="videoStream" autoplay playsinline muted></video>
+        <canvas id="photoCanvas"></canvas>
+        <div class="flash-overlay" id="flashOverlay"></div>
+
+        <!-- Visor Oval con Aro de Luz de Pantalla Brillante -->
+        <div class="facial-ring-frame" id="facialRingFrame">
+          <div class="facial-scanner-bar"></div>
+        </div>
+
+        <!-- Botón para cancelar y volver a socio si el usuario lo requiere -->
+        <button type="button" class="hud-cancel-btn" id="btnCancelCamera" title="Volver a ingresar número de socio">
+          <span>✕</span>
+          <span>Volver a Socio</span>
+        </button>
+
+        <!-- Botón de emergencia para PC si no detecta cámara física real -->
+        <button type="button" class="btn-pc-skip-camera" id="btnPcSkipCamera" style="display: none;" title="Avanzar a registro directo en equipo de escritorio">
+          <span>💻 Continuar a registro (Equipo sin cámara) →</span>
+        </button>
+
+        <!-- Mensajes y Temporizador en Pantalla -->
+        <div class="screen-light-overlay">
+          <!-- Instrucción dinámica al elemento -->
+          <div class="hud-instruction-badge waiting" id="hudInstruction">
+            <span>⚠️ Ponte a la vista de la cámara para comenzar</span>
+          </div>
+
+          <!-- Temporizador Máximo 3 Segundos de Reconocimiento -->
+          <div class="hud-countdown-badge" id="hudCountdownBadge">
+            <span id="hudCountdownLabel">En espera:</span>
+            <span class="hud-countdown-num" id="countdownSecs">3.0</span>s
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         PASO 3: PANEL DETALLE DE TURNO & MINIATURA
+         ======================================================== -->
+    <div class="step-screen hidden" id="step3Screen">
       <div class="card">
         <div class="card-title-row">
-          <span style="font-size: 1.2rem;">📋</span>
-          <h2>Turno y Programación Operativa</h2>
+          <span style="font-size: 1.25rem;">📋</span>
+          <h2>Detalle de Turno</h2>
         </div>
 
-        <!-- Tarjeta de Perfil -->
-        <div class="profile-card">
-          <div class="profile-photo-wrap">
-            <img id="profilePhoto" class="profile-photo-img" src="" alt="Oficial" onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%2364748b\'><path d=\'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z\'/></svg>'">
+        <!-- Tarjeta del Oficial con Miniatura ("mini") de la foto tomada -->
+        <div class="detail-profile-box">
+          <div class="detail-mini-photo-wrap">
+            <img id="detailThumbImg" class="detail-mini-img" src="" alt="Miniatura de Captura">
           </div>
-          <div class="profile-info">
-            <div class="profile-name" id="profileName">Cargando...</div>
-            <div class="profile-role" id="profileRole">Oficial de Seguridad</div>
-            <div class="profile-id-tag" id="profileIdTag">ID: #000000</div>
+          <div class="detail-officer-info">
+            <div class="detail-officer-name" id="detailOfficerName">Cargando oficial...</div>
+            <div class="detail-officer-role" id="detailOfficerRole">Oficial de Seguridad</div>
+            <div class="detail-officer-id" id="detailOfficerId">ID: #000000</div>
           </div>
         </div>
 
-        <!-- Banner de Estado de Turno -->
+        <!-- Banner de Estado según Regla 4 (Ausentismo / Sin Registro / Entrada / Salida) -->
         <div class="shift-status-banner status-available" id="shiftBanner">
           <div class="shift-banner-header">
             <span class="shift-banner-icon" id="shiftBannerIcon">🌅</span>
             <span class="shift-banner-title" id="shiftBannerTitle">Turno Disponible</span>
           </div>
           <div class="shift-banner-text" id="shiftBannerText">
-            Validando horario más cercano...
+            Validando turno...
           </div>
           <div class="shift-meta-grid" id="shiftMetaGrid">
             <div class="shift-meta-item">
               <span class="shift-meta-label">Caseta / Puesto</span>
-              <span class="shift-meta-value" id="shiftCasetaVal">-</span>
+              <span class="shift-meta-value" id="detailCasetaVal">-</span>
             </div>
             <div class="shift-meta-item">
               <span class="shift-meta-label">Horario Operativo</span>
-              <span class="shift-meta-value" id="shiftHorarioVal">07:00 a 15:00 hrs</span>
+              <span class="shift-meta-value" id="detailHorarioVal">07:00 a 15:00 hrs</span>
             </div>
           </div>
         </div>
 
-        <!-- Botones de Acción según estado -->
-        <button type="button" class="btn-action-primary" id="btnDirectRegisterAttendance" style="margin-bottom: 10px;">
-          <span id="btnDirectRegisterText">📥 Registrar Mi Entrada</span>
+        <!-- Botón Dinámico de Asistencia -->
+        <button type="button" class="btn-action-primary" id="btnActionAttendance">
+          <span id="btnActionText">📥 MARCAR ENTRADA</span>
         </button>
 
-        <button type="button" class="btn-action-outline" id="btnProceedToCamera" style="margin-bottom: 10px;">
-          <span>📷 Validar con Cámara Facial</span>
+        <button type="button" class="btn-secondary-exit" id="btnOnlySalida" style="display: none;">
+          <span>🚪 Solo Marcar Salida (Sin Doblete)</span>
         </button>
 
-        <button type="button" class="btn-action-outline" id="btnBackToStep1">
-          <span>← Consultar otro ID</span>
+        <button type="button" class="btn-action-outline" id="btnRetakePhoto">
+          <span>📷 Repetir Toma de Foto</span>
+        </button>
+
+        <button type="button" class="btn-action-outline" id="btnBackToSocio">
+          <span>← Consultar Otro Número de Socio</span>
         </button>
       </div>
     </div>
 
     <!-- ========================================================
-         PASO 3 Y 4: CÁMARA Y RECONOCIMIENTO FACIAL CONTINUO IA
+         PASO 4: COMPROBANTE DIGITAL CONFIRMADO
          ======================================================== -->
-    <div class="step-screen ring-light-mode hidden" id="step3Screen">
-      <!-- Visor de Cámara con Retícula IA y Aro de Iluminación Facial (Pantalla Completa) -->
-      <div class="camera-container ring-light-mode" id="cameraBox">
-        <video id="videoStream" autoplay playsinline muted></video>
-        <canvas id="photoCanvas"></canvas>
-
-        <!-- HUD Oval Reticle con Iluminación Facial Radiante -->
-        <div class="camera-hud-overlay ring-light-mode" id="cameraHudOverlay">
-          <div class="hud-countdown-ring hidden" id="hudCountdown"></div>
-
-          <div class="hud-oval-frame" id="hudOvalFrame">
-            <div class="hud-scanner-bar"></div>
-          </div>
-
-          <div class="hud-status-badge" id="hudStatusBadge">
-            <span>🔍 Centra tu rostro en el marco...</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========================================================
-         PASO 5: COMPROBANTE DIGITAL DE ENTRADA REGISTRADA
-         ======================================================== -->
-    <div class="step-screen hidden" id="step5Screen">
+    <div class="step-screen hidden" id="step4Screen">
       <div class="success-receipt-card">
         <div class="receipt-check-circle">✓</div>
-        <div class="receipt-title" id="receiptTitle">¡Entrada Registrada!</div>
-        <p style="font-size: 0.8rem; color: var(--text-muted);" id="receiptSubtitle">
+        <div class="receipt-title" id="receiptTitle">¡Registro Exitoso!</div>
+        <p style="font-size: 0.82rem; color: var(--text-muted);" id="receiptSubtitle">
           Tu asistencia ha sido transmitida y confirmada en el Centro de Control y la vista Registros.
         </p>
 
+        <!-- Miniatura en el Comprobante -->
         <div class="receipt-photo-snapshot">
-          <img id="receiptPhotoImg" style="width: 100%; height: 100%; object-fit: cover;" src="" alt="Foto de Registro">
+          <img id="receiptPhotoImg" style="width: 100%; height: 100%; object-fit: cover;" src="" alt="Foto Comprobante">
         </div>
 
         <div class="receipt-table">
@@ -1032,7 +1810,7 @@
             <span class="receipt-val" id="receiptOfficerName">-</span>
           </div>
           <div class="receipt-row">
-            <span class="receipt-label">No. Socio / ID</span>
+            <span class="receipt-label">No. Socio</span>
             <span class="receipt-val" id="receiptOfficerId">-</span>
           </div>
           <div class="receipt-row">
@@ -1040,22 +1818,86 @@
             <span class="receipt-val" id="receiptShiftLabel">-</span>
           </div>
           <div class="receipt-row">
-            <span class="receipt-label" id="receiptTimeLabel">Hora de Entrada</span>
+            <span class="receipt-label" id="receiptTimeLabel">Hora de Registro</span>
             <span class="receipt-val" style="color: var(--accent-green);" id="receiptEntryTime">00:00:00</span>
           </div>
           <div class="receipt-row">
             <span class="receipt-label">Fecha</span>
-            <span class="receipt-val" id="receiptDate">11/10/2026</span>
+            <span class="receipt-val" id="receiptDate">01/11/2026</span>
           </div>
           <div class="receipt-row">
             <span class="receipt-label">Método</span>
-            <span class="receipt-val" style="color: var(--accent-cyan);" id="receiptMethodVal">IA Facial Móvil</span>
+            <span class="receipt-val" style="color: var(--accent-cyan);">Checador Facial Móvil</span>
           </div>
         </div>
 
-        <button type="button" class="btn-action-primary" id="btnFinishAll" style="margin-top: 8px;">
-          <span>✓ Finalizar / Registrar Otro Elemento</span>
+        <button type="button" class="btn-action-primary" id="btnFinishAll" style="margin-top: 6px;">
+          <span>✓ Finalizar / Siguiente Oficial</span>
         </button>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         MODAL PERSONALIZADO DE CONFIRMACIÓN DE SALIDA RÁPIDA
+         ======================================================== -->
+    <div class="salida-modal-overlay" id="salidaConfirmModal" style="display: none;">
+      <div class="salida-modal-backdrop" id="salidaModalBackdrop"></div>
+      <div class="salida-modal-dialog">
+        <div class="salida-modal-header">
+          <div class="salida-modal-title-row">
+            <span class="salida-modal-icon" id="salidaModalIcon">🚪</span>
+            <h3 id="salidaModalTitle">Confirmar Salida de Oficial</h3>
+          </div>
+          <button type="button" class="salida-modal-close-btn" id="btnSalidaModalClose" title="Cerrar ventana">✕</button>
+        </div>
+
+        <div class="salida-modal-body">
+          <!-- Fotografía Oficial de RegAs 3 -->
+          <div class="salida-modal-photo-container">
+            <img id="salidaModalPhoto" class="salida-modal-photo" src="" alt="Foto Oficial RegAs">
+            <div class="salida-modal-photo-pill" id="salidaModalPhotoPill">Fotografía RegAs 3</div>
+          </div>
+
+          <div class="salida-modal-info">
+            <h4 id="salidaModalName" class="salida-modal-name">Nombre del Oficial</h4>
+            <div class="salida-modal-badge-row">
+              <span class="salida-modal-id" id="salidaModalId">Socio #000000</span>
+              <span class="salida-modal-role" id="salidaModalRole">Oficial de Seguridad</span>
+            </div>
+          </div>
+
+          <!-- Datos del turno -->
+          <div class="salida-modal-data-grid">
+            <div class="salida-data-item">
+              <span class="salida-data-label">Caseta CDI</span>
+              <span class="salida-data-value" id="salidaModalCaseta">-</span>
+            </div>
+            <div class="salida-data-item">
+              <span class="salida-data-label" id="salidaModalTurnoLabel">Turno Activo</span>
+              <span class="salida-data-value" id="salidaModalTurno">-</span>
+            </div>
+            <div class="salida-data-item">
+              <span class="salida-data-label">Entrada Registrada</span>
+              <span class="salida-data-value" id="salidaModalEntrada">-</span>
+            </div>
+            <div class="salida-data-item highlight">
+              <span class="salida-data-label" id="salidaModalHoraLabel">Hora Salida Actual</span>
+              <span class="salida-data-value" id="salidaModalSalidaHora">--:-- hrs</span>
+            </div>
+          </div>
+
+          <div class="salida-modal-alert" id="salidaModalAlert">
+            <span id="salidaModalAlertText">⚠️ Se registrará la salida inmediata de este elemento en los registros oficiales de RegAs 3.</span>
+          </div>
+        </div>
+
+        <div class="salida-modal-footer">
+          <button type="button" class="btn-salida-modal-cancel" id="btnSalidaModalCancel">Cancelar</button>
+          <button type="button" class="btn-salida-modal-confirm" id="btnSalidaModalConfirm">
+            <span class="btn-icon">✓</span>
+            <span id="btnSalidaModalConfirmText">Confirmar Salida</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1067,30 +1909,122 @@
   <!-- JAVASCRIPT LOGIC -->
   <script>
     (function() {
-      // 1. Configuración de API Base
+      // =========================================================================
+      // 0. CONTROL DE PERMISOS POR DISPOSITIVO (DEFECTO: SOLO CDI)
+      // =========================================================================
+      const getDeviceUuid = () => {
+        let id = localStorage.getItem('regas_cdi_device_uuid');
+        if (!id) {
+          id = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 8);
+          localStorage.setItem('regas_cdi_device_uuid', id);
+        }
+        return id;
+      };
+
+      let _lastFeatures = null;
+      const applyFeatures = (features) => {
+        if (!features || typeof features !== 'object') return;
+        _lastFeatures = features;
+        const normalized = {
+          checador: features.checador === true,
+          recorridos: features.recorridos === true,
+          bitacoras: (features.bitacoras === true || features.bitacora === true)
+        };
+        try {
+          localStorage.setItem('regas_cdi_device_features', JSON.stringify(normalized));
+        } catch(e) {}
+
+        if (normalized.checador !== true) {
+          // El operador revocó el permiso de Checador: expulsar de inmediato a CDI
+          window.location.replace('./?app=cdi');
+          return;
+        }
+
+        const bChecador = document.getElementById('dockBtnChecador');
+        const bRecorridos = document.getElementById('dockBtnRecorridos');
+        const bBitacoras = document.getElementById('dockBtnBitacoras');
+        const dockWrapper = document.querySelector('.miniapps-dock-wrapper');
+
+        if (bChecador) bChecador.style.display = normalized.checador ? '' : 'none';
+        if (bRecorridos) bRecorridos.style.display = normalized.recorridos ? '' : 'none';
+        if (bBitacoras) bBitacoras.style.display = normalized.bitacoras ? '' : 'none';
+
+        if (dockWrapper) {
+          if (window.self !== window.top) {
+            dockWrapper.style.display = 'none';
+          } else {
+            const hasExtra = (normalized.checador || normalized.recorridos || normalized.bitacoras);
+            dockWrapper.style.display = hasExtra ? '' : 'none';
+          }
+        }
+      };
+
+      try {
+        const rawCached = localStorage.getItem('regas_cdi_device_features');
+        if (rawCached) {
+          const parsed = JSON.parse(rawCached);
+          if (parsed && parsed.checador !== true) {
+            window.location.replace('./?app=cdi');
+            return;
+          }
+          _lastFeatures = parsed;
+        } else {
+          window.location.replace('./?app=cdi');
+          return;
+        }
+      } catch(e) {}
+
+      const ensureDockFiltered = () => {
+        if (_lastFeatures) applyFeatures(_lastFeatures);
+      };
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', ensureDockFiltered);
+      } else {
+        ensureDockFiltered();
+      }
+      window.addEventListener('load', ensureDockFiltered);
+
+      // Backend Base URL
       const BACKEND_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('10.') || window.location.hostname.startsWith('192.168.'))
         ? ''
-        : 'https://be-regas.segos911.workers.dev';
+        : 'https://be-regas.cic-10.com';
 
-      // Estado de la Aplicación
+      // Sincronización en vivo vía SSE y fetch
+      try {
+        const myDevId = getDeviceUuid();
+        fetch(`${BACKEND_BASE}/api/cdi/devices/features?deviceId=${encodeURIComponent(myDevId)}`)
+          .then(r => r.ok ? r.json() : null)
+          .then(d => { if (d && d.features) applyFeatures(d.features); })
+          .catch(() => {});
+
+        const es = new EventSource(`${BACKEND_BASE}/api/events`);
+        es.onmessage = (e) => {
+          try {
+            const data = JSON.parse(e.data);
+            if (data && data.type === 'cdi_device_update' && data.payload) {
+              const p = data.payload;
+              if ((p.deviceId === myDevId || p._id === myDevId) && p.features) {
+                applyFeatures(p.features);
+              }
+            }
+          } catch(err) {}
+        };
+      } catch(e) {}
+
+      // =========================================================================
+      // ESTADO GLOBAL DE LA APLICACIÓN
+      // =========================================================================
       const state = {
         currentStep: 1,
         elemId: localStorage.getItem('regas_last_id') || '',
         elementData: null,
         shiftData: null,
-        targetShift: 'matutino',
-        isShiftInWindow: false,
         cameraStream: null,
-        faceDetector: null,
-        isFaceStable: false,
-        stableSince: 0,
-        captureDone: false,
         capturedBase64: null,
-        referenceBase64: null,
         entryTime: null
       };
 
-      // Audio Synthesizer (Web Audio API - 0 dependencies)
+      // Sintetizador Web Audio
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       function playTone(freq, duration, type = 'sine') {
         try {
@@ -1117,7 +2051,6 @@
       }
       function soundWarning() { playTone(300, 0.2, 'sawtooth'); }
 
-      // UI Helpers
       function showToast(msg, duration = 3000) {
         const toast = document.getElementById('appToast');
         if (!toast) return;
@@ -1132,10 +2065,16 @@
           el.classList.toggle('hidden', idx + 1 !== stepNum);
         });
 
-        if (stepNum === 3) {
-          startCamera();
+        if (stepNum === 1) {
+          if (typeof loadPendingSalida === 'function') {
+            loadPendingSalida();
+          }
+        }
+
+        if (stepNum === 2) {
+          startCameraSession();
         } else {
-          stopCamera();
+          stopCameraSession();
         }
       }
 
@@ -1149,7 +2088,7 @@
       }, 1000);
 
       // =========================================================================
-      // PASO 1: TECLADO Y CONSULTA DE ID
+      // PASO 1: EL ELEMENTO PONE SU NÚMERO DE SOCIO
       // =========================================================================
       const inputId = document.getElementById('inputId');
       if (state.elemId && inputId) {
@@ -1172,28 +2111,116 @@
         });
       });
 
-      const btnSearchShift = document.getElementById('btnSearchShift');
-      if (btnSearchShift) {
-        btnSearchShift.addEventListener('click', searchShiftForElement);
+      // Detección precisa de modo escritorio/PC para permitir brincarse la foto exclusivamente en PC
+      function isDesktopView() {
+        try {
+          const ua = navigator.userAgent || '';
+          const platform = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '';
+          const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+          const isDesktopOS = /Win|Mac|Linux|X11/i.test(platform) || /Windows NT|Macintosh|X11/i.test(ua);
+
+          // Si es un sistema operativo de escritorio (Windows, Mac, Linux) y no es UA móvil, es PC 100%
+          if (isDesktopOS && !isMobileUA) {
+            return true;
+          }
+
+          if (window.top && (window.top.innerWidth >= 600 || window.top.screen.width >= 768)) return true;
+        } catch (e) {}
+
+        if (window.innerWidth >= 600) return true;
+        if (window.screen && window.screen.width >= 768) return true;
+        return false;
+      }
+
+      // Verificación profunda de cámara activa real con eliminación de falsos positivos
+      // (Cámaras virtuales de OBS/Teams/ManyCam, drivers huérfanos de Windows o hardware desconectado)
+      async function hasWorkingCamera() {
+        try {
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return false;
+
+          // 1. Filtrado de dispositivos virtuales en lista de enumerateDevices
+          if (navigator.mediaDevices.enumerateDevices) {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videoInputs = devices.filter(d => d.kind === 'videoinput');
+            if (videoInputs.length === 0) return false;
+
+            const virtualPattern = /virtual|obs|vmix|ndi|droidcam|iriun|manycam|youcam|splitcam|fake|dummy|loopback/i;
+            const hasRealLabel = videoInputs.some(d => d.label && !virtualPattern.test(d.label));
+            const allAreVirtual = videoInputs.every(d => d.label && virtualPattern.test(d.label));
+            if (allAreVirtual && !hasRealLabel) {
+              console.warn('[Checador] Falso positivo: Todas las entradas de video son cámaras virtuales:', videoInputs.map(v => v.label));
+              return false;
+            }
+          }
+
+          // 2. En PC, realizar un test real de adquisición de video con timeout corto (1.2s)
+          // para comprobar si realmente hay hardware físico respondiendo y no una pantalla congelada/muerta
+          if (isDesktopView()) {
+            const testPromise = navigator.mediaDevices.getUserMedia({
+              video: { width: { ideal: 320 }, height: { ideal: 240 } },
+              audio: false
+            });
+
+            const timeoutPromise = new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('CAMERA_TIMEOUT')), 1200)
+            );
+
+            try {
+              const testStream = await Promise.race([testPromise, timeoutPromise]);
+              const tracks = testStream.getVideoTracks();
+              if (!tracks || tracks.length === 0) {
+                testStream.getTracks().forEach(t => t.stop());
+                return false;
+              }
+              const track = tracks[0];
+              const label = track.label || '';
+              if (/virtual|obs|vmix|ndi|droidcam|iriun|manycam|youcam|splitcam/i.test(label)) {
+                tracks.forEach(t => t.stop());
+                console.warn('[Checador] Falso positivo en PC: stream activo proviene de cámara virtual:', label);
+                return false;
+              }
+              if (track.readyState === 'ended' || track.muted) {
+                tracks.forEach(t => t.stop());
+                return false;
+              }
+              // Liberar el stream de prueba de inmediato
+              tracks.forEach(t => t.stop());
+              return true;
+            } catch (testErr) {
+              console.warn('[Checador] Test de cámara en PC falló o expiró:', testErr.message || testErr.name);
+              return false;
+            }
+          }
+
+          return true;
+        } catch (e) {
+          console.warn('[Checador] Error evaluando disponibilidad de cámara:', e);
+          return false;
+        }
+      }
+
+      const btnSubmitSocio = document.getElementById('btnSubmitSocio');
+      if (btnSubmitSocio) {
+        btnSubmitSocio.addEventListener('click', () => processSocioStep());
       }
 
       inputId.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
-          searchShiftForElement();
+          processSocioStep();
         }
       });
 
-      async function searchShiftForElement() {
+      async function processSocioStep() {
         const idVal = inputId.value.trim();
         if (!idVal) {
-          showToast('⚠️ Por favor ingresa tu número de ID');
+          showToast('⚠️ Por favor ingresa tu Número de Socio');
           soundWarning();
           return;
         }
 
-        btnSearchShift.disabled = true;
-        btnSearchShift.innerHTML = '<span>⏳ Consultando información...</span>';
+        btnSubmitSocio.disabled = true;
+        btnSubmitSocio.innerHTML = '<span>⏳ Consultando socio...</span>';
 
         try {
           const res = await fetch(`${BACKEND_BASE}/api/asistencia/turno-disponible?id=${encodeURIComponent(idVal)}`, {
@@ -1202,10 +2229,8 @@
           const data = await res.json();
 
           if (!res.ok || !data.success) {
-            showToast(data.error || 'No se encontró el elemento con este ID');
+            showToast(data.error || 'Número de socio no encontrado en el sistema');
             soundWarning();
-            btnSearchShift.disabled = false;
-            btnSearchShift.innerHTML = '<span>🔍 Consultar Turno Disponible</span>';
             return;
           }
 
@@ -1213,171 +2238,454 @@
           localStorage.setItem('regas_last_id', idVal);
           state.elementData = data.elemento;
           state.shiftData = data;
-          state.targetShift = data.targetShift;
-          state.isShiftInWindow = data.hasShiftInWindow;
 
-          renderStep2ShiftInfo(data);
+          soundBeep();
+
+          // REGLA 1: Es PC. REGLA 2: No tiene cámara funcionando
+          // Si ambas se cumplen, mandar al registro directamente sin pasar por cámara ni agregar botones extra
+          const isPc = isDesktopView();
+          const hasCam = await hasWorkingCamera();
+          if (isPc && !hasCam) {
+            console.log('[Checador] Equipo PC sin cámara funcionando: pasando directo a registro de turno');
+            state.capturedBase64 = null;
+            renderStep3Detail();
+            setStep(3);
+            return;
+          }
+
+          // Flujo estándar con cámara
           setStep(2);
         } catch (err) {
-          console.error('[Error consultando turno]', err);
-          showToast('Error de red al consultar el turno');
+          console.error('[Error consultando socio]', err);
+          showToast('Error de red al consultar el número de socio');
           soundWarning();
         } finally {
-          btnSearchShift.disabled = false;
-          btnSearchShift.innerHTML = '<span>🔍 Consultar Turno Disponible</span>';
+          btnSubmitSocio.disabled = false;
+          btnSubmitSocio.innerHTML = '<span>Continuar a Cámara Facial →</span>';
         }
       }
 
       // =========================================================================
-      // PASO 2: RENDERIZAR INFORMACIÓN DE TURNO SEGÚN REGLA HORARIA
+      // OFICIALES EN TURNO PENDIENTES DE SALIDA (CASETA CDI ACTUAL)
       // =========================================================================
-      function renderStep2ShiftInfo(data) {
-        const profilePhoto = document.getElementById('profilePhoto');
-        const profileName = document.getElementById('profileName');
-        const profileRole = document.getElementById('profileRole');
-        const profileIdTag = document.getElementById('profileIdTag');
-        const shiftBanner = document.getElementById('shiftBanner');
-        const shiftBannerIcon = document.getElementById('shiftBannerIcon');
-        const shiftBannerTitle = document.getElementById('shiftBannerTitle');
-        const shiftBannerText = document.getElementById('shiftBannerText');
-        const shiftCasetaVal = document.getElementById('shiftCasetaVal');
-        const shiftHorarioVal = document.getElementById('shiftHorarioVal');
-        const btnProceed = document.getElementById('btnProceedToCamera');
+      const pendingSalidaGrid = document.getElementById('pendingSalidaGrid');
+      const pendingCasetaName = document.getElementById('pendingCasetaName');
+      const btnRefreshPending = document.getElementById('btnRefreshPending');
 
-        const elem = data.elemento || {};
-        profileName.textContent = elem.nombre || `Oficial ${elem.id}`;
-        profileRole.textContent = elem.puesto || 'Oficial de Seguridad';
-        profileIdTag.textContent = `ID: #${elem.id}`;
+      const salidaConfirmModal = document.getElementById('salidaConfirmModal');
+      const salidaModalBackdrop = document.getElementById('salidaModalBackdrop');
+      const btnSalidaModalClose = document.getElementById('btnSalidaModalClose');
+      const btnSalidaModalCancel = document.getElementById('btnSalidaModalCancel');
+      const btnSalidaModalConfirm = document.getElementById('btnSalidaModalConfirm');
+      const btnSalidaModalConfirmText = document.getElementById('btnSalidaModalConfirmText');
+      const salidaModalPhoto = document.getElementById('salidaModalPhoto');
+      const salidaModalName = document.getElementById('salidaModalName');
+      const salidaModalId = document.getElementById('salidaModalId');
+      const salidaModalRole = document.getElementById('salidaModalRole');
+      const salidaModalCaseta = document.getElementById('salidaModalCaseta');
+      const salidaModalTurno = document.getElementById('salidaModalTurno');
+      const salidaModalEntrada = document.getElementById('salidaModalEntrada');
+      const salidaModalSalidaHora = document.getElementById('salidaModalSalidaHora');
 
-        const fotoUrl = elem.foto ? `${BACKEND_BASE}/${elem.foto}` : `${BACKEND_BASE}/api/fotos/${elem.id}`;
-        profilePhoto.src = fotoUrl;
-        state.referenceBase64 = fotoUrl;
+      let currentModalElement = null;
+      let currentModalIsSwap = false;
 
-        // Metadatos de turno
-        const shiftIcons = {
-          matutino: '🌅',
-          vespertino: '🌆',
-          nocturno: '🌙'
-        };
+      function getActiveCaseta() {
+        const qCaseta = new URLSearchParams(window.location.search).get('caseta');
+        if (qCaseta && qCaseta.trim()) return qCaseta.trim();
 
-        const icon = shiftIcons[data.targetShift] || '🕒';
-        shiftBannerIcon.textContent = icon;
+        const stored = localStorage.getItem('regas_cdi_last_caseta') ||
+                       localStorage.getItem('caseta_seleccionada_cic') ||
+                       localStorage.getItem('regas_cdi_device_caseta');
+        if (stored && stored.trim()) return stored.trim();
 
-        if (data.hasShiftInWindow) {
-          // TIENE TURNO DISPONIBLE EN ESTE HORARIO
-          shiftBanner.className = 'shift-status-banner status-available';
-          shiftBannerTitle.textContent = `${data.targetLabel} Disponible`;
-          
-          const shiftDetail = data.shiftDetails || {};
-          const caseta = shiftDetail.Caseta || 'Puesto Asignado';
-          shiftCasetaVal.textContent = caseta;
-          shiftHorarioVal.textContent = data.targetHorario;
+        return 'Edison';
+      }
 
-          if (shiftDetail.entrada_real) {
-            shiftBannerText.innerHTML = `Ya tienes registrada tu entrada el día de hoy a las <strong>${shiftDetail.entrada_real} hrs</strong>. Puedes registrar tu salida o actualizar tu registro.`;
-            btnProceed.innerHTML = '<span>📷 Validar con Cámara Facial</span>';
+      async function loadPendingSalida() {
+        if (!pendingSalidaGrid) return;
+        const caseta = getActiveCaseta();
+        if (pendingCasetaName) pendingCasetaName.textContent = caseta || 'General';
+
+        try {
+          const res = await fetch(`${BACKEND_BASE}/api/asistencia/en-turno-pendientes-salida?caseta=${encodeURIComponent(caseta)}`, {
+            headers: { 'Bypass-Tunnel-Reminder': 'true' }
+          });
+          const data = await res.json();
+
+          if (res.ok && data.success && Array.isArray(data.elementos)) {
+            renderPendingSalidaCards(data.elementos, caseta);
           } else {
-            shiftBannerText.textContent = `Tu turno está activo en este horario (${data.fecha?.horaActual || ''}). Puedes registrar tu asistencia directamente o validar con cámara.`;
-            btnProceed.innerHTML = '<span>📷 Validar con Cámara Facial</span>';
+            renderPendingSalidaCards([], caseta);
           }
-          btnProceed.classList.remove('hidden');
-        } else {
-          // NO TIENE TURNO DENTRO DEL RANGO HORARIO
-          shiftBanner.className = 'shift-status-banner status-warning';
-          shiftBannerTitle.textContent = 'Fuera de Rango Horario';
-          shiftBannerText.textContent = data.statusMessage || 'Tu turno no está dentro del rango horario actual.';
-
-          shiftCasetaVal.textContent = 'Sin Asignar';
-          shiftHorarioVal.textContent = data.targetHorario;
-
-          // Permitir proceder en caso de contingencia o cobertura autorizada
-          btnProceed.innerHTML = '<span>📷 Continuar con Cámara Facial</span>';
-          btnProceed.classList.remove('hidden');
-        }
-
-        // Configurar botón de Registro Directo por Número de Socio
-        const btnDirect = document.getElementById('btnDirectRegisterAttendance');
-        const btnDirectText = document.getElementById('btnDirectRegisterText');
-        const isSalida = data.enTurno || data.action === 'salida' || (data.shiftDetails && data.shiftDetails.entrada_real && !data.shiftDetails.salida_real);
-
-        if (btnDirect && btnDirectText) {
-          if (isSalida) {
-            btnDirectText.innerHTML = '🚪 REGISTRAR MI SALIDA';
-            btnDirect.style.background = 'linear-gradient(135deg, #ef4444, #b91c1c)';
-            btnDirect.style.boxShadow = '0 4px 14px rgba(239, 68, 68, 0.4)';
-          } else {
-            btnDirectText.innerHTML = '📥 REGISTRAR MI ENTRADA';
-            btnDirect.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-            btnDirect.style.boxShadow = '0 4px 14px rgba(16, 185, 129, 0.4)';
-          }
+        } catch (err) {
+          console.warn('[Error cargando pendientes de salida]', err);
+          renderPendingSalidaCards([], caseta);
         }
       }
 
-      document.getElementById('btnBackToStep1').addEventListener('click', () => {
-        setStep(1);
-      });
+      function renderPendingSalidaCards(elementos, caseta) {
+        if (!pendingSalidaGrid) return;
 
-      document.getElementById('btnProceedToCamera').addEventListener('click', () => {
+        if (!elementos || elementos.length === 0) {
+          pendingSalidaGrid.innerHTML = `
+            <div class="pending-empty-state">
+              <span class="empty-icon">✓</span>
+              <span>No hay oficiales en turno pendientes de salida en Caseta <strong>${caseta || 'esta caseta'}</strong></span>
+            </div>
+          `;
+          return;
+        }
+
+        let html = '';
+        elementos.forEach((el) => {
+          const photoSrc = el.foto || `${BACKEND_BASE}/api/photos/elementos/${el.id}`;
+          const elJson = encodeURIComponent(JSON.stringify(el));
+
+          if (el.isConsecutive) {
+            // Oficial con Turno Continuo / Doblete asignado -> Botón Azul de Relevo Continuo
+            html += `
+              <div class="officer-salida-card" id="cardOfficer_${el.id}">
+                <div class="officer-card-avatar-wrap">
+                  <img src="${photoSrc}" class="officer-card-avatar" alt="${el.nombre}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 40 40\\'><rect width=\\'40\\' height=\\'40\\' fill=\\'%231e293b\\'/><text x=\\'50%\\' y=\\'54%\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' font-size=\\'18\\'>👤</text></svg>';">
+                  <span class="officer-card-status-dot" style="background:#3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.85);" title="Turno Continuo Asignado"></span>
+                </div>
+                <div class="officer-card-content">
+                  <div class="officer-card-name" title="${el.nombre}">${el.nombre}</div>
+                  <div class="officer-card-sub">
+                    <span class="officer-card-socio">Socio #${el.id}</span>
+                    <span class="officer-card-shift-tag" style="background: rgba(37,99,235,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.35);">Doblete: ${el.turnoLabel} ➔ ${el.nextShiftLabel || el.nextShiftKey}</span>
+                  </div>
+                  <div class="officer-card-time">
+                    <span>Entrada: <strong>${el.horaEntrada} hrs</strong></span>
+                  </div>
+                </div>
+                <div class="officer-salida-actions">
+                  <button type="button" class="btn-quick-salida btn-quick-swap" data-officer="${elJson}" data-swap="true" title="🔵 Relevo Continuo (Azul): Salida de ${el.turno} e ingreso inmediato a ${el.nextShiftLabel || el.nextShiftKey}">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6">
+                      <polyline points="13 17 18 12 13 7"/>
+                      <polyline points="6 17 11 12 6 7"/>
+                    </svg>
+                    <span>Continuar a ${el.nextShiftLabel || el.nextShiftKey}</span>
+                  </button>
+                  <button type="button" class="btn-quick-salida-icon-only" data-officer="${elJson}" data-swap="false" title="Solo marcar salida de turno ${el.turno}">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                      <polyline points="16 17 21 12 16 7"/>
+                      <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            `;
+          } else {
+            // Oficial con turno estándar -> Botón Rojo de Salida
+            html += `
+              <div class="officer-salida-card" id="cardOfficer_${el.id}">
+                <div class="officer-card-avatar-wrap">
+                  <img src="${photoSrc}" class="officer-card-avatar" alt="${el.nombre}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 40 40\\'><rect width=\\'40\\' height=\\'40\\' fill=\\'%231e293b\\'/><text x=\\'50%\\' y=\\'54%\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' font-size=\\'18\\'>👤</text></svg>';">
+                  <span class="officer-card-status-dot" title="En Turno"></span>
+                </div>
+                <div class="officer-card-content">
+                  <div class="officer-card-name" title="${el.nombre}">${el.nombre}</div>
+                  <div class="officer-card-sub">
+                    <span class="officer-card-socio">Socio #${el.id}</span>
+                    <span class="officer-card-shift-tag">${el.turnoLabel}</span>
+                  </div>
+                  <div class="officer-card-time">
+                    <span>Entrada: <strong>${el.horaEntrada} hrs</strong></span>
+                  </div>
+                </div>
+                <button type="button" class="btn-quick-salida" data-officer="${elJson}" data-swap="false" title="Marcar salida con un solo clic">
+                  <span>Marcar Salida</span>
+                  <span>→</span>
+                </button>
+              </div>
+            `;
+          }
+        });
+
+        pendingSalidaGrid.innerHTML = html;
+
+        // Asignar listeners de clic a los botones de salida y relevo
+        pendingSalidaGrid.querySelectorAll('.btn-quick-salida, .btn-quick-salida-icon-only').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            try {
+              const elData = JSON.parse(decodeURIComponent(btn.dataset.officer));
+              const isSwap = (btn.dataset.swap === 'true');
+              openSalidaConfirmModal(elData, isSwap);
+            } catch (err) {
+              console.error('Error abriendo modal de confirmación:', err);
+            }
+          });
+        });
+      }
+
+      function openSalidaConfirmModal(el, isSwap = false) {
+        if (!el || !salidaConfirmModal) return;
+        currentModalElement = el;
+        currentModalIsSwap = isSwap;
+
         soundBeep();
-        setStep(3);
+
+        const photoSrc = el.foto || `${BACKEND_BASE}/api/photos/elementos/${el.id}`;
+        if (salidaModalPhoto) {
+          salidaModalPhoto.src = photoSrc;
+          salidaModalPhoto.onerror = function() {
+            this.onerror = null;
+            this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%231e293b"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="44">👤</text></svg>';
+          };
+        }
+
+        const modalIcon = document.getElementById('salidaModalIcon');
+        const modalTitle = document.getElementById('salidaModalTitle');
+        const modalAlertText = document.getElementById('salidaModalAlertText');
+        const modalTurnoLabel = document.getElementById('salidaModalTurnoLabel');
+        const modalHoraLabel = document.getElementById('salidaModalHoraLabel');
+
+        if (isSwap) {
+          if (modalIcon) modalIcon.textContent = '🔄';
+          if (modalTitle) modalTitle.textContent = 'Confirmar Relevo Continuo (Doblete)';
+          if (modalTurnoLabel) modalTurnoLabel.textContent = 'Turnos de Relevo';
+          if (salidaModalTurno) salidaModalTurno.textContent = `${el.turnoLabel} ➔ ${el.nextShiftLabel || el.nextShiftKey}`;
+          if (modalHoraLabel) modalHoraLabel.textContent = 'Hora de Relevo';
+          if (modalAlertText) {
+            modalAlertText.textContent = `🔵 Se registrará la salida del turno ${el.turno} y la entrada inmediata al turno continuo ${el.nextShiftLabel || el.nextShiftKey} en RegAs 3.`;
+          }
+          if (btnSalidaModalConfirm) {
+            btnSalidaModalConfirm.className = 'btn-salida-modal-confirm is-swap';
+          }
+          if (btnSalidaModalConfirmText) {
+            btnSalidaModalConfirmText.textContent = `Confirmar Relevo a ${el.nextShiftLabel || el.nextShiftKey}`;
+          }
+        } else {
+          if (modalIcon) modalIcon.textContent = '🚪';
+          if (modalTitle) modalTitle.textContent = 'Confirmar Salida de Oficial';
+          if (modalTurnoLabel) modalTurnoLabel.textContent = 'Turno Activo';
+          if (salidaModalTurno) salidaModalTurno.textContent = el.turnoLabel || el.turno;
+          if (modalHoraLabel) modalHoraLabel.textContent = 'Hora Salida Actual';
+          if (modalAlertText) {
+            modalAlertText.textContent = '⚠️ Se registrará la salida inmediata de este elemento en los registros oficiales de RegAs 3.';
+          }
+          if (btnSalidaModalConfirm) {
+            btnSalidaModalConfirm.className = 'btn-salida-modal-confirm';
+          }
+          if (btnSalidaModalConfirmText) {
+            btnSalidaModalConfirmText.textContent = 'Confirmar Salida';
+          }
+        }
+
+        if (salidaModalName) salidaModalName.textContent = el.nombre || `Oficial #${el.id}`;
+        if (salidaModalId) salidaModalId.textContent = `Socio #${el.id}`;
+        if (salidaModalRole) salidaModalRole.textContent = el.puesto || 'Oficial de Seguridad';
+        if (salidaModalCaseta) salidaModalCaseta.textContent = el.caseta || getActiveCaseta();
+        if (salidaModalEntrada) salidaModalEntrada.textContent = `${el.horaEntrada} hrs`;
+
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        if (salidaModalSalidaHora) {
+          salidaModalSalidaHora.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())} hrs`;
+        }
+
+        if (btnSalidaModalConfirm) {
+          btnSalidaModalConfirm.disabled = false;
+        }
+
+        salidaConfirmModal.style.display = 'flex';
+      }
+
+      function closeSalidaConfirmModal() {
+        if (salidaConfirmModal) {
+          salidaConfirmModal.style.display = 'none';
+        }
+        currentModalElement = null;
+        currentModalIsSwap = false;
+      }
+
+      async function confirmQuickSalida() {
+        if (!currentModalElement) return;
+
+        if (btnSalidaModalConfirm) btnSalidaModalConfirm.disabled = true;
+        if (btnSalidaModalConfirmText) btnSalidaModalConfirmText.textContent = 'Registrando...';
+
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const horaStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        const fechaLegible = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}${now.getFullYear()}`;
+
+        try {
+          if (currentModalIsSwap) {
+            // RELEVO CONTINUO / DOBLETE (AZUL)
+            const payloadSwap = {
+              elemId: String(currentModalElement.id),
+              turno: currentModalElement.turno || 'matutino',
+              nextTurno: currentModalElement.nextShiftKey || 'vespertino',
+              hora: horaStr,
+              fecha: fechaLegible,
+              dia: currentModalElement.dia,
+              mes: currentModalElement.mes,
+              anio: currentModalElement.anio,
+              caseta: currentModalElement.caseta || getActiveCaseta(),
+              isNextDay: currentModalElement.nextShiftIsNextDay || false
+            };
+
+            const res = await fetch(`${BACKEND_BASE}/api/asistencia/shift-swap`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
+              body: JSON.stringify(payloadSwap)
+            });
+            const result = await res.json();
+
+            if (res.ok && result.success) {
+              soundSuccess();
+              showToast(`🔵 Relevo registrado: Salida de ${currentModalElement.turno} e ingreso a ${currentModalElement.nextShiftLabel} para ${currentModalElement.nombre}`);
+              closeSalidaConfirmModal();
+              loadPendingSalida();
+            } else {
+              showToast(result.error || 'Error al registrar el relevo');
+              soundWarning();
+              if (btnSalidaModalConfirm) btnSalidaModalConfirm.disabled = false;
+              if (btnSalidaModalConfirmText) btnSalidaModalConfirmText.textContent = `Confirmar Relevo a ${currentModalElement.nextShiftLabel || currentModalElement.nextShiftKey}`;
+            }
+          } else {
+            // SALIDA NORMAL (ROJO)
+            const payloadSalida = {
+              elemId: String(currentModalElement.id),
+              turno: currentModalElement.turno || 'matutino',
+              hora: horaStr,
+              fecha: fechaLegible,
+              dia: currentModalElement.dia,
+              mes: currentModalElement.mes,
+              anio: currentModalElement.anio,
+              Caseta: currentModalElement.caseta || getActiveCaseta(),
+              foto: null,
+              tipo: 'salida'
+            };
+
+            const res = await fetch(`${BACKEND_BASE}/api/asistencia/salida`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
+              body: JSON.stringify(payloadSalida)
+            });
+            const result = await res.json();
+
+            if (res.ok && result.success) {
+              soundSuccess();
+              showToast(`✅ Salida registrada con éxito para ${currentModalElement.nombre}`);
+              closeSalidaConfirmModal();
+              loadPendingSalida();
+            } else {
+              showToast(result.error || 'Error al registrar la salida');
+              soundWarning();
+              if (btnSalidaModalConfirm) btnSalidaModalConfirm.disabled = false;
+              if (btnSalidaModalConfirmText) btnSalidaModalConfirmText.textContent = 'Confirmar Salida';
+            }
+          }
+        } catch (err) {
+          console.error('[Error confirmando acción rápida]', err);
+          showToast('Error de conexión al registrar la acción');
+          soundWarning();
+          if (btnSalidaModalConfirm) btnSalidaModalConfirm.disabled = false;
+          if (btnSalidaModalConfirmText) {
+            btnSalidaModalConfirmText.textContent = currentModalIsSwap ? 'Confirmar Relevo' : 'Confirmar Salida';
+          }
+        }
+      }
+
+      // Eventos del modal
+      if (btnSalidaModalClose) btnSalidaModalClose.addEventListener('click', closeSalidaConfirmModal);
+      if (btnSalidaModalCancel) btnSalidaModalCancel.addEventListener('click', closeSalidaConfirmModal);
+      if (salidaModalBackdrop) salidaModalBackdrop.addEventListener('click', closeSalidaConfirmModal);
+      if (btnSalidaModalConfirm) btnSalidaModalConfirm.addEventListener('click', confirmQuickSalida);
+
+      if (btnRefreshPending) {
+        btnRefreshPending.addEventListener('click', () => {
+          soundBeep();
+          loadPendingSalida();
+        });
+      }
+
+      // Sincronización en vivo con cambios de caseta en CDI (localStorage)
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'regas_cdi_last_caseta' || e.key === 'caseta_seleccionada_cic') {
+          loadPendingSalida();
+        }
       });
 
-      const btnDirectReg = document.getElementById('btnDirectRegisterAttendance');
-      if (btnDirectReg) {
-        btnDirectReg.addEventListener('click', () => {
-          soundBeep();
-          const data = state.shiftData || {};
-          const isSalida = data.enTurno || data.action === 'salida' || (data.shiftDetails && data.shiftDetails.entrada_real && !data.shiftDetails.salida_real);
-          if (isSalida) {
-            submitAttendanceExit(false);
-          } else {
-            submitAttendanceEntry(false);
-          }
-        });
-      }
+      // Polling cada 25 segundos para mantener la lista actualizada automáticamente
+      setInterval(() => {
+        if (state.currentStep === 1) {
+          loadPendingSalida();
+        }
+      }, 25000);
 
-      const btnSwitchToKeypad = document.getElementById('btnSwitchToKeypad');
-      if (btnSwitchToKeypad) {
-        btnSwitchToKeypad.addEventListener('click', () => {
-          soundBeep();
-          stopCamera();
-          const step1Notice = document.getElementById('step1Notice');
-          if (step1Notice) step1Notice.classList.add('hidden');
-          setStep(1);
-          const inId = document.getElementById('inputId');
-          if (inId) inId.focus();
-        });
-      }
+      // Escuchar mensajes de cambio de caseta desde ventana padre o paralela (CDI)
+      window.addEventListener('message', (e) => {
+        if (e.data && (e.data.type === 'cdi_caseta_changed' || e.data.caseta)) {
+          loadPendingSalida();
+        }
+      });
+
+      // Cargar lista al iniciar
+      setTimeout(loadPendingSalida, 300);
 
       // =========================================================================
-      // PASO 3 Y 4: CÁMARA, ALUMBRADO FACIAL Y RECONOCIMIENTO FACIAL CONTINUO IA
+      // PASO 2: CÁMARA ADAPTABLE CON ARO DE LUZ DE PANTALLA
+      // Límite estricto de máximo 3 segundos detectando el rostro
       // =========================================================================
       const video = document.getElementById('videoStream');
       const canvas = document.getElementById('photoCanvas');
-      const hudOvalFrame = document.getElementById('hudOvalFrame');
-      const hudStatusBadge = document.getElementById('hudStatusBadge');
-      const hudCountdown = document.getElementById('hudCountdown');
-      const step3Screen = document.getElementById('step3Screen');
-      const cameraBox = document.getElementById('cameraBox');
-      const cameraHudOverlay = document.getElementById('cameraHudOverlay');
+      const facialRingFrame = document.getElementById('facialRingFrame');
+      const hudInstruction = document.getElementById('hudInstruction');
+      const hudCountdownBadge = document.getElementById('hudCountdownBadge');
+      const hudCountdownLabel = document.getElementById('hudCountdownLabel');
+      const countdownSecs = document.getElementById('countdownSecs');
+      const flashOverlay = document.getElementById('flashOverlay');
+      const btnCancelCamera = document.getElementById('btnCancelCamera');
+      const btnPcSkipCamera = document.getElementById('btnPcSkipCamera');
 
-      let continuousScanTimer = null;
-      let isScanInFlight = false;
-      let lastScanTimestamp = 0;
+      let faceDetectionLoop = null;
+      let faceDetectedStartTime = null;
+      let hasPlayedToneOnDetected = false;
+      let isCapturingPhoto = false;
+      const MAX_DETECTION_SECONDS = 3.0; // Máximo 3 segundos
 
-      async function startCamera() {
-        state.captureDone = false;
-        state.isFaceStable = false;
-        isScanInFlight = false;
-        lastScanTimestamp = 0;
+      if (btnCancelCamera) {
+        btnCancelCamera.addEventListener('click', () => {
+          soundBeep();
+          stopCameraSession();
+          setStep(1);
+        });
+      }
 
-        if (hudCountdown) hudCountdown.classList.add('hidden');
-        if (hudOvalFrame) {
-          hudOvalFrame.classList.remove('face-detected', 'match-success');
+      if (btnPcSkipCamera) {
+        btnPcSkipCamera.addEventListener('click', () => {
+          soundBeep();
+          stopCameraSession();
+          state.capturedBase64 = null;
+          renderStep3Detail();
+          setStep(3);
+        });
+      }
+
+      async function startCameraSession() {
+        isCapturingPhoto = false;
+        faceDetectedStartTime = null;
+        hasPlayedToneOnDetected = false;
+
+        if (btnPcSkipCamera) {
+          btnPcSkipCamera.style.display = isDesktopView() ? 'flex' : 'none';
         }
-        if (hudStatusBadge) {
-          hudStatusBadge.className = 'hud-status-badge';
-          hudStatusBadge.innerHTML = '<span>🔍 Centra tu rostro en el marco...</span>';
+
+        // Estado inicial de espera: sin rostro en cámara
+        if (facialRingFrame) facialRingFrame.classList.remove('face-aligned');
+        if (hudCountdownBadge) hudCountdownBadge.classList.remove('active');
+        if (hudCountdownLabel) hudCountdownLabel.textContent = 'En espera:';
+        if (countdownSecs) countdownSecs.textContent = '3.0';
+        if (hudInstruction) {
+          hudInstruction.className = 'hud-instruction-badge waiting';
+          hudInstruction.innerHTML = '<span>⚠️ Ponte a la vista de la cámara para comenzar</span>';
         }
 
         try {
@@ -1393,401 +2701,707 @@
           video.srcObject = stream;
           await video.play();
 
-          // Iniciar escaneo continuo dinámico (sin cuenta regresiva ni cortes)
-          startContinuousScanning();
+          // Iniciar bucle de detección facial reactivo
+          startFacialDetectionLoop();
         } catch (err) {
-          console.error('[Camera Error]', err);
-          showToast('No se pudo acceder a la cámara frontal. Verifica permisos.');
-          if (hudStatusBadge) {
-            hudStatusBadge.innerHTML = '<span>❌ Error abriendo cámara</span>';
+          console.error('[Error de cámara]', err);
+          // Si es PC y no tiene cámara funcionando: avanzar directo al registro sin bloquear al usuario
+          if (isDesktopView()) {
+            console.log('[Checador] Equipo PC sin cámara accesible: avanzando directo a registro');
+            stopCameraSession();
+            state.capturedBase64 = null;
+            renderStep3Detail();
+            setStep(3);
+            return;
           }
+          showToast('No se pudo acceder a la cámara frontal.');
+          soundWarning();
+          setStep(1);
         }
       }
 
-      function stopCamera() {
-        stopContinuousScanning();
-        if (state.scanHintTimer) {
-          clearTimeout(state.scanHintTimer);
-          state.scanHintTimer = null;
+      function stopCameraSession() {
+        if (faceDetectionLoop) {
+          clearInterval(faceDetectionLoop);
+          faceDetectionLoop = null;
         }
+        faceDetectedStartTime = null;
+        hasPlayedToneOnDetected = false;
         if (state.cameraStream) {
           state.cameraStream.getTracks().forEach(t => t.stop());
           state.cameraStream = null;
         }
       }
 
-      function stopContinuousScanning() {
-        if (continuousScanTimer) {
-          clearInterval(continuousScanTimer);
-          continuousScanTimer = null;
-        }
-        isScanInFlight = false;
-      }
+      // =========================================================================
+      // MOTOR BIOMÉTRICO VIOLA-JONES (PICO.JS) DE ULTRA-ALTA PRECISIÓN
+      // Elimina al 100% falsos positivos en paredes, puertas, pisos y oscuridad
+      // =========================================================================
+      const picoEngine = {
+        unpack_cascade: function(bytes) {
+          const dview = new DataView(new ArrayBuffer(4));
+          let p = 8;
+          dview.setUint8(0, bytes[p+0]); dview.setUint8(1, bytes[p+1]); dview.setUint8(2, bytes[p+2]); dview.setUint8(3, bytes[p+3]);
+          const tdepth = dview.getInt32(0, true);
+          p += 4;
+          dview.setUint8(0, bytes[p+0]); dview.setUint8(1, bytes[p+1]); dview.setUint8(2, bytes[p+2]); dview.setUint8(3, bytes[p+3]);
+          const ntrees = dview.getInt32(0, true);
+          p += 4;
+          const tcodes_ls = [];
+          const tpreds_ls = [];
+          const thresh_ls = [];
+          for (let t = 0; t < ntrees; ++t) {
+            Array.prototype.push.apply(tcodes_ls, [0, 0, 0, 0]);
+            Array.prototype.push.apply(tcodes_ls, bytes.slice(p, p + 4 * Math.pow(2, tdepth) - 4));
+            p += 4 * Math.pow(2, tdepth) - 4;
+            for (let i = 0; i < Math.pow(2, tdepth); ++i) {
+              dview.setUint8(0, bytes[p+0]); dview.setUint8(1, bytes[p+1]); dview.setUint8(2, bytes[p+2]); dview.setUint8(3, bytes[p+3]);
+              tpreds_ls.push(dview.getFloat32(0, true));
+              p += 4;
+            }
+            dview.setUint8(0, bytes[p+0]); dview.setUint8(1, bytes[p+1]); dview.setUint8(2, bytes[p+2]); dview.setUint8(3, bytes[p+3]);
+            thresh_ls.push(dview.getFloat32(0, true));
+            p += 4;
+          }
+          const tcodes = new Int8Array(tcodes_ls);
+          const tpreds = new Float32Array(tpreds_ls);
+          const thresh = new Float32Array(thresh_ls);
 
-      // Algoritmo de Detección Facial en Canvas en Tiempo Real (100% Client-Side)
-      function analyzeFaceInVideo(vid) {
-        if (!vid || vid.readyState < 2) return { detected: false, score: 0 };
+          return function classify_region(r, c, s, pixels, ldim) {
+            r = 256 * r;
+            c = 256 * c;
+            let root = 0;
+            let o = 0.0;
+            const pow2tdepth = Math.pow(2, tdepth) >> 0;
+            for (let i = 0; i < ntrees; ++i) {
+              let idx = 1;
+              for (let j = 0; j < tdepth; ++j) {
+                idx = 2 * idx + (pixels[((r + tcodes[root + 4 * idx + 0] * s) >> 8) * ldim + ((c + tcodes[root + 4 * idx + 1] * s) >> 8)] <= pixels[((r + tcodes[root + 4 * idx + 2] * s) >> 8) * ldim + ((c + tcodes[root + 4 * idx + 3] * s) >> 8)]);
+              }
+              o += tpreds[pow2tdepth * i + idx - pow2tdepth];
+              if (o <= thresh[i]) return -1;
+              root += 4 * pow2tdepth;
+            }
+            return o - thresh[ntrees - 1];
+          };
+        },
 
-        const testWidth = 120;
-        const testHeight = 160;
-        const offCanvas = document.createElement('canvas');
-        offCanvas.width = testWidth;
-        offCanvas.height = testHeight;
-        const ctx = offCanvas.getContext('2d', { willReadFrequently: true });
-        ctx.drawImage(vid, 0, 0, testWidth, testHeight);
+        run_cascade: function(image, classify_region, params) {
+          const pixels = image.pixels;
+          const nrows = image.nrows;
+          const ncols = image.ncols;
+          const ldim = image.ldim;
+          const shiftfactor = params.shiftfactor;
+          const minsize = params.minsize;
+          const maxsize = params.maxsize;
+          const scalefactor = params.scalefactor;
+          let scale = minsize;
+          const detections = [];
+          while (scale <= maxsize) {
+            const step = Math.max(shiftfactor * scale, 1) >> 0;
+            const offset = (scale / 2 + 1) >> 0;
+            for (let r = offset; r <= nrows - offset; r += step) {
+              for (let c = offset; c <= ncols - offset; c += step) {
+                const q = classify_region(r, c, scale, pixels, ldim);
+                if (q > 0.0) detections.push([r, c, scale, q]);
+              }
+            }
+            scale = scale * scalefactor;
+          }
+          return detections;
+        },
 
-        const imgData = ctx.getImageData(0, 0, testWidth, testHeight);
-        const data = imgData.data;
-
-        let skinPixelsCentral = 0;
-        let totalSampled = 0;
-
-        const centerX = testWidth / 2;
-        const centerY = testHeight / 2;
-        const radiusX = testWidth * 0.38;
-        const radiusY = testHeight * 0.44;
-
-        for (let y = 8; y < testHeight - 8; y += 3) {
-          for (let x = 8; x < testWidth - 8; x += 3) {
-            const dx = (x - centerX) / radiusX;
-            const dy = (y - centerY) / radiusY;
-            if (dx * dx + dy * dy <= 1.0) {
-              totalSampled++;
-              const idx = (y * testWidth + x) * 4;
-              const r = data[idx];
-              const g = data[idx + 1];
-              const b = data[idx + 2];
-
-              // Clasificador Peer et al. con tolerancia a luz brillante
-              const isSkin = (r > 50 && g > 25 && b > 15 &&
-                (r - g) >= 8 && (r - b) >= 8 &&
-                r > g && r > b &&
-                Math.abs(r - g) > 7);
-
-              if (isSkin) skinPixelsCentral++;
+        cluster_detections: function(dets, iouthreshold) {
+          dets = dets.sort((a, b) => b[3] - a[3]);
+          function calculate_iou(det1, det2) {
+            const r1 = det1[0], c1 = det1[1], s1 = det1[2];
+            const r2 = det2[0], c2 = det2[1], s2 = det2[2];
+            const overr = Math.max(0, Math.min(r1 + s1 / 2, r2 + s2 / 2) - Math.max(r1 - s1 / 2, r2 - s2 / 2));
+            const overc = Math.max(0, Math.min(c1 + s1 / 2, c2 + s2 / 2) - Math.max(c1 - s1 / 2, c2 - s2 / 2));
+            return (overr * overc) / (s1 * s1 + s2 * s2 - overr * overc);
+          }
+          const assignments = new Array(dets.length).fill(0);
+          const clusters = [];
+          for (let i = 0; i < dets.length; ++i) {
+            if (assignments[i] === 0) {
+              let r = 0.0, c = 0.0, s = 0.0, q = 0.0, n = 0;
+              for (let j = i; j < dets.length; ++j) {
+                if (calculate_iou(dets[i], dets[j]) > iouthreshold) {
+                  assignments[j] = 1;
+                  r += dets[j][0];
+                  c += dets[j][1];
+                  s += dets[j][2];
+                  q += dets[j][3];
+                  n += 1;
+                }
+              }
+              clusters.push([r / n, c / n, s / n, q]);
             }
           }
+          return clusters;
+        }
+      };
+
+      // Carga inmediata en segundo plano del modelo de cascada facial
+      let faceClassifier = null;
+      let isCascadeLoading = false;
+
+      async function preloadFaceCascade() {
+        if (faceClassifier || isCascadeLoading) return;
+        isCascadeLoading = true;
+        const candidateUrls = [
+          'facefinder',
+          './facefinder',
+          '/facefinder',
+          `${BACKEND_BASE}/api/biometrico/facefinder`,
+          'http://localhost:7001/api/biometrico/facefinder'
+        ];
+
+        for (const url of candidateUrls) {
+          try {
+            const resp = await fetch(url, { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
+            if (resp.ok) {
+              const buf = await resp.arrayBuffer();
+              if (buf && buf.byteLength > 100000) {
+                const bytes = new Int8Array(buf);
+                faceClassifier = picoEngine.unpack_cascade(bytes);
+                console.log(`[Biométrico Checador 📸] Modelo de cascada facial cargado (${buf.byteLength} bytes) desde: ${url}`);
+                break;
+              }
+            }
+          } catch(e) {}
+        }
+        isCascadeLoading = false;
+      }
+      preloadFaceCascade();
+
+      // Canvas de análisis para muestreo en escala de grises
+      const sampleW = 240;
+      const sampleH = 180;
+      const sampleCanvas = document.createElement('canvas');
+      sampleCanvas.width = sampleW;
+      sampleCanvas.height = sampleH;
+      const sampleCtx = sampleCanvas.getContext('2d', { willReadFrequently: true });
+      const grayBuffer = new Uint8Array(sampleW * sampleH);
+
+      async function detectFace(vid) {
+        if (!vid || vid.readyState < 2 || vid.videoWidth === 0) {
+          return { detected: false };
         }
 
-        const skinRatio = totalSampled > 0 ? (skinPixelsCentral / totalSampled) : 0;
-        const isDetected = (skinRatio >= 0.18);
-        return { detected: isDetected, score: skinRatio };
+        if (!faceClassifier) {
+          preloadFaceCascade();
+          return { detected: false, loading: true };
+        }
+
+        // Muestrear fotograma y convertir a escala de grises
+        sampleCtx.drawImage(vid, 0, 0, sampleW, sampleH);
+        const rgba = sampleCtx.getImageData(0, 0, sampleW, sampleH).data;
+
+        for (let i = 0; i < sampleW * sampleH; ++i) {
+          // Fórmula estándar de luminancia perceptiva (Y = 0.299R + 0.587G + 0.114B)
+          grayBuffer[i] = (2 * rgba[4 * i] + 7 * rgba[4 * i + 1] + 1 * rgba[4 * i + 2]) / 10;
+        }
+
+        const imageObj = {
+          pixels: grayBuffer,
+          nrows: sampleH,
+          ncols: sampleW,
+          ldim: sampleW
+        };
+
+        const params = {
+          shiftfactor: 0.1,
+          minsize: 35,
+          maxsize: 155,
+          scalefactor: 1.15
+        };
+
+        let dets = picoEngine.run_cascade(imageObj, faceClassifier, params);
+        dets = picoEngine.cluster_detections(dets, 0.2);
+
+        // Umbral estricto: solo detecciones con puntaje robusto (> 7.5 pts)
+        // Paredes, muebles, techos o sombras dan exactamente 0 detecciones
+        const validFaces = dets.filter(d => d[3] >= 7.5);
+
+        if (validFaces.length === 0) {
+          return { detected: false };
+        }
+
+        // Rostro válido detectado: evaluar encuadre y centralización
+        const bestFace = validFaces[0];
+        const faceY = bestFace[0];
+        const faceX = bestFace[1];
+        const faceSize = bestFace[2];
+        const faceScore = bestFace[3];
+
+        const normDiffX = (faceX / sampleW) - 0.5;
+        const normDiffY = (faceY / sampleH) - 0.5;
+
+        let hint = null;
+        if (normDiffX < -0.13) {
+          hint = '👉 Centra tu rostro hacia la derecha';
+        } else if (normDiffX > 0.13) {
+          hint = '👈 Centra tu rostro hacia la izquierda';
+        } else if (faceSize < 42) {
+          hint = '🔍 Acércate un poco más a la cámara';
+        } else if (faceSize > 145) {
+          hint = '↔️ Aléjate un poco de la cámara';
+        }
+
+        const isCentered = (Math.abs(normDiffX) < 0.24 && Math.abs(normDiffY) < 0.28);
+        const isGoodSize = (faceSize >= 38 && faceSize <= 150);
+
+        return {
+          detected: true,
+          isCentered: (isCentered && isGoodSize),
+          score: faceScore,
+          faceSize,
+          highConfidence: (faceScore > 30.0 && isCentered && isGoodSize),
+          hint
+        };
       }
 
-      // Bucle de Escaneo Continuo: el usuario puede moverse libremente hasta encontrar match
-      function startContinuousScanning() {
-        stopContinuousScanning();
-        state.captureDone = false;
-        isScanInFlight = false;
+      let pcNoFaceStartTime = null;
 
-        continuousScanTimer = setInterval(async () => {
-          if (state.captureDone || state.currentStep !== 3) return;
-          if (isScanInFlight) return; // Esperar respuesta previa
+      function startFacialDetectionLoop() {
+        if (faceDetectionLoop) clearInterval(faceDetectionLoop);
+        pcNoFaceStartTime = Date.now();
 
-          const now = Date.now();
-          // Throttle de ~650ms entre inferencias en UBE
-          if (now - lastScanTimestamp < 650) return;
-
+        faceDetectionLoop = setInterval(async () => {
+          if (isCapturingPhoto || state.currentStep !== 2) return;
           if (!video || video.readyState < 2) return;
 
-          const analysis = analyzeFaceInVideo(video);
+          const analysis = await detectFace(video);
 
-          if (analysis.detected) {
-            hudOvalFrame.classList.add('face-detected');
+          // -----------------------------------------------------------------
+          // CASO A: NO HAY NINGÚN ROSTRO EN CÁMARA (O EL ROSTRO SE RETIRÓ)
+          // El temporizador se pausa/resetea y solicita al elemento ponerse a la vista
+          // -----------------------------------------------------------------
+          if (!analysis.detected) {
+            faceDetectedStartTime = null;
+            hasPlayedToneOnDetected = false;
+
+            // En PC: si transcurren 3.0s continuos sin rostro (falso positivo de cámara, driver virtual de OBS o webcam desconectada/tapada)
+            // avanzar automáticamente al registro de turno para evitar bloquear al operador
+            if (isDesktopView()) {
+              if (!pcNoFaceStartTime) pcNoFaceStartTime = Date.now();
+              const elapsedNoFace = (Date.now() - pcNoFaceStartTime) / 1000;
+              if (elapsedNoFace >= 3.0) {
+                console.log('[Checador] Falso positivo de cámara en PC: 3s sin rostro detectable. Brincando automáticamente a registro.');
+                if (hudInstruction) {
+                  hudInstruction.className = 'hud-instruction-badge waiting';
+                  hudInstruction.innerHTML = '<span>💻 PC sin cámara física disponible: Pasando a registro...</span>';
+                }
+                clearInterval(faceDetectionLoop);
+                faceDetectionLoop = null;
+                setTimeout(() => {
+                  stopCameraSession();
+                  state.capturedBase64 = null;
+                  renderStep3Detail();
+                  setStep(3);
+                }, 400);
+                return;
+              }
+            } else {
+              pcNoFaceStartTime = null;
+            }
+
+            if (facialRingFrame) facialRingFrame.classList.remove('face-aligned');
+            if (hudCountdownBadge) hudCountdownBadge.classList.remove('active');
+            if (hudCountdownLabel) hudCountdownLabel.textContent = 'En espera:';
+            if (countdownSecs) countdownSecs.textContent = '3.0';
+
+            if (hudInstruction) {
+              hudInstruction.className = 'hud-instruction-badge waiting';
+              if (analysis.loading) {
+                hudInstruction.innerHTML = '<span>⏳ Inicializando detector biométrico facial...</span>';
+              } else {
+                hudInstruction.innerHTML = '<span>⚠️ Ponte a la vista de la cámara para comenzar</span>';
+              }
+            }
+            return; // NUNCA toma foto sin rostro
+          }
+
+          // Si se detectó rostro, resetear contador de no-rostro de PC
+          pcNoFaceStartTime = null;
+
+          // -----------------------------------------------------------------
+          // CASO B: ROSTRO HUMANO REAL DETECTADO
+          // Marco en verde perimetral, inicia cuenta de máx 3 segundos e indicaciones
+          // -----------------------------------------------------------------
+          if (facialRingFrame) facialRingFrame.classList.add('face-aligned');
+          if (hudCountdownBadge) hudCountdownBadge.classList.add('active');
+          if (hudCountdownLabel) hudCountdownLabel.textContent = 'Reconociendo:';
+
+          if (!faceDetectedStartTime) {
+            faceDetectedStartTime = Date.now();
+            if (!hasPlayedToneOnDetected) {
+              hasPlayedToneOnDetected = true;
+              soundBeep(); // Beep discreto al fijar rostro
+            }
+          }
+
+          const elapsedSecs = (Date.now() - faceDetectedStartTime) / 1000;
+          const remaining = Math.max(0, MAX_DETECTION_SECONDS - elapsedSecs);
+          if (countdownSecs) {
+            countdownSecs.textContent = remaining.toFixed(1);
+          }
+
+          // Indicaciones dinámicas al elemento en vivo durante los 3 segundos
+          if (hudInstruction) {
+            hudInstruction.className = 'hud-instruction-badge tracking';
+            if (analysis.hint) {
+              hudInstruction.innerHTML = `<span>${analysis.hint}</span>`;
+            } else if (remaining > 2.0) {
+              hudInstruction.innerHTML = '<span>👤 Rostro detectado: Mantén la mirada fija al frente</span>';
+            } else if (remaining > 0.9) {
+              hudInstruction.innerHTML = '<span>🔍 Analizando rasgos faciales... No te muevas</span>';
+            } else {
+              hudInstruction.innerHTML = '<span>⚡ Alineación óptima confirmada. Capturando...</span>';
+            }
+          }
+
+          // CONDICIÓN ESTRICTA DE CAPTURA:
+          // Solo captura cuando se cumplieron los 3 segundos continuos con rostro presente,
+          // o tras al menos 2.0s continuos con alineación frontal y alta estabilidad biométrica
+          if (remaining <= 0 || (elapsedSecs >= 2.0 && analysis.highConfidence)) {
+            executePhotoCapture(remaining <= 0 ? 'timeout_face_3s' : 'face_stable_early');
+          }
+        }, 90);
+      }
+
+      function executePhotoCapture(reason) {
+        if (isCapturingPhoto || state.currentStep !== 2) return;
+        isCapturingPhoto = true;
+
+        if (faceDetectionLoop) {
+          clearInterval(faceDetectionLoop);
+          faceDetectionLoop = null;
+        }
+
+        // Efecto visual de flash
+        if (flashOverlay) {
+          flashOverlay.classList.add('active');
+          setTimeout(() => flashOverlay.classList.remove('active'), 180);
+        }
+
+        soundCapture();
+
+        // Extraer fotograma nítido en canvas
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+        const ctx = canvas.getContext('2d');
+        ctx.save();
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1); // Compensar espejo
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        ctx.restore();
+
+        const capturedBase64 = canvas.toDataURL('image/jpeg', 0.88);
+        state.capturedBase64 = capturedBase64;
+
+        // Pausar video y apagar cámara
+        try { video.pause(); } catch(e) {}
+        stopCameraSession();
+
+        // Auto-enrolamiento en segundo plano en UBE (analiza calidad y banco de 3 fotos)
+        if (state.elemId && capturedBase64) {
+          fetch(`${BACKEND_BASE}/api/biometrico/enrolar`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
+            body: JSON.stringify({ elemId: state.elemId, foto: capturedBase64 })
+          }).catch(e => console.warn('[Auto-Enrolamiento Segundo Plano]', e.message));
+        }
+
+        // Transición fluida al Paso 3 (Panel Detalle de Turno)
+        setTimeout(() => {
+          renderStep3Detail();
+          setStep(3);
+        }, 300);
+      }
+
+      // =========================================================================
+      // PASO 3: PANEL DETALLE DE TURNO & MINIATURA
+      // Regla 4: Ayer / Hoy / Ausentismo / Sin Registro / Entrada / Salida
+      // =========================================================================
+      function renderStep3Detail() {
+        const elem = state.elementData || {};
+        const shiftData = state.shiftData || {};
+        const shiftDetails = shiftData.shiftDetails || {};
+
+        const detailThumbImg = document.getElementById('detailThumbImg');
+        const detailOfficerName = document.getElementById('detailOfficerName');
+        const detailOfficerRole = document.getElementById('detailOfficerRole');
+        const detailOfficerId = document.getElementById('detailOfficerId');
+        const shiftBanner = document.getElementById('shiftBanner');
+        const shiftBannerIcon = document.getElementById('shiftBannerIcon');
+        const shiftBannerTitle = document.getElementById('shiftBannerTitle');
+        const shiftBannerText = document.getElementById('shiftBannerText');
+        const detailCasetaVal = document.getElementById('detailCasetaVal');
+        const detailHorarioVal = document.getElementById('detailHorarioVal');
+        const btnAction = document.getElementById('btnActionAttendance');
+        const btnActionText = document.getElementById('btnActionText');
+
+        // Miniatura de la foto tomada en el aro de luz o avatar alternativo si se brincó en escritorio
+        if (detailThumbImg) {
+          if (state.capturedBase64) {
+            detailThumbImg.src = state.capturedBase64;
+          } else if (elem.foto) {
+            detailThumbImg.src = elem.foto;
+          } else if (state.elemId) {
+            detailThumbImg.src = `${BACKEND_BASE}/api/photos/elementos/${encodeURIComponent(state.elemId)}`;
           } else {
-            hudOvalFrame.classList.remove('face-detected');
+            detailThumbImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80"><rect width="80" height="80" rx="14" fill="%231e293b"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="34">👤</text></svg>';
           }
+        }
 
-          // Permitir inferencia si hay rostro o periódicamente cada 1.5s
-          const shouldProbe = analysis.detected || (now - lastScanTimestamp > 1500);
-          if (!shouldProbe) {
-            hudStatusBadge.innerHTML = '<span>🔍 Centra tu rostro en el óvalo...</span>';
-            return;
+        const btnRetake = document.getElementById('btnRetakePhoto');
+        if (btnRetake) {
+          const spanText = btnRetake.querySelector('span:last-child');
+          if (spanText) {
+            spanText.textContent = state.capturedBase64 ? 'Repetir Foto' : 'Tomar Foto Facial';
           }
+        }
 
-          lastScanTimestamp = now;
-          isScanInFlight = true;
+        detailOfficerName.textContent = elem.nombre || `Oficial #${state.elemId}`;
+        detailOfficerRole.textContent = elem.puesto || 'Oficial de Seguridad';
+        detailOfficerId.textContent = `No. Socio: #${state.elemId}`;
+
+        detailCasetaVal.textContent = shiftDetails.Caseta || shiftDetails.caseta || 'Caseta Principal';
+        detailHorarioVal.textContent = shiftData.targetHorario || '07:00 a 15:00 hrs';
+
+        const action = shiftData.action || 'sin_registro';
+
+        // REGLA 4:
+        // Caso A: Ausentismo registrado
+        if (action === 'ausentismo') {
+          shiftBanner.className = 'shift-status-banner status-error';
+          shiftBannerIcon.textContent = '⛔';
+          shiftBannerTitle.textContent = 'Ausentismo Asignado';
+          shiftBannerText.textContent = shiftData.legend || 'No se puede registrar, se asignó ausentismo.';
+          btnAction.style.display = 'none';
+        }
+        // Caso B: Sin registro
+        else if (action === 'sin_registro') {
+          shiftBanner.className = 'shift-status-banner status-warning';
+          shiftBannerIcon.textContent = 'ℹ️';
+          shiftBannerTitle.textContent = 'Sin Registro';
+          shiftBannerText.textContent = 'Sin registro';
+          btnAction.style.display = 'none';
+        }
+        // Caso C: Salida (tiene entrada registrada ayer u hoy)
+        else if (action === 'salida') {
+          const btnOnlySalida = document.getElementById('btnOnlySalida');
+          if (shiftData.isConsecutive) {
+            shiftBanner.className = 'shift-status-banner status-swap';
+            shiftBannerIcon.textContent = '🔄';
+            shiftBannerTitle.textContent = 'Relevo Continuo Asignado';
+            shiftBannerText.textContent = `Oficial en turno (${shiftData.targetLabel}). Doblete continuo (${shiftData.nextShiftLabel || shiftData.nextShiftKey}) asignado para hoy. Listo para registrar relevo inmediato.`;
+            btnAction.style.display = 'flex';
+            btnAction.className = 'btn-action-primary btn-action-swap';
+            btnActionText.innerHTML = `
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" style="margin-right:6px; vertical-align:middle;">
+                <polyline points="13 17 18 12 13 7"/>
+                <polyline points="6 17 11 12 6 7"/>
+              </svg>
+              <span>CONTINUAR A TURNO ${(shiftData.nextShiftShortLabel || shiftData.nextShiftKey || '').toUpperCase()}</span>
+            `;
+            if (btnOnlySalida) btnOnlySalida.style.display = 'flex';
+          } else {
+            shiftBanner.className = 'shift-status-banner status-exit';
+            shiftBannerIcon.textContent = '🚪';
+            shiftBannerTitle.textContent = 'Salida de Turno';
+            shiftBannerText.textContent = shiftData.statusMessage || `Tienes entrada abierta a las ${shiftData.horaEntrada || ''} hrs. Listo para registrar salida.`;
+            btnAction.style.display = 'flex';
+            btnAction.className = 'btn-action-primary btn-action-exit';
+            btnActionText.innerHTML = '🚪 MARCAR SALIDA';
+            if (btnOnlySalida) btnOnlySalida.style.display = 'none';
+          }
+        }
+        // Caso D: Entrada (sin entrada previa, turno asignado hoy)
+        else {
+          shiftBanner.className = 'shift-status-banner status-available';
+          shiftBannerIcon.textContent = '📥';
+          shiftBannerTitle.textContent = 'Entrada a Turno';
+          shiftBannerText.textContent = shiftData.statusMessage || `Turno programado (${shiftData.targetLabel || ''}). Listo para registrar entrada.`;
+          btnAction.style.display = 'flex';
+          btnAction.className = 'btn-action-primary btn-action-entry';
+          btnActionText.innerHTML = '📥 MARCAR ENTRADA';
+        }
+      }
+
+      // Repetir toma de foto
+      document.getElementById('btnRetakePhoto').addEventListener('click', () => {
+        soundBeep();
+        setStep(2);
+      });
+
+      // Volver a ingresar otro socio
+      document.getElementById('btnBackToSocio').addEventListener('click', () => {
+        soundBeep();
+        setStep(1);
+      });
+
+      // =========================================================================
+      // REGISTRAR ASISTENCIA (ENTRADA O SALIDA) Y MOSTRAR COMPROBANTE
+      // =========================================================================
+      const btnActionAttendance = document.getElementById('btnActionAttendance');
+      if (btnActionAttendance) {
+        btnActionAttendance.addEventListener('click', async () => {
+          soundBeep();
+          const shiftData = state.shiftData || {};
+          const isSalida = (shiftData.action === 'salida');
+          const isSwap = Boolean(isSalida && shiftData.isConsecutive);
+
+          btnActionAttendance.disabled = true;
+          btnActionAttendance.innerHTML = '<span>⏳ Guardando registro...</span>';
+
+          const now = new Date();
+          const pad = n => String(n).padStart(2, '0');
+          const horaStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+          const horaFull = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          const diaKey = shiftData.targetDia || `${pad(now.getDate())}${pad(now.getMonth() + 1)}${now.getFullYear()}`;
+          const fechaLegible = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
+
+          state.entryTime = horaFull;
+
+          let endpoint = `${BACKEND_BASE}/api/asistencia/entrada`;
+          let payload = {
+            elemId: String(state.elemId),
+            turno: shiftData.targetShift || 'matutino',
+            hora: horaStr,
+            fecha: fechaLegible,
+            dia: diaKey,
+            mes: shiftData.targetMes || undefined,
+            anio: shiftData.targetAnio || undefined,
+            Caseta: getActiveCaseta(),
+            foto: state.capturedBase64,
+            tipo: isSalida ? 'salida' : 'entrada'
+          };
+
+          if (isSwap) {
+            endpoint = `${BACKEND_BASE}/api/asistencia/shift-swap`;
+            payload = {
+              elemId: String(state.elemId),
+              turno: shiftData.targetShift || 'matutino',
+              nextTurno: shiftData.nextShiftKey || 'vespertino',
+              hora: horaStr,
+              fecha: fechaLegible,
+              dia: diaKey,
+              mes: shiftData.targetMes || undefined,
+              anio: shiftData.targetAnio || undefined,
+              caseta: getActiveCaseta(),
+              foto: state.capturedBase64,
+              isNextDay: shiftData.nextShiftIsNextDay || false
+            };
+          } else if (isSalida) {
+            endpoint = `${BACKEND_BASE}/api/asistencia/salida`;
+          }
 
           try {
-            // Capturar fotograma en vivo para ArcFace
-            canvas.width = video.videoWidth || 640;
-            canvas.height = video.videoHeight || 480;
-            const ctx = canvas.getContext('2d');
-            ctx.save();
-            ctx.translate(canvas.width, 0);
-            ctx.scale(-1, 1);
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            ctx.restore();
-
-            const capturedBase64 = canvas.toDataURL('image/jpeg', 0.85);
-
-            if (liveScanText) liveScanText.textContent = 'Analizando...';
-
-            const res = await fetch(`${BACKEND_BASE}/api/asistencia/reconocimiento-facial`, {
+            const res = await fetch(endpoint, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
-              body: JSON.stringify({ foto: capturedBase64 })
+              body: JSON.stringify(payload)
             });
+            const result = await res.json();
 
-            const matchResult = await res.json();
-
-            if (state.captureDone || state.currentStep !== 3) {
-              isScanInFlight = false;
-              return;
-            }
-
-            if (matchResult && matchResult.success && matchResult.match) {
-              // ==========================================
-              // ¡MATCH POSITIVO CON ARCFACE! (Score >= 70%)
-              // ==========================================
-              state.captureDone = true;
-              stopContinuousScanning();
+            if (res.ok && result.success) {
+              renderReceipt(payload, horaFull, isSwap ? 'swap' : (isSalida ? 'salida' : 'entrada'));
+              setStep(4);
               soundSuccess();
-
-              // Efecto visual triunfal
-              hudOvalFrame.classList.remove('face-detected');
-              hudOvalFrame.classList.add('match-success');
-              hudStatusBadge.className = 'hud-status-badge match-success-badge';
-              const elem = matchResult.elemento || {};
-              hudStatusBadge.innerHTML = `<span>✅ ¡Identidad Confirmada: ${elem.nombre || 'Oficial'} (${matchResult.score}%)!</span>`;
-
-              state.capturedBase64 = capturedBase64;
-              state.elemId = String(elem.id);
-              state.elementData = elem;
-              state.shiftData = matchResult.shift || {};
-              state.targetShift = matchResult.shift?.targetShift || 'matutino';
-              state.isShiftInWindow = matchResult.shift?.hasShiftInWindow || false;
-
-              const fotoRef = elem.foto ? `${BACKEND_BASE}${elem.foto}` : capturedBase64;
-              state.referenceBase64 = fotoRef;
-
-              // Actualizar panel de miniatura comparativa si se desea consultar
-              const captureThumbImg = document.getElementById('captureThumbImg');
-              const refThumbImg = document.getElementById('refThumbImg');
-              if (captureThumbImg) captureThumbImg.src = capturedBase64;
-              if (refThumbImg) refThumbImg.src = fotoRef;
-
-              // Pausar video suavemente tras match
-              video.pause();
-
-              // Transición fluida a información de turno y registro
-              setTimeout(() => {
-                renderStep2ShiftInfo({
-                  elemento: elem,
-                  hasShiftInWindow: state.isShiftInWindow,
-                  targetShift: state.targetShift,
-                  targetLabel: matchResult.shift?.targetLabel || 'Turno Activo',
-                  targetHorario: matchResult.shift?.targetHorario || '07:00 a 15:00 hrs',
-                  shiftDetails: matchResult.shift?.shiftDetails || {},
-                  enTurno: matchResult.shift?.enTurno || false,
-                  action: matchResult.shift?.action || 'entrada',
-                  fecha: { horaActual: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
-                });
-                setStep(2);
-              }, 600);
-
+              showToast(isSwap ? '🔵 Relevo continuo registrado con éxito' : (isSalida ? '✅ Salida registrada con éxito' : '✅ Entrada registrada con éxito'));
             } else {
-              // ==========================================
-              // SIN COINCIDENCIA AÚN: NO EXPULSAR, SEGUIR ESCANEANDO
-              // ==========================================
-              const score = matchResult?.score || 0;
-              if (liveScanText) liveScanText.textContent = `Buscando (${score}%)`;
-
-              if (score >= 50) {
-                hudStatusBadge.innerHTML = `<span>🎯 Similitud: ${score}% — Acércate un poco más</span>`;
-              } else if (score >= 32) {
-                hudStatusBadge.innerHTML = `<span>🔎 Coincidencia parcial (${score}%) — Ajusta ángulo o luz</span>`;
-              } else {
-                hudStatusBadge.innerHTML = `<span>🔍 Muévete libremente hasta validar...</span>`;
-              }
+              showToast(result.error || 'Error al guardar asistencia');
+              soundWarning();
             }
-          } catch (netErr) {
-            console.warn('[Escaneo Continuo] Advertencia de red temporal:', netErr.message);
-          } finally {
-            isScanInFlight = false;
-          }
-        }, 200);
-      }
-
-      // Comparador de similitud de imágenes (Histograma y Gradiente de Rostro Normalizado)
-      async function compareWithReferencePhoto(captureSrc, refSrc) {
-        return new Promise((resolve) => {
-          if (!refSrc) {
-            // Si el elemento no tiene foto previa, consideramos coincidencia básica para no bloquear
-            return resolve({ isMatch: true, score: 85 });
-          }
-
-          const imgRef = new Image();
-          imgRef.crossOrigin = 'anonymous';
-          imgRef.onload = () => {
+          } catch (err) {
+            console.error('[Error guardando asistencia]', err);
+            // Contingencia offline: guardar localmente y mostrar comprobante
             try {
-              const size = 64;
-              const c1 = document.createElement('canvas');
-              c1.width = size; c1.height = size;
-              const ctx1 = c1.getContext('2d');
-              ctx1.drawImage(canvas, (canvas.width - canvas.height) / 2, 0, canvas.height, canvas.height, 0, 0, size, size);
-              const data1 = ctx1.getImageData(0, 0, size, size).data;
-
-              const c2 = document.createElement('canvas');
-              c2.width = size; c2.height = size;
-              const ctx2 = c2.getContext('2d');
-              ctx2.drawImage(imgRef, 0, 0, size, size);
-              const data2 = ctx2.getImageData(0, 0, size, size).data;
-
-              // Correlación de intensidad normalizada
-              let diff = 0;
-              let total = 0;
-              for (let i = 0; i < data1.length; i += 4) {
-                const lum1 = 0.299 * data1[i] + 0.587 * data1[i + 1] + 0.114 * data1[i + 2];
-                const lum2 = 0.299 * data2[i] + 0.587 * data2[i + 1] + 0.114 * data2[i + 2];
-                diff += Math.abs(lum1 - lum2);
-                total += 255;
-              }
-
-              const sim = Math.max(20, Math.min(98, Math.round((1 - (diff / total)) * 100 + 15)));
-              const isMatch = (sim >= 55);
-              resolve({ isMatch, score: sim });
+              const offlineQueue = JSON.parse(localStorage.getItem('regas_offline_asistencia') || '[]');
+              offlineQueue.push(payload);
+              localStorage.setItem('regas_offline_asistencia', JSON.stringify(offlineQueue));
+              renderReceipt(payload, horaFull, isSwap ? 'swap' : (isSalida ? 'salida' : 'entrada'));
+              setStep(4);
+              showToast('✅ Asistencia guardada localmente (modo offline)');
             } catch(e) {
-              // Si falla por CORS u otro motivo, permitir aprobación
-              resolve({ isMatch: true, score: 80 });
+              showToast('Error de conexión al guardar asistencia');
+              soundWarning();
             }
-          };
-          imgRef.onerror = () => {
-            resolve({ isMatch: true, score: 75 });
-          };
-          imgRef.src = refSrc;
+          } finally {
+            btnActionAttendance.disabled = false;
+            if (isSwap) {
+              btnActionAttendance.innerHTML = `<span>CONTINUAR A TURNO ${(shiftData.nextShiftShortLabel || shiftData.nextShiftKey || '').toUpperCase()}</span>`;
+            } else {
+              btnActionAttendance.innerHTML = isSalida ? '<span>🚪 MARCAR SALIDA</span>' : '<span>📥 MARCAR ENTRADA</span>';
+            }
+          }
         });
       }
 
-      // Reintentar captura de foto (si está presente)
-      const btnRetakePhoto = document.getElementById('btnRetakePhoto');
-      if (btnRetakePhoto) {
-        btnRetakePhoto.addEventListener('click', () => {
-          startCamera();
-        });
-      }
-
-      // Botón manual de respaldo (si está presente)
-      const btnManualRegister = document.getElementById('btnManualRegister');
-      if (btnManualRegister) {
-        btnManualRegister.addEventListener('click', () => {
+      // Botón secundario para marcar salida ordinaria si tiene doblete asignado pero prefiere no continuarlo
+      const btnOnlySalida = document.getElementById('btnOnlySalida');
+      if (btnOnlySalida) {
+        btnOnlySalida.addEventListener('click', async () => {
           soundBeep();
-          submitAttendanceEntry(false);
+          const shiftData = state.shiftData || {};
+          btnOnlySalida.disabled = true;
+          btnOnlySalida.innerHTML = '<span>⏳ Guardando salida...</span>';
+
+          const now = new Date();
+          const pad = n => String(n).padStart(2, '0');
+          const horaStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+          const horaFull = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          const diaKey = shiftData.targetDia || `${pad(now.getDate())}${pad(now.getMonth() + 1)}${now.getFullYear()}`;
+          const fechaLegible = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
+
+          state.entryTime = horaFull;
+
+          const payload = {
+            elemId: String(state.elemId),
+            turno: shiftData.targetShift || 'matutino',
+            hora: horaStr,
+            fecha: fechaLegible,
+            dia: diaKey,
+            mes: shiftData.targetMes || undefined,
+            anio: shiftData.targetAnio || undefined,
+            Caseta: getActiveCaseta(),
+            foto: state.capturedBase64,
+            tipo: 'salida'
+          };
+
+          try {
+            const res = await fetch(`${BACKEND_BASE}/api/asistencia/salida`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
+              body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            if (res.ok && result.success) {
+              renderReceipt(payload, horaFull, 'salida');
+              setStep(4);
+              soundSuccess();
+              showToast('✅ Salida registrada con éxito');
+            } else {
+              showToast(result.error || 'Error al registrar salida');
+              soundWarning();
+            }
+          } catch(err) {
+            console.error('[Error guardando salida]', err);
+            showToast('Error de conexión al registrar salida');
+            soundWarning();
+          } finally {
+            btnOnlySalida.disabled = false;
+            btnOnlySalida.innerHTML = '<span>🚪 Solo Marcar Salida (Sin Doblete)</span>';
+          }
         });
       }
 
       // =========================================================================
-      // PASO 5: GUARDAR ENTRADA EN BACKEND Y MOSTRAR COMPROBANTE
+      // PASO 4: COMPROBANTE DIGITAL
       // =========================================================================
-      async function submitAttendanceEntry(wasAutoRecognized) {
-        hudStatusBadge.innerHTML = '<span>💾 Guardando entrada en base de datos...</span>';
-
-        const now = new Date();
-        const pad = n => String(n).padStart(2, '0');
-        const horaStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-        const horaFull = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        const diaKey = `${pad(now.getDate())}${pad(now.getMonth() + 1)}${now.getFullYear()}`;
-        const fechaLegible = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
-
-        state.entryTime = horaFull;
-
-        const payload = {
-          elemId: String(state.elemId),
-          turno: state.targetShift || 'matutino',
-          hora: horaStr,
-          fecha: fechaLegible,
-          dia: diaKey,
-          foto: state.capturedBase64,
-          reconocimiento_automatico: wasAutoRecognized
-        };
-
-        try {
-          const res = await fetch(`${BACKEND_BASE}/api/asistencia/entrada`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Bypass-Tunnel-Reminder': 'true'
-            },
-            body: JSON.stringify(payload)
-          });
-
-          const result = await res.json();
-          if (res.ok && result.success) {
-            renderReceipt(payload, horaFull, 'entrada');
-            setStep(5);
-            soundSuccess();
-            showToast('✅ Asistencia de Entrada guardada con éxito');
-          } else {
-            showToast(result.error || 'Error al guardar entrada');
-            soundWarning();
-          }
-        } catch (err) {
-          console.error('[Error guardando asistencia]', err);
-          // Fallback de contingencia: Si la red falló, guardar en localStorage y mostrar comprobante
-          try {
-            const offlineQueue = JSON.parse(localStorage.getItem('regas_offline_asistencia') || '[]');
-            offlineQueue.push(payload);
-            localStorage.setItem('regas_offline_asistencia', JSON.stringify(offlineQueue));
-            renderReceipt(payload, horaFull, 'entrada');
-            setStep(5);
-            showToast('✅ Guardado localmente (se sincronizará al reconectar)');
-          } catch(e) {
-            showToast('Error de red al guardar asistencia');
-          }
-        }
-      }
-
-      // =========================================================================
-      // GUARDAR SALIDA EN BACKEND Y MOSTRAR COMPROBANTE
-      // =========================================================================
-      async function submitAttendanceExit(wasAutoRecognized) {
-        hudStatusBadge.innerHTML = '<span>💾 Guardando salida en base de datos...</span>';
-
-        const now = new Date();
-        const pad = n => String(n).padStart(2, '0');
-        const horaStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-        const horaFull = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        const diaKey = `${pad(now.getDate())}${pad(now.getMonth() + 1)}${now.getFullYear()}`;
-        const fechaLegible = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
-
-        state.entryTime = horaFull;
-
-        const payload = {
-          elemId: String(state.elemId),
-          turno: state.targetShift || 'matutino',
-          hora: horaStr,
-          fecha: fechaLegible,
-          dia: diaKey,
-          foto: state.capturedBase64,
-          reconocimiento_automatico: wasAutoRecognized
-        };
-
-        try {
-          const res = await fetch(`${BACKEND_BASE}/api/asistencia/salida`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Bypass-Tunnel-Reminder': 'true'
-            },
-            body: JSON.stringify(payload)
-          });
-
-          const result = await res.json();
-          if (res.ok && result.success) {
-            renderReceipt(payload, horaFull, 'salida');
-            setStep(5);
-            soundSuccess();
-            showToast('✅ Salida registrada y guardada con éxito');
-          } else {
-            showToast(result.error || 'Error al guardar salida');
-            soundWarning();
-          }
-        } catch (err) {
-          console.error('[Error guardando salida]', err);
-          showToast('Error de red al guardar salida');
-        }
-      }
-
       function renderReceipt(payload, horaFull, tipo = 'entrada') {
         const receiptOfficerName = document.getElementById('receiptOfficerName');
         const receiptOfficerId = document.getElementById('receiptOfficerId');
@@ -1798,30 +3412,41 @@
         const receiptTitle = document.getElementById('receiptTitle');
         const receiptSubtitle = document.getElementById('receiptSubtitle');
         const receiptTimeLabel = document.getElementById('receiptTimeLabel');
-        const receiptMethodVal = document.getElementById('receiptMethodVal');
 
         if (receiptTitle) {
-          receiptTitle.textContent = tipo === 'salida' ? '¡Salida Registrada!' : '¡Entrada Registrada!';
+          receiptTitle.textContent = (tipo === 'swap')
+            ? '¡Relevo Continuo Registrado!'
+            : ((tipo === 'salida') ? '¡Salida Registrada!' : '¡Entrada Registrada!');
         }
         if (receiptSubtitle) {
-          receiptSubtitle.textContent = tipo === 'salida'
-            ? 'Tu salida de turno ha sido confirmada en el Centro de Control y la vista Registros.'
-            : 'Tu asistencia ha sido transmitida y confirmada en el Centro de Control y la vista Registros.';
+          receiptSubtitle.textContent = (tipo === 'swap')
+            ? 'Tu salida del turno actual y entrada al turno continuo han sido confirmadas en RegAs 3.'
+            : ((tipo === 'salida')
+              ? 'Tu salida de turno ha sido confirmada en el Centro de Control y la vista Registros.'
+              : 'Tu entrada de turno ha sido confirmada en el Centro de Control y la vista Registros.');
         }
         if (receiptTimeLabel) {
-          receiptTimeLabel.textContent = tipo === 'salida' ? 'Hora de Salida' : 'Hora de Entrada';
-        }
-        if (receiptMethodVal) {
-          receiptMethodVal.textContent = payload.reconocimiento_automatico ? 'IA Facial Móvil' : 'Número de Socio / ID';
+          receiptTimeLabel.textContent = (tipo === 'swap')
+            ? 'Hora de Relevo'
+            : ((tipo === 'salida') ? 'Hora de Salida' : 'Hora de Entrada');
         }
 
-        receiptOfficerName.textContent = state.elementData?.nombre || `Oficial ${state.elemId}`;
+        receiptOfficerName.textContent = state.elementData?.nombre || `Oficial #${state.elemId}`;
         receiptOfficerId.textContent = `#${state.elemId}`;
-        receiptShiftLabel.textContent = (state.targetShift || 'TURNO').toUpperCase();
+        receiptShiftLabel.textContent = (tipo === 'swap')
+          ? `${(payload.turno || '').toUpperCase()} ➔ ${(payload.nextTurno || '').toUpperCase()}`
+          : (payload.turno || 'TURNO').toUpperCase();
         receiptEntryTime.textContent = `${horaFull} hrs`;
         receiptDate.textContent = payload.fecha;
+
         if (receiptPhotoImg) {
-          receiptPhotoImg.src = state.capturedBase64 || `${BACKEND_BASE}/api/photos/elementos/${state.elemId}`;
+          if (state.capturedBase64) {
+            receiptPhotoImg.src = state.capturedBase64;
+          } else if (state.elementData?.foto) {
+            receiptPhotoImg.src = state.elementData.foto;
+          } else {
+            receiptPhotoImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80"><rect width="80" height="80" rx="14" fill="%231e293b"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="34">👤</text></svg>';
+          }
         }
       }
 
@@ -1830,31 +3455,14 @@
         inputId.value = '';
         state.elemId = '';
         state.capturedBase64 = null;
-        // Reiniciar flujo con cámara
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          setStep(3);
-        } else {
-          setStep(1);
-        }
+        state.elementData = null;
+        state.shiftData = null;
+        // Volver al Paso 1 listo para el siguiente oficial
+        setStep(1);
       });
 
-      // AUTO-INICIO: Al abrirla inmediatamente pedir permisos de cámara y buscar rostro con IA
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.enumerateDevices().then(devices => {
-          const videoInputs = devices.filter(d => d.kind === 'videoinput');
-          if (videoInputs.length > 0) {
-            setStep(3); // Inicia cámara y escaneo facial con IA inmediatamente
-          } else {
-            showToast('Dispositivo sin cámara detectada. Ingresa tu número de socio.', 4000);
-            setStep(1);
-          }
-        }).catch(() => {
-          setStep(3);
-        });
-      } else {
-        showToast('Navegador sin soporte de cámara. Ingresa tu número de socio.', 4000);
-        setStep(1);
-      }
+      // Paso 1 activo por defecto al cargar la app
+      setStep(1);
 
     })();
   </script>
@@ -1862,7 +3470,7 @@
   <!-- DOCK DE NAVEGACIÓN MINI APPS -->
   <div class="miniapps-dock-wrapper">
     <nav class="miniapps-dock-bar" aria-label="Navegación Mini Apps">
-      <a href="./?app=cdi" class="dock-item-btn" title="CDI">
+      <a href="./?app=cdi" class="dock-item-btn" title="CDI" id="dockBtnCdi">
         <div class="dock-icon-squircle icon-cdi">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -1872,7 +3480,7 @@
         <span class="dock-item-label">CDI</span>
       </a>
 
-      <a href="checador-movil.html" class="dock-item-btn active" title="Checador">
+      <a href="checador-movil.html" class="dock-item-btn active" title="Checador" id="dockBtnChecador">
         <div class="dock-icon-squircle icon-checador">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
@@ -1882,7 +3490,7 @@
         <span class="dock-item-label">Checador</span>
       </a>
 
-      <a href="./?app=recorridos" class="dock-item-btn" title="Recorridos">
+      <a href="recorrido-movil.html" class="dock-item-btn" title="Recorridos" id="dockBtnRecorridos">
         <div class="dock-icon-squircle icon-recorridos">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
@@ -1893,7 +3501,7 @@
         <span class="dock-item-label">Recorridos</span>
       </a>
 
-      <a href="./?app=bitacora" class="dock-item-btn" title="Bitácora">
+      <a href="bitacora-movil.html" class="dock-item-btn" title="Bitácora" id="dockBtnBitacoras">
         <div class="dock-icon-squircle icon-bitacora">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />

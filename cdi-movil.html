@@ -706,25 +706,514 @@
     .theme-toggle-btn:active {
       transform: scale(0.95);
     }
+
+    /* ========================================================
+       SOPORTE DE VISTA PARALELA EN ESCRITORIO
+       ======================================================== */
+    .desktop-split-root {
+      display: flex;
+      flex-direction: row;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .cdi-desktop-left {
+      flex: 1 1 100%;
+      height: 100%;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: flex 0.25s ease;
+    }
+
+    .desktop-split-root.split-active .cdi-desktop-left {
+      flex: 1 1 50%;
+      border-right: 2px solid var(--card-border);
+      min-width: 320px;
+    }
+
+    .desktop-split-root.split-active .app-dock-wrapper {
+      display: none !important;
+    }
+
+    .desktop-parallel-panel {
+      flex: 1 1 50%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      position: relative;
+      box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+      animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      min-width: 320px;
+      overflow: hidden;
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(35px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .parallel-header {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--card-border-subtle);
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .parallel-header-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .parallel-icon {
+      font-size: 1.25rem;
+    }
+
+    .parallel-title {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .parallel-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--accent-blue-soft);
+      color: var(--accent-blue);
+      border: 1px solid rgba(37, 99, 235, 0.25);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .parallel-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-parallel-action {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 11px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-parallel-action:hover {
+      background: rgba(148, 163, 184, 0.1);
+      color: var(--text);
+    }
+
+    .btn-parallel-action.btn-parallel-close:hover {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+    }
+
+    .parallel-body {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .parallel-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: transparent;
+    }
+
+    /* Dock flotante exclusivo en la aplicación derecha */
+    .parallel-pane-dock-wrapper {
+      position: absolute;
+      bottom: 14px;
+      left: 0;
+      right: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .parallel-pane-dock-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 22, 38, 0.92);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 20px;
+      padding: 5px 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      pointer-events: auto;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Cuando contiene el botón de QR y el de cerrar en vista paralela */
+    .parallel-pane-dock-bar.compact-parallel {
+      padding: 4px 6px;
+      border-radius: 16px;
+      gap: 8px;
+      background: rgba(16, 22, 38, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+    }
+    .parallel-pane-dock-bar.compact-parallel .parallel-dock-app-btn {
+      padding: 2px;
+      margin: 0;
+    }
+    .parallel-pane-dock-bar.compact-parallel .parallel-dock-btn-close {
+      margin: 0;
+      padding: 0;
+    }
+
+    .parallel-dock-app-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 4px 8px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: all 0.15s ease;
+      color: #f8fafc;
+    }
+    .parallel-dock-app-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .parallel-dock-app-btn:active {
+      transform: scale(0.92);
+    }
+    .parallel-dock-app-label {
+      font-size: 0.64rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .parallel-dock-app-btn:hover .parallel-dock-app-label {
+      color: #ffffff;
+    }
+
+    .parallel-dock-btn-close {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      margin-left: 2px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      outline: none;
+    }
+    .parallel-dock-close-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 12px rgba(239, 68, 68, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .parallel-dock-btn-close:hover .parallel-dock-close-icon {
+      background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+      transform: scale(1.08);
+      box-shadow: 0 5px 16px rgba(239, 68, 68, 0.7);
+    }
+    .parallel-dock-btn-close:active .parallel-dock-close-icon {
+      transform: scale(0.92);
+    }
+
+    /* Modal de Código QR para acceso móvil */
+    .qr-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 7, 15, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20000;
+      padding: 16px;
+      animation: qrFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes qrFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .qr-modal-card {
+      background: #111827;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 22px;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+      color: #f8fafc;
+      animation: qrScaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes qrScaleIn {
+      from { transform: scale(0.92) translateY(10px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    .qr-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .qr-header-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .qr-header-title h3 {
+      font-size: 0.96rem;
+      font-weight: 800;
+      margin: 0;
+      color: #ffffff;
+    }
+    .qr-header-title p {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      margin: 1px 0 0;
+    }
+    .qr-modal-close-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      transition: all 0.15s ease;
+    }
+    .qr-modal-close-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #ef4444;
+    }
+    .qr-modal-body {
+      padding: 20px 20px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .qr-code-frame {
+      background: #ffffff;
+      padding: 12px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 220px;
+      height: 220px;
+      margin-bottom: 14px;
+    }
+    .qr-code-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .qr-url-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 6px 10px;
+      width: 100%;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+    .qr-url-text {
+      font-family: monospace;
+      font-size: 0.74rem;
+      color: #38bdf8;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .qr-copy-btn {
+      background: #2563eb;
+      border: none;
+      color: #ffffff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+    .qr-copy-btn:hover {
+      background: #1d4ed8;
+    }
+    .qr-copy-btn.copied {
+      background: #10b981;
+    }
+    .qr-hint {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      line-height: 1.4;
+      margin: 0;
+    }
+    .qr-modal-footer {
+      padding: 10px 18px 16px;
+      display: flex;
+      justify-content: center;
+    }
+    .qr-btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+      transition: all 0.15s ease;
+    }
+    .qr-btn-primary:hover {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      transform: translateY(-1px);
+    }
+
+    /* MENÚ CONTEXTUAL FLOTANTE AL DAR CLIC DERECHO */
+    .dock-context-menu {
+      position: fixed;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 6px;
+      box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 10000;
+      min-width: 220px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      animation: contextMenuPop 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: auto;
+    }
+
+    .dock-context-menu-header {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      padding: 5px 10px 3px;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--card-border-subtle);
+      margin-bottom: 2px;
+    }
+
+    .dock-context-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 9px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+      transition: all 0.15s ease;
+    }
+
+    .dock-context-item:hover {
+      background: var(--accent-blue-soft);
+      color: var(--accent-blue);
+    }
+
+    .dock-context-item.danger:hover {
+      background: rgba(239, 68, 68, 0.12);
+      color: #ef4444;
+    }
+
+    .dock-context-icon {
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+    }
+
+    .dock-app-btn.is-parallel {
+      background: rgba(16, 185, 129, 0.12);
+    }
+
+    .dock-app-btn.is-parallel .dock-icon-squircle {
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+      border: 1.5px solid #10b981;
+    }
   </style>
 </head>
 <body data-theme="light">
 
-  <!-- HEADER SUPERIOR -->
-  <header class="header">
-    <div class="header-title-box">
-      <div class="header-title">
-        <span>🔢 CDI Móvil</span>
-        <span class="header-badge-live">En Vivo</span>
-        <button type="button" id="btnThemeToggle" class="theme-toggle-btn" title="Alternar modo claro / oscuro">☀️ Claro</button>
-        <button type="button" id="btnVersionBadge" class="header-version-btn" title="Versión v272. Toca para recargar y purgar caché">v272 🔄</button>
-      </div>
-    </div>
-    <div class="connection-status">
-      <span class="status-dot" id="statusDot"></span>
-      <span id="statusText">Conectando...</span>
-    </div>
-  </header>
+  <div class="desktop-split-root" id="desktopSplitRoot">
+    <!-- PANEL IZQUIERDO: CDI -->
+    <div class="cdi-desktop-left" id="cdiLeftPane">
+      <!-- HEADER SUPERIOR -->
+      <header class="header">
+        <div class="header-title-box">
+          <div class="header-title">
+            <span>🔢 CDI Móvil</span>
+            <span class="header-badge-live">En Vivo</span>
+            <button type="button" id="btnThemeToggle" class="theme-toggle-btn" title="Alternar modo claro / oscuro">☀️ Claro</button>
+            <button type="button" id="btnVersionBadge" class="header-version-btn" title="Versión v273. Toca para recargar y purgar caché">v273 🔄</button>
+          </div>
+        </div>
+        <div class="connection-status">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Conectando...</span>
+        </div>
+      </header>
 
   <!-- CONTROLES SUPERIORES (CASETA Y MODO) -->
   <div class="top-controls">
@@ -807,6 +1296,21 @@
     <nav class="app-dock-wrapper" aria-label="Aplicaciones de Caseta">
       <div class="dock-header-label">Aplicaciones de Caseta</div>
       <div class="app-dock">
+        <!-- 0. CÓDIGO QR ACCESO MÓVIL (A LA IZQUIERDA) -->
+        <button type="button" class="dock-app-btn" id="dockBtnQrMobile" data-app-name="Móvil QR" title="Abrir código QR para celular (https://cic-os-miniapps.web.app)">
+          <div class="dock-icon-squircle icon-qr" style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1.5" />
+              <rect x="14" y="3" width="7" height="7" rx="1.5" />
+              <rect x="14" y="14" width="7" height="7" rx="1.5" />
+              <rect x="3" y="14" width="7" height="7" rx="1.5" />
+              <path d="M7 7h.01M17 7h.01M17 17h.01M7 17h.01" stroke-width="3" />
+            </svg>
+          </div>
+          <span class="dock-app-title">Móvil</span>
+          <span class="dock-app-subtitle">Código QR</span>
+        </button>
+
         <!-- 1. CHECADOR -->
         <button type="button" class="dock-app-btn" id="dockBtnChecador" data-app-name="Checador">
           <div class="dock-icon-squircle icon-checador">
@@ -848,6 +1352,35 @@
       </div>
     </nav>
   </div>
+  </div> <!-- Fin cdiLeftPane -->
+
+  <!-- PANEL DERECHO: APLICACIÓN PARALELA EN ESCRITORIO -->
+  <div class="desktop-parallel-panel" id="desktopParallelPanel" style="display: none;">
+    <!-- Sin encabezado adicional: el iframe ocupa toda la altura -->
+    <div class="parallel-body" style="height: 100%; flex: 1;">
+      <iframe id="parallelIframe" src="" allow="camera; microphone; geolocation" class="parallel-iframe" title="Aplicación Paralela"></iframe>
+    </div>
+    <!-- Dock flotante solo dentro de la app derecha con botón rojo de cerrar -->
+    <div class="parallel-pane-dock-wrapper" id="parallelPaneDockWrapper">
+      <nav class="parallel-pane-dock-bar" id="parallelPaneDockBar" aria-label="Dock Aplicación Paralela">
+        <!-- Se puebla dinámicamente con las apps excepto la activa a la derecha y el botón rojo de cerrar -->
+      </nav>
+    </div>
+  </div>
+  </div> <!-- Fin desktopSplitRoot -->
+
+  <!-- MENÚ CONTEXTUAL FLOTANTE AL DAR CLIC DERECHO EN BOTÓN DEL DOCK -->
+  <div class="dock-context-menu" id="dockContextMenu" style="display: none;">
+    <div class="dock-context-menu-header" id="contextMenuTitle">Opciones de Aplicación</div>
+    <button type="button" class="dock-context-item" id="btnContextParallel">
+      <span class="dock-context-icon">◫</span>
+      <span id="labelContextParallel">Mostrar en paralelo</span>
+    </button>
+    <button type="button" class="dock-context-item" id="btnContextFullscreen">
+      <span class="dock-context-icon">🗖</span>
+      <span>Pantalla completa</span>
+    </button>
+  </div>
 
   <!-- TOAST DE CONFIRMACIÓN DE SINCRONIZACIÓN -->
   <div class="toast-sync" id="toastSync">
@@ -860,15 +1393,50 @@
     <span id="toastProximamenteText">Próximamente</span>
   </div>
 
+  <!-- MODAL DE CÓDIGO QR PARA ACCESO MÓVIL (https://cic-os-miniapps.web.app) -->
+  <div class="qr-modal-backdrop" id="miniappsQrModal" style="display: none;">
+    <div class="qr-modal-card">
+      <div class="qr-modal-header">
+        <div class="qr-header-title">
+          <span class="qr-header-icon">📱</span>
+          <div>
+            <h3>Acceso Móvil Mini Apps</h3>
+            <p>Escanea el código con tu celular</p>
+          </div>
+        </div>
+        <button type="button" class="qr-modal-close-btn" id="btnQrModalClose" aria-label="Cerrar">✕</button>
+      </div>
+
+      <div class="qr-modal-body">
+        <div class="qr-code-frame">
+          <img id="qrModalImg" src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=https%3A%2F%2Fcic-os-miniapps.web.app&margin=6" alt="Código QR Mini Apps">
+        </div>
+
+        <div class="qr-url-box">
+          <span class="qr-url-text">https://cic-os-miniapps.web.app</span>
+          <button type="button" class="qr-copy-btn" id="btnQrCopyLink">Copiar</button>
+        </div>
+
+        <p class="qr-hint">
+          Apunta con la cámara de tu teléfono móvil para abrir la versión portátil de CDI, Checador Facial, Recorridos y Bitácoras.
+        </p>
+      </div>
+
+      <div class="qr-modal-footer">
+        <button type="button" class="qr-btn-primary" id="btnQrModalBottomClose">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- LÓGICA DE CONTROL, SINCRONIZACIÓN Y ACTUALIZACIÓN EN VIVO -->
   <script>
     (function() {
       // Detección dinámica e inteligente del backend (Local, Red Caseta 10.x / 192.168.x, o Cloud Worker UBE)
       const resolveBackendBase = () => {
-        // Limpieza preventiva de túneles trycloudflare obsoletos y Mixed Content
+        // Limpieza preventiva de túneles trycloudflare obsoletos, ngrok inactivo y Mixed Content
         try {
           const cur = localStorage.getItem('regas_active_api_base');
-          if (cur && (cur.includes('trycloudflare') || (window.location.protocol === 'https:' && cur.startsWith('http://')))) {
+          if (cur && (cur.includes('trycloudflare') || cur.includes('ngrok') || (window.location.protocol === 'https:' && cur.startsWith('http://')))) {
             localStorage.removeItem('regas_active_api_base');
           }
         } catch(e) {}
@@ -909,7 +1477,7 @@
         // 4. Si se configuró previamente en localStorage
         try {
           const cached = localStorage.getItem('regas_active_api_base');
-          if (cached && !cached.includes('10.200.79.175') && !cached.includes('trycloudflare')) {
+          if (cached && !cached.includes('10.200.79.175') && !cached.includes('trycloudflare') && !cached.includes('ngrok')) {
             if (window.location.protocol === 'https:' && cached.startsWith('http://')) {
               // Descartar HTTP en HTTPS
             } else {
@@ -918,8 +1486,12 @@
           }
         } catch(e) {}
 
-        // 5. Fallback por defecto: Túnel Ngrok activo UBE
-        return 'https://sandworm-header-salami.ngrok-free.dev';
+        // 5. Fallback por defecto oficial: Túnel Cloudflare (be-regas.cic-10.com)
+        const isEmergency = urlParams.get('emergency') === '1' || urlParams.get('backend') === 'ngrok';
+        if (isEmergency) {
+          return 'https://sandworm-header-salami.ngrok-free.dev';
+        }
+        return 'https://be-regas.cic-10.com';
       };
 
       let BACKEND_BASE = resolveBackendBase();
@@ -1019,11 +1591,31 @@
         casetaSelect.value = currentCaseta;
       }
 
+      const notifyParallelCasetaChange = () => {
+        const pIframe = document.getElementById('parallelIframe');
+        if (pIframe && pIframe.contentWindow) {
+          try {
+            pIframe.contentWindow.postMessage({ type: 'cdi_caseta_changed', caseta: currentCaseta }, '*');
+          } catch (e) {}
+        }
+      };
+
       casetaSelect.addEventListener('change', (e) => {
         currentCaseta = e.target.value;
         localStorage.setItem('regas_cdi_last_caseta', currentCaseta);
         localStorage.setItem('caseta_seleccionada_cic', currentCaseta);
+        notifyParallelCasetaChange();
         fetchCdiData();
+
+        // Notificar cambio de caseta al backend para sincronizar en tiempo real con RegAs 3
+        if (BACKEND_BASE) {
+          fetch(`${BACKEND_BASE}/api/cdi/devices/caseta`, {
+            method: 'POST',
+            headers: API_HEADERS,
+            body: JSON.stringify({ deviceId: deviceUuid, caseta: currentCaseta, source: 'mobile' })
+          }).catch(() => {});
+        }
+
         if (typeof sendDeviceHeartbeat === 'function') {
           sendDeviceHeartbeat();
         }
@@ -1060,9 +1652,20 @@
         }
       };
 
+      let currentParallelKey = null;
+      let activeContextConfig = null;
+
       // Aplicar visibilidad de funciones recibidas del servidor (Checador, Recorridos, Bitácoras)
       const applyDeviceFeatures = (features) => {
         if (!features || typeof features !== 'object') return;
+        const normalized = {
+          checador: features.checador === true,
+          recorridos: features.recorridos === true,
+          bitacoras: (features.bitacoras === true || features.bitacora === true)
+        };
+        try {
+          localStorage.setItem('regas_cdi_device_features', JSON.stringify(normalized));
+        } catch (e) {}
         const map = {
           checador:   'dockBtnChecador',
           recorridos: 'dockBtnRecorridos',
@@ -1071,34 +1674,376 @@
         Object.entries(map).forEach(([key, btnId]) => {
           const btn = document.getElementById(btnId);
           if (!btn) return;
-          const enabled = features[key] !== false; // por defecto visible si no se especifica
+          const enabled = Boolean(normalized[key] === true); // por defecto falso (solo CDI visible)
           btn.style.display = enabled ? '' : 'none';
         });
-        // Ocultar/mostrar la sección entera del dock si todas las funciones están desactivadas
+        // Ocultar/mostrar la sección entera del dock: solo se muestra si al menos una mini app extra está habilitada
         const dockWrapper = document.querySelector('.app-dock-wrapper');
         if (dockWrapper) {
-          const allHidden = ['checador', 'recorridos', 'bitacoras'].every(k => features[k] === false);
-          dockWrapper.style.display = allHidden ? 'none' : '';
+          const hasAny = (normalized.checador || normalized.recorridos || normalized.bitacoras);
+          dockWrapper.style.display = hasAny ? '' : 'none';
+        }
+        if (typeof renderParallelPaneDock === 'function' && currentParallelKey) {
+          renderParallelPaneDock(currentParallelKey);
         }
       };
 
-      // Escuchadores de eventos para los 3 botones del Dock: Checador, Recorridos, Bitácoras
-      const appRoutes = {
-        dockBtnChecador: 'checador-movil.html',
-        dockBtnRecorridos: 'recorrido-movil.html',
-        dockBtnBitacoras: 'bitacora-movil.html'
+      // Cargar features cacheadas de inmediato para evitar parpadeo
+      try {
+        const cachedFeaturesRaw = localStorage.getItem('regas_cdi_device_features');
+        if (cachedFeaturesRaw) {
+          applyDeviceFeatures(JSON.parse(cachedFeaturesRaw));
+        }
+      } catch (e) {}
+
+      // =========================================================================
+      // VISTA PARALELA EN ESCRITORIO Y MENÚ CONTEXTUAL (CLIC DERECHO EN DOCK)
+      // =========================================================================
+      const appConfigs = {
+        dockBtnChecador: { key: 'checador', name: 'Checador', icon: '📸', title: 'Checador Facial IA', route: 'checador-movil.html' },
+        dockBtnRecorridos: { key: 'recorridos', name: 'Recorridos', icon: '🛡️', title: 'Recorridos GPS', route: 'recorrido-movil.html' },
+        dockBtnBitacoras: { key: 'bitacoras', name: 'Bitácoras', icon: '📋', title: 'Bitácora Digital', route: 'bitacora-movil.html' }
       };
 
-      Object.entries(appRoutes).forEach(([id, route]) => {
-        const btn = document.getElementById(id);
-        if (btn) {
-          btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const search = window.location.search || '';
-            window.location.href = route + search;
+      const desktopSplitRoot = document.getElementById('desktopSplitRoot');
+      const desktopParallelPanel = document.getElementById('desktopParallelPanel');
+      const parallelIframe = document.getElementById('parallelIframe');
+      const parallelHeaderIcon = document.getElementById('parallelHeaderIcon');
+      const parallelHeaderTitle = document.getElementById('parallelHeaderTitle');
+      const btnParallelClose = document.getElementById('btnParallelClose');
+      const btnParallelFullscreen = document.getElementById('btnParallelFullscreen');
+
+      const dockContextMenu = document.getElementById('dockContextMenu');
+      const contextMenuTitle = document.getElementById('contextMenuTitle');
+      const btnContextParallel = document.getElementById('btnContextParallel');
+      const labelContextParallel = document.getElementById('labelContextParallel');
+      const btnContextFullscreen = document.getElementById('btnContextFullscreen');
+
+      const renderParallelPaneDock = (activeKey) => {
+        const dockBar = document.getElementById('parallelPaneDockBar');
+        if (!dockBar) return;
+
+        let feats = {};
+        try {
+          feats = JSON.parse(localStorage.getItem('regas_cdi_device_features') || '{}');
+        } catch (e) {}
+
+        const allDockApps = [
+          {
+            key: 'cdi',
+            name: 'CDI',
+            iconHtml: '<div class="dock-icon-squircle" style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M7 12h10M12 7v10" /></svg></div>'
+          },
+          {
+            key: 'checador',
+            name: 'Checador',
+            iconHtml: '<div class="dock-icon-squircle icon-checador"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></div>'
+          },
+          {
+            key: 'recorridos',
+            name: 'Recorridos',
+            iconHtml: '<div class="dock-icon-squircle icon-recorridos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg></div>'
+          },
+          {
+            key: 'bitacoras',
+            name: 'Bitácoras',
+            iconHtml: '<div class="dock-icon-squircle icon-bitacoras"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>'
+          }
+        ];
+
+        // Excluir apps visibles en pantalla: CDI (panel izquierdo) y activeKey (panel derecho)
+        // El dock solo debe mostrar las aplicaciones habilitadas que NO están visibles
+        const filteredApps = allDockApps.filter(a => {
+          if (a.key === 'cdi' || a.key === activeKey) return false;
+          if (a.key === 'checador') return feats.checador === true;
+          if (a.key === 'recorridos') return feats.recorridos === true;
+          if (a.key === 'bitacoras') return (feats.bitacoras === true || feats.bitacora === true);
+          return false;
+        });
+
+        if (filteredApps.length === 0) {
+          dockBar.classList.add('compact-parallel');
+          dockBar.classList.remove('only-close');
+        } else {
+          dockBar.classList.remove('compact-parallel');
+          dockBar.classList.remove('only-close');
+        }
+
+        let html = '';
+
+        // 1. Botón de código QR SIEMPRE a la izquierda
+        html += `
+          <button type="button" class="parallel-dock-app-btn parallel-dock-btn-qr" id="btnParallelQr" title="Abrir código QR para celular (https://cic-os-miniapps.web.app)">
+            <div class="dock-icon-squircle icon-qr" style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff;">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                <path d="M7 7h.01M17 7h.01M17 17h.01M7 17h.01" stroke-width="3" />
+              </svg>
+            </div>
+            ${filteredApps.length > 0 ? '<span class="parallel-dock-app-label">Móvil</span>' : ''}
+          </button>
+        `;
+
+        // 2. Aplicaciones disponibles y no visibles EN MEDIO en todos los casos
+        filteredApps.forEach(a => {
+          html += `
+            <button type="button" class="parallel-dock-app-btn" data-key="${a.key}" title="${a.name}">
+              ${a.iconHtml}
+              <span class="parallel-dock-app-label">${a.name}</span>
+            </button>
+          `;
+        });
+
+        // 3. Botón de cerrar rojo y sin etiqueta al lado DERECHO
+        html += `
+          <button type="button" class="parallel-dock-btn-close" id="btnParallelPaneClose" title="Cerrar vista paralela" aria-label="Cerrar vista paralela">
+            <div class="parallel-dock-close-icon">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
+          </button>
+        `;
+
+        dockBar.innerHTML = html;
+
+        // Evento botón QR en panel paralelo
+        const qrBtn = document.getElementById('btnParallelQr');
+        if (qrBtn) {
+          qrBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openQrModal();
           });
         }
+
+        // Eventos en los botones del dock del panel paralelo
+        const closeBtn = document.getElementById('btnParallelPaneClose');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeParallelApp();
+          });
+        }
+
+        dockBar.querySelectorAll('.parallel-dock-app-btn:not(#btnParallelQr)').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const key = btn.dataset.key;
+            if (key === 'cdi') {
+              closeParallelApp();
+            } else {
+              const cfg = Object.values(appConfigs).find(c => c.key === key);
+              if (cfg) openParallelApp(cfg);
+            }
+          });
+        });
+      };
+
+      const openParallelApp = (cfg) => {
+        if (!cfg) return;
+        currentParallelKey = cfg.key;
+        localStorage.setItem('miniapps_parallel_app', cfg.key);
+
+        if (parallelIframe) {
+          const search = window.location.search || '';
+          parallelIframe.src = cfg.route + search;
+        }
+
+        if (desktopSplitRoot) desktopSplitRoot.classList.add('split-active');
+        if (desktopParallelPanel) desktopParallelPanel.style.display = 'flex';
+
+        // Renderizar el dock dentro del panel derecho excluyendo la app activa
+        renderParallelPaneDock(cfg.key);
+
+        // Actualizar estados visuales de los botones del dock
+        Object.entries(appConfigs).forEach(([btnId, c]) => {
+          const b = document.getElementById(btnId);
+          if (b) {
+            b.classList.toggle('is-parallel', c.key === cfg.key);
+          }
+        });
+      };
+
+      // Control del Modal de Código QR para acceso móvil (https://cic-os-miniapps.web.app)
+      const miniappsQrModal = document.getElementById('miniappsQrModal');
+      const btnQrModalClose = document.getElementById('btnQrModalClose');
+      const btnQrModalBottomClose = document.getElementById('btnQrModalBottomClose');
+      const btnQrCopyLink = document.getElementById('btnQrCopyLink');
+      const dockBtnQrMobile = document.getElementById('dockBtnQrMobile');
+
+      const openQrModal = () => {
+        if (miniappsQrModal) miniappsQrModal.style.display = 'flex';
+      };
+
+      const closeQrModal = () => {
+        if (miniappsQrModal) miniappsQrModal.style.display = 'none';
+      };
+
+      if (btnQrModalClose) btnQrModalClose.addEventListener('click', closeQrModal);
+      if (btnQrModalBottomClose) btnQrModalBottomClose.addEventListener('click', closeQrModal);
+      if (miniappsQrModal) {
+        miniappsQrModal.addEventListener('click', (e) => {
+          if (e.target === miniappsQrModal) closeQrModal();
+        });
+      }
+
+      if (btnQrCopyLink) {
+        btnQrCopyLink.addEventListener('click', () => {
+          const url = 'https://cic-os-miniapps.web.app';
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(() => {
+              btnQrCopyLink.textContent = '✓ Copiado';
+              btnQrCopyLink.classList.add('copied');
+              setTimeout(() => {
+                btnQrCopyLink.textContent = 'Copiar';
+                btnQrCopyLink.classList.remove('copied');
+              }, 2200);
+            });
+          }
+        });
+      }
+
+      if (dockBtnQrMobile) {
+        dockBtnQrMobile.addEventListener('click', (e) => {
+          e.preventDefault();
+          openQrModal();
+        });
+      }
+
+      const closeParallelApp = () => {
+        currentParallelKey = null;
+        localStorage.removeItem('miniapps_parallel_app');
+
+        if (desktopSplitRoot) desktopSplitRoot.classList.remove('split-active');
+        if (desktopParallelPanel) desktopParallelPanel.style.display = 'none';
+        if (parallelIframe) parallelIframe.src = '';
+
+        Object.keys(appConfigs).forEach((btnId) => {
+          const b = document.getElementById(btnId);
+          if (b) b.classList.remove('is-parallel');
+        });
+      };
+
+      if (btnParallelClose) {
+        btnParallelClose.addEventListener('click', closeParallelApp);
+      }
+
+      if (btnParallelFullscreen) {
+        btnParallelFullscreen.addEventListener('click', () => {
+          if (currentParallelKey) {
+            const cfg = Object.values(appConfigs).find(c => c.key === currentParallelKey);
+            if (cfg) {
+              const search = window.location.search || '';
+              window.location.href = cfg.route + search;
+            }
+          }
+        });
+      }
+
+      // Cerrar menú contextual al hacer clic fuera o al redimensionar
+      const hideContextMenu = () => {
+        if (dockContextMenu) dockContextMenu.style.display = 'none';
+        activeContextConfig = null;
+      };
+      window.addEventListener('click', hideContextMenu);
+      window.addEventListener('resize', hideContextMenu);
+      window.addEventListener('scroll', hideContextMenu);
+
+      // Configurar eventos de clic izquierdo y clic derecho para cada botón del Dock
+      Object.entries(appConfigs).forEach(([btnId, cfg]) => {
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+
+        // Clic izquierdo
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const search = window.location.search || '';
+          const isDesktop = window.innerWidth >= 768;
+
+          // En escritorio: si no está abierta en paralelo, abrirla en paralelo directamente o cambiarla
+          if (isDesktop) {
+            if (currentParallelKey === cfg.key) {
+              // Ya está abierta en paralelo: alternar/cerrar
+              closeParallelApp();
+            } else {
+              openParallelApp(cfg);
+            }
+            return;
+          }
+
+          // En móvil: pantalla completa como siempre
+          window.location.href = cfg.route + search;
+        });
+
+        // Clic derecho (ContextMenu): Menú con opción explícita "Mostrar en paralelo"
+        btn.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          activeContextConfig = cfg;
+          if (contextMenuTitle) {
+            contextMenuTitle.textContent = `Opciones de ${cfg.name}`;
+          }
+
+          if (labelContextParallel) {
+            labelContextParallel.textContent = (currentParallelKey === cfg.key)
+              ? 'Cerrar vista paralela'
+              : 'Mostrar en paralelo';
+          }
+
+          const rect = btn.getBoundingClientRect();
+          const menuWidth = 220;
+          const menuHeight = 90;
+          const posX = Math.max(10, Math.min(window.innerWidth - menuWidth - 10, rect.left + rect.width / 2 - menuWidth / 2));
+          const posY = Math.max(10, rect.top - menuHeight - 10);
+
+          if (dockContextMenu) {
+            dockContextMenu.style.left = `${posX}px`;
+            dockContextMenu.style.top = `${posY}px`;
+            dockContextMenu.style.display = 'flex';
+          }
+        });
       });
+
+      // Acciones del Menú Contextual
+      if (btnContextParallel) {
+        btnContextParallel.addEventListener('click', (e) => {
+          e.stopPropagation();
+          hideContextMenu();
+          if (!activeContextConfig) return;
+
+          if (currentParallelKey === activeContextConfig.key) {
+            closeParallelApp();
+          } else {
+            openParallelApp(activeContextConfig);
+          }
+        });
+      }
+
+      if (btnContextFullscreen) {
+        btnContextFullscreen.addEventListener('click', (e) => {
+          e.stopPropagation();
+          hideContextMenu();
+          if (!activeContextConfig) return;
+          const search = window.location.search || '';
+          window.location.href = activeContextConfig.route + search;
+        });
+      }
+
+      // Restaurar app paralela al cargar si está en escritorio y hay preferencia guardada
+      try {
+        const savedParallel = localStorage.getItem('miniapps_parallel_app');
+        if (savedParallel && window.innerWidth >= 768) {
+          const cfg = Object.values(appConfigs).find(c => c.key === savedParallel);
+          if (cfg) {
+            setTimeout(() => openParallelApp(cfg), 200);
+          }
+        }
+      } catch (e) {}
 
       const updateUI = () => {
         ['internos', 'externos', 'prestadores', 'visitas'].forEach(cat => {
@@ -1181,7 +2126,7 @@
             }
           } catch (err) {
             console.error('Error sincronizando CDI:', err);
-            if (BACKEND_BASE !== 'https://be-regas.segos911.workers.dev' && !BACKEND_BASE.includes('ngrok')) {
+            if (BACKEND_BASE !== 'https://be-regas.segos911.workers.dev') {
               console.warn('[CDI] Reintentando incremento mediante Cloudflare Worker UBE...');
               BACKEND_BASE = 'https://be-regas.segos911.workers.dev';
               try {
@@ -1302,7 +2247,7 @@
           }
         } catch (e) {
           console.warn('Error al consultar datos CDI:', e);
-          if (BACKEND_BASE !== 'https://be-regas.segos911.workers.dev' && !BACKEND_BASE.includes('ngrok')) {
+          if (BACKEND_BASE !== 'https://be-regas.segos911.workers.dev') {
             console.warn('[CDI] Fallback automático a Cloudflare Worker UBE...');
             BACKEND_BASE = 'https://be-regas.segos911.workers.dev';
             try {
@@ -1355,18 +2300,66 @@
               if (msg && msg.type === 'cdi_force_reload' && msg.payload) {
                 const target = msg.payload.targetDeviceId || 'all';
                 if (target === 'all' || target === deviceUuid) {
+                  if (msg.payload.action === 'caseta_change') {
+                    if (msg.payload.caseta && msg.payload.caseta !== currentCaseta) {
+                      currentCaseta = msg.payload.caseta;
+                      localStorage.setItem('regas_cdi_last_caseta', currentCaseta);
+                      localStorage.setItem('caseta_seleccionada_cic', currentCaseta);
+                      if (casetaSelect) {
+                        if (!Array.from(casetaSelect.options).some(o => o.value === currentCaseta)) {
+                          casetaSelect.add(new Option(currentCaseta, currentCaseta));
+                        }
+                        casetaSelect.value = currentCaseta;
+                      }
+                      fetchCdiData();
+                    }
+                    return;
+                  }
                   if (typeof handleRemoteForceReload === 'function') {
                     handleRemoteForceReload(msg.payload.timestamp);
                   }
                   return;
                 }
               }
-              // Aplicar features en tiempo real cuando el operador cambia checkboxes
+              // Aplicar features y caseta en tiempo real cuando el operador las cambia desde RegAs 3
               if (msg && msg.type === 'cdi_device_update' && msg.payload) {
                 const updDev = msg.payload;
                 if (updDev && (updDev.deviceId === deviceUuid || updDev._id === deviceUuid)) {
                   if (updDev.features) {
                     applyDeviceFeatures(updDev.features);
+                  }
+                  if (updDev.caseta && updDev.caseta !== currentCaseta) {
+                    currentCaseta = updDev.caseta;
+                    localStorage.setItem('regas_cdi_last_caseta', currentCaseta);
+                    localStorage.setItem('caseta_seleccionada_cic', currentCaseta);
+                    if (casetaSelect) {
+                      if (!Array.from(casetaSelect.options).some(o => o.value === currentCaseta)) {
+                        casetaSelect.add(new Option(currentCaseta, currentCaseta));
+                      }
+                      casetaSelect.value = currentCaseta;
+                    }
+                    fetchCdiData();
+                    notifyParallelCasetaChange();
+                    showToast('Caseta: ' + currentCaseta);
+                  }
+                }
+              }
+              if (msg && msg.type === 'cdi_caseta_change' && msg.payload) {
+                const p = msg.payload;
+                if (p && (p.deviceId === deviceUuid || p._id === deviceUuid)) {
+                  if (p.caseta && p.caseta !== currentCaseta) {
+                    currentCaseta = p.caseta;
+                    localStorage.setItem('regas_cdi_last_caseta', currentCaseta);
+                    localStorage.setItem('caseta_seleccionada_cic', currentCaseta);
+                    if (casetaSelect) {
+                      if (!Array.from(casetaSelect.options).some(o => o.value === currentCaseta)) {
+                        casetaSelect.add(new Option(currentCaseta, currentCaseta));
+                      }
+                      casetaSelect.value = currentCaseta;
+                    }
+                    fetchCdiData();
+                    notifyParallelCasetaChange();
+                    showToast('Caseta: ' + currentCaseta);
                   }
                 }
               }
@@ -1581,6 +2574,18 @@
               if (data && data.features) {
                 applyDeviceFeatures(data.features);
               }
+              if (data && data.caseta && data.caseta !== currentCaseta) {
+                currentCaseta = data.caseta;
+                localStorage.setItem('regas_cdi_last_caseta', currentCaseta);
+                localStorage.setItem('caseta_seleccionada_cic', currentCaseta);
+                if (casetaSelect) {
+                  if (!Array.from(casetaSelect.options).some(o => o.value === currentCaseta)) {
+                    casetaSelect.add(new Option(currentCaseta, currentCaseta));
+                  }
+                  casetaSelect.value = currentCaseta;
+                }
+                fetchCdiData();
+              }
             }
           } catch (err) {}
         }
@@ -1590,7 +2595,7 @@
       const btnVersionBadge = document.getElementById('btnVersionBadge');
       if (btnVersionBadge) {
         btnVersionBadge.addEventListener('click', () => {
-          if (confirm('¿Deseas forzar la actualización de CDI Móvil a la versión más reciente v271? Esto limpiará la memoria caché local y recargará la pantalla.')) {
+          if (confirm('¿Deseas forzar la actualización de CDI Móvil a la versión más reciente v273? Esto limpiará la memoria caché local y recargará la pantalla.')) {
             handleRemoteForceReload(Date.now() + 1000);
           }
         });

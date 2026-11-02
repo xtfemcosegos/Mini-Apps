@@ -204,9 +204,13 @@ export default function ChecadorApp({ theme, onToggleTheme }) {
     if (detectIntervalRef.current) clearInterval(detectIntervalRef.current);
 
     if (scanHintTimerRef.current) clearTimeout(scanHintTimerRef.current);
+    // Breve inspección (3.8s): Si no se detecta rostro estable, conmutar directamente a teclado
     scanHintTimerRef.current = setTimeout(() => {
-      setHudStatus('¿Problemas de luz o detección? Puedes pulsar Ingresar con Número de Socio abajo');
-    }, 7000);
+      stopCamera();
+      sounds.warning();
+      setKeypadReason('Rostro no identificado tras la inspección. Digita tu número de socio:');
+      setViewState('keypad');
+    }, 3800);
 
     let stableCount = 0;
     detectIntervalRef.current = setInterval(() => {
@@ -274,9 +278,10 @@ export default function ChecadorApp({ theme, onToggleTheme }) {
     cvs.height = vid.videoHeight || 480;
 
     const ctx = cvs.getContext('2d');
-    // Espejo idéntico al preview
+    // Espejo idéntico al preview con ajuste de contraste y luminosidad adaptativa
     ctx.translate(cvs.width, 0);
     ctx.scale(-1, 1);
+    ctx.filter = 'contrast(1.12) brightness(1.08) saturate(1.04)';
     ctx.drawImage(vid, 0, 0, cvs.width, cvs.height);
 
     const base64Photo = cvs.toDataURL('image/webp', 0.85);

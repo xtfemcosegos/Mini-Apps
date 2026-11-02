@@ -37,15 +37,20 @@ export const resolveBackendBase = () => {
   // 4. Caché de localStorage
   try {
     const cached = localStorage.getItem('regas_active_api_base');
-    if (cached && (cached.includes('trycloudflare.com') || cached.includes('10.200.79.175') || (window.location.protocol === 'https:' && cached.startsWith('http:')))) {
+    if (cached && (cached.includes('trycloudflare.com') || cached.includes('10.200.79.175') || cached.includes('ngrok') || (window.location.protocol === 'https:' && cached.startsWith('http:')))) {
       localStorage.removeItem('regas_active_api_base');
     } else if (cached && (window.location.protocol !== 'https:' || cached.startsWith('https:'))) {
       return cached.replace(/\/+$/, '');
     }
   } catch (e) {}
 
-  // 5. Cloudflare Worker Permanente UBE
-  return 'https://be-regas.segos911.workers.dev';
+  // 5. Cloudflare Worker Permanente UBE (Por defecto)
+  // Canal de emergencia Ngrok (desactivado por defecto; se activa solo con ?emergency=1 o ?backend=ngrok)
+  const isEmergency = urlParams.get('emergency') === '1' || urlParams.get('backend') === 'ngrok';
+  if (isEmergency) {
+    return 'https://sandworm-header-salami.ngrok-free.dev';
+  }
+  return 'https://be-regas.cic-10.com';
 };
 
 export const BACKEND_BASE = resolveBackendBase();
@@ -57,7 +62,7 @@ const defaultHeaders = {
 };
 
 async function apiRequest(endpoint, options = {}) {
-  const base = resolveBackendBase();
+  const base = options._baseOverride || resolveBackendBase();
   const url = `${base}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
   try {
     const response = await fetch(url, {
@@ -83,7 +88,7 @@ async function apiRequest(endpoint, options = {}) {
     const fallbackBase = 'https://be-regas.segos911.workers.dev';
     if (base !== fallbackBase && !options._isRetry) {
       console.warn('[Mini Apps ⚠️] Reintentando ' + endpoint + ' vía Cloudflare Worker...');
-      return apiRequest(endpoint, { ...options, _isRetry: true });
+      return apiRequest(endpoint, { ...options, _isRetry: true, _baseOverride: fallbackBase });
     }
     throw netErr;
   }
@@ -214,6 +219,56 @@ export function getCachedLocation() {
   return cachedLocation;
 }
 
+// GESTIÓN DE PERMISOS / FUNCIONES ACTIVAS DEL DISPOSITIVO
+export function getDeviceFeatures() {
+  try {
+    const raw = localStorage.getItem('regas_cdi_device_features');
+    if (raw) {
+      const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      if (parsed && typeof parsed === 'object') {
+        return {
+          checador: parsed.checador === true,
+          recorridos: parsed.recorridos === true,
+          bitacoras: (parsed.bitacoras === true || parsed.bitacora === true)
+        };
+      }
+    }
+  } catch (e) {}
+  return { checador: false, recorridos: false, bitacoras: false };
+}
+
+export function saveDeviceFeatures(features) {
+  if (!features) return;
+  let parsed = features;
+  if (typeof parsed === 'string') {
+    try { parsed = JSON.parse(parsed); } catch(e) {}
+  }
+  if (!parsed || typeof parsed !== 'object') return;
+  const normalized = {
+    checador: parsed.checador === true,
+    recorridos: parsed.recorridos === true,
+    bitacoras: (parsed.bitacoras === true || parsed.bitacora === true)
+  };
+  try {
+    localStorage.setItem('regas_cdi_device_features', JSON.stringify(normalized));
+  } catch (e) {}
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('miniapps_features_updated', { detail: normalized }));
+  }
+}
+
+export async function fetchDeviceFeatures() {
+  const devId = getDeviceUuid();
+  try {
+    const res = await apiRequest(`/api/cdi/devices/features?deviceId=${encodeURIComponent(devId)}`);
+    if (res && res.features) {
+      saveDeviceFeatures(res.features);
+      return res.features;
+    }
+  } catch (e) {}
+  return getDeviceFeatures();
+}
+
 // LATIDO / SEÑAL EN VIVO HACIA EL MONITOR DEL OPERADOR (CCO)
 export async function sendDeviceHeartbeat(caseta) {
   const devId = getDeviceUuid();
@@ -231,16 +286,37 @@ export async function sendDeviceHeartbeat(caseta) {
   };
 
   try {
-    return await apiRequest('/api/cdi/device-heartbeat', {
+    const res = await apiRequest('/api/cdi/device-heartbeat', {
       method: 'POST',
       body: JSON.stringify(payload)
     });
+    if (res && res.features) {
+      saveDeviceFeatures(res.features);
+    }
+    if (res && res.caseta) {
+      localStorage.setItem('selectedCaseta', res.caseta);
+      localStorage.setItem('regas_cdi_last_caseta', res.caseta);
+      localStorage.setItem('caseta_seleccionada_cic', res.caseta);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('miniapps_caseta_updated', { detail: { caseta: res.caseta } }));
+      }
+    }
+    return res;
   } catch (err) {
     console.warn('[Heartbeat] No se pudo enviar señal al monitor:', err.message);
     return null;
   }
 }
 
+
+// ACTUALIZAR CASETA EXPLICITAMENTE EN EL MONITOR Y BD
+export async function updateDeviceCaseta(caseta) {
+  const devId = getDeviceUuid();
+  return apiRequest('/api/cdi/devices/caseta', {
+    method: 'POST',
+    body: JSON.stringify({ deviceId: devId, caseta, source: 'mobile' })
+  });
+}
 // ==========================================
 // 1. CHECADOR & ASISTENCIA FACIAL IA
 // ==========================================
@@ -322,8 +398,69 @@ export function initCdiSse(onCdiUpdate, onDeviceUpdate) {
         if (msg && msg.type === 'cdi_update' && onCdiUpdate) {
           onCdiUpdate(msg.payload);
         }
-        if (msg && msg.type === 'cdi_device_update' && onDeviceUpdate) {
-          onDeviceUpdate(msg.payload);
+        if (msg && msg.type === 'cdi_device_update') {
+          const myDevId = getDeviceUuid();
+          const p = msg.payload || {};
+          const pId = (p.deviceId || p._id || '').trim();
+          if (pId === myDevId.trim() || pId === 'all') {
+            if (p.features) {
+              saveDeviceFeatures(p.features);
+            }
+            if (p.caseta) {
+              localStorage.setItem('selectedCaseta', p.caseta);
+              localStorage.setItem('regas_cdi_last_caseta', p.caseta);
+              localStorage.setItem('caseta_seleccionada_cic', p.caseta);
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('miniapps_caseta_updated', { detail: { caseta: p.caseta } }));
+              }
+            }
+          }
+          if (onDeviceUpdate) {
+            onDeviceUpdate(p);
+          }
+        }
+        if (msg && msg.type === 'cdi_caseta_change') {
+          const myDevId = getDeviceUuid();
+          const p = msg.payload || {};
+          const pId = (p.deviceId || p._id || '').trim();
+          if (pId === myDevId.trim() || pId === 'all') {
+            if (p.caseta) {
+              localStorage.setItem('selectedCaseta', p.caseta);
+              localStorage.setItem('regas_cdi_last_caseta', p.caseta);
+              localStorage.setItem('caseta_seleccionada_cic', p.caseta);
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('miniapps_caseta_updated', { detail: { caseta: p.caseta } }));
+              }
+            }
+          }
+          if (onDeviceUpdate) {
+            onDeviceUpdate(p);
+          }
+        }
+        if (msg && msg.type === 'cdi_force_reload') {
+          const myDevId = getDeviceUuid();
+          const target = (msg.payload && msg.payload.targetDeviceId) ? msg.payload.targetDeviceId.trim() : 'all';
+          if (target === 'all' || target === myDevId.trim()) {
+            // Si el evento solo es reasignación de caseta, no forzar recarga destructiva del navegador
+            if (msg.payload && msg.payload.action === 'caseta_change') {
+              if (msg.payload.caseta) {
+                localStorage.setItem('selectedCaseta', msg.payload.caseta);
+                localStorage.setItem('regas_cdi_last_caseta', msg.payload.caseta);
+                localStorage.setItem('caseta_seleccionada_cic', msg.payload.caseta);
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(new CustomEvent('miniapps_caseta_updated', { detail: { caseta: msg.payload.caseta } }));
+                }
+              }
+              return;
+            }
+            console.log('[SSE 🔄] Orden remota de recarga/actualización recibida de RegAs 3');
+            fetchDeviceFeatures().then((feat) => {
+              if (feat) saveDeviceFeatures(feat);
+              if (typeof window !== 'undefined') {
+                window.location.reload();
+              }
+            });
+          }
         }
       } catch (err) {}
     };

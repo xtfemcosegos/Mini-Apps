@@ -30,9 +30,10 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=7')
+        navigator.serviceWorker.register('./sw.js?v=13')
           .then((reg) => {
-            console.log('[PWA] Service Worker activo con alcance:', reg.scope);
+            reg.update();
+            console.log('[PWA] Service Worker v13 activo con alcance:', reg.scope);
           })
           .catch((err) => {
             console.warn('[PWA] Fallo al registrar Service Worker:', err);

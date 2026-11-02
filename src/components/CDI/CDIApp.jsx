@@ -4,6 +4,7 @@ import {
   fetchCdiCounts,
   incrementCdiCount,
   sendDeviceHeartbeat,
+  updateDeviceCaseta,
   requestDeviceLocation,
   initCdiSse,
   getDeviceUuid,
@@ -16,7 +17,7 @@ const CASETAS = [
   'Edison',
   'Impulso',
   'Michelena',
-  'Simón Bolívar // Call Center',
+  'Simón Bolívar',
   'Carranza',
   'Universidad',
   'Anexo Edison',
@@ -28,9 +29,7 @@ const normCaseta = (s) => String(s || '').trim().toLowerCase().normalize('NFD').
 const findCasetaCounts = (casetasMap, targetCaseta) => {
   if (!casetasMap || typeof casetasMap !== 'object') return null;
   if (casetasMap[targetCaseta]) return casetasMap[targetCaseta];
-  const cleanTarget = targetCaseta.replace(' // Call Center', '');
-  if (casetasMap[cleanTarget]) return casetasMap[cleanTarget];
-  const targetNorm = normCaseta(cleanTarget);
+  const targetNorm = normCaseta(targetCaseta);
   const matchedKey = Object.keys(casetasMap).find(k => normCaseta(k) === targetNorm);
   return matchedKey ? casetasMap[matchedKey] : null;
 };
@@ -59,28 +58,57 @@ export default function CDIApp({ theme, onToggleTheme }) {
   // Cargar conteos al montar o cambiar caseta
   useEffect(() => {
     localStorage.setItem('selectedCaseta', caseta);
-    loadCounts();
+    localStorage.setItem('regas_cdi_last_caseta', caseta);
+    localStorage.setItem('caseta_seleccionada_cic', caseta);
+    loadCounts(caseta);
   }, [caseta]);
+
+  // Escuchar reasignación remota de caseta enviada por el operador desde RegAs 3
+  useEffect(() => {
+    const handleCasetaUpdate = (e) => {
+      const newCaseta = e.detail && e.detail.caseta;
+      if (newCaseta && typeof newCaseta === 'string') {
+        const clean = newCaseta.trim();
+        console.log('[CDI] Caseta reasignada remotamente desde RegAs 3:', clean);
+        localStorage.setItem('selectedCaseta', clean);
+        localStorage.setItem('regas_cdi_last_caseta', clean);
+        localStorage.setItem('caseta_seleccionada_cic', clean);
+        setCaseta(clean);
+        loadCounts(clean);
+        window.postMessage({ type: 'cdi_caseta_changed', caseta: clean }, '*');
+      }
+    };
+    window.addEventListener('miniapps_caseta_updated', handleCasetaUpdate);
+    return () => window.removeEventListener('miniapps_caseta_updated', handleCasetaUpdate);
+  }, []);
 
   // SEÑAL Y LATIDO PERIÓDICO HACIA EL MONITOR DE OPERADOR (CCO) + SSE EN VIVO
   useEffect(() => {
+    const doHeartbeat = () => {
+      sendDeviceHeartbeat(caseta).then((res) => {
+        if (res && res.caseta && res.caseta !== caseta) {
+          setCaseta(res.caseta);
+        }
+      });
+    };
+
     // 1. Enviar latido de señal inicial
-    sendDeviceHeartbeat(caseta);
+    doHeartbeat();
 
     // 2. Solicitar GPS y reenviar señal con coordenadas
     requestDeviceLocation(() => {
-      sendDeviceHeartbeat(caseta);
+      doHeartbeat();
     });
 
     // 3. Latido periódico cada 25 segundos para mantener estado "En Vivo" en monitor
     const heartbeatTimer = setInterval(() => {
-      sendDeviceHeartbeat(caseta);
+      doHeartbeat();
     }, 25000);
 
     // 4. Latido inmediato al desbloquear o volver a la pestaña
     const onVisibility = () => {
       if (document.visibilityState === 'visible') {
-        sendDeviceHeartbeat(caseta);
+        doHeartbeat();
       }
     };
     document.addEventListener('visibilitychange', onVisibility);
@@ -123,8 +151,12 @@ export default function CDIApp({ theme, onToggleTheme }) {
       },
       (devicePayload) => {
         const myDevId = getDeviceUuid();
-        if (devicePayload && devicePayload.deviceId === myDevId) {
+        if (devicePayload && (devicePayload.deviceId === myDevId || devicePayload._id === myDevId)) {
           setLastSyncMsg('Monitor Conectado');
+          if (devicePayload.caseta && devicePayload.caseta !== caseta) {
+            console.log('[CDI SSE] Caseta actualizada desde RegAs 3:', devicePayload.caseta);
+            setCaseta(devicePayload.caseta);
+          }
         }
       }
     );
@@ -136,14 +168,14 @@ export default function CDIApp({ theme, onToggleTheme }) {
     };
   }, [caseta]);
 
-  const loadCounts = async () => {
+  const loadCounts = async (targetCaseta = caseta) => {
     try {
       setSyncing(true);
       setLastSyncMsg('Sincronizando...');
       const data = await fetchCdiCounts();
       if (data) {
         const casetasMap = (data.cdi && data.cdi.casetas) ? data.cdi.casetas : (data.casetas || data);
-        const c = findCasetaCounts(casetasMap, caseta);
+        const c = findCasetaCounts(casetasMap, targetCaseta || caseta);
         setCounts({
           internos: c ? Number(c.internos || 0) : 0,
           externos: c ? Number(c.externos || 0) : 0,
@@ -180,7 +212,11 @@ export default function CDIApp({ theme, onToggleTheme }) {
   const handleCasetaChange = (newCaseta) => {
     setCaseta(newCaseta);
     localStorage.setItem('selectedCaseta', newCaseta);
+    localStorage.setItem('regas_cdi_last_caseta', newCaseta);
+    localStorage.setItem('caseta_seleccionada_cic', newCaseta);
+    window.postMessage({ type: 'cdi_caseta_changed', caseta: newCaseta }, '*');
     // Notificar al monitor del operador del cambio de caseta inmediatamente
+    updateDeviceCaseta(newCaseta).catch(() => {});
     sendDeviceHeartbeat(newCaseta);
   };
 
@@ -305,6 +341,9 @@ export default function CDIApp({ theme, onToggleTheme }) {
               onChange={(e) => handleCasetaChange(e.target.value)}
               aria-label="Seleccionar Caseta"
             >
+              {!CASETAS.includes(caseta) && (
+                <option value={caseta}>{caseta}</option>
+              )}
               {CASETAS.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
