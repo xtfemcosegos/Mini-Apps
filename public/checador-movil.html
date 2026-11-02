@@ -1814,6 +1814,10 @@
             <span class="receipt-val" id="receiptOfficerId">-</span>
           </div>
           <div class="receipt-row">
+            <span class="receipt-label">Caseta</span>
+            <span class="receipt-val" id="receiptCasetaVal">-</span>
+          </div>
+          <div class="receipt-row">
             <span class="receipt-label">Turno</span>
             <span class="receipt-val" id="receiptShiftLabel">-</span>
           </div>
@@ -1909,6 +1913,7 @@
   <!-- JAVASCRIPT LOGIC -->
   <script>
     (function() {
+      const escapeHtml = str => String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
       // =========================================================================
       // 0. CONTROL DE PERMISOS POR DISPOSITIVO (DEFECTO: SOLO CDI)
       // =========================================================================
@@ -3168,7 +3173,16 @@
         detailOfficerRole.textContent = elem.puesto || 'Oficial de Seguridad';
         detailOfficerId.textContent = `No. Socio: #${state.elemId}`;
 
-        detailCasetaVal.textContent = shiftDetails.Caseta || shiftDetails.caseta || 'Caseta Principal';
+        // Respetar estrictamente la caseta asignada al elemento
+        const assignedCaseta = (shiftDetails.Caseta || shiftDetails.caseta || shiftData.casetaAsignada || '').trim();
+        const activeTerminalCaseta = getActiveCaseta();
+
+        if (assignedCaseta && activeTerminalCaseta && assignedCaseta.toLowerCase() !== activeTerminalCaseta.toLowerCase()) {
+          detailCasetaVal.innerHTML = `${escapeHtml(assignedCaseta)} <span style="font-size: 0.72rem; color: #94a3b8; display: block; font-weight: normal; margin-top: 2px;">(Terminal checador: ${escapeHtml(activeTerminalCaseta)})</span>`;
+        } else {
+          detailCasetaVal.textContent = assignedCaseta || activeTerminalCaseta || 'Caseta Principal';
+        }
+
         detailHorarioVal.textContent = shiftData.targetHorario || '07:00 a 15:00 hrs';
 
         const action = shiftData.action || 'sin_registro';
@@ -3266,6 +3280,11 @@
 
           state.entryTime = horaFull;
 
+          const shiftDetails = shiftData.shiftDetails || {};
+          const assignedCaseta = (shiftDetails.Caseta || shiftDetails.caseta || shiftData.casetaAsignada || '').trim();
+          const activeTerminalCaseta = getActiveCaseta();
+          const finalCaseta = assignedCaseta || activeTerminalCaseta;
+
           let endpoint = `${BACKEND_BASE}/api/asistencia/entrada`;
           let payload = {
             elemId: String(state.elemId),
@@ -3275,13 +3294,15 @@
             dia: diaKey,
             mes: shiftData.targetMes || undefined,
             anio: shiftData.targetAnio || undefined,
-            Caseta: getActiveCaseta(),
+            Caseta: finalCaseta,
+            terminalCaseta: activeTerminalCaseta,
             foto: state.capturedBase64,
             tipo: isSalida ? 'salida' : 'entrada'
           };
 
           if (isSwap) {
             endpoint = `${BACKEND_BASE}/api/asistencia/shift-swap`;
+            const nextAssigned = (shiftData.nextShiftDetails?.Caseta || shiftData.nextShiftDetails?.caseta || assignedCaseta || '').trim();
             payload = {
               elemId: String(state.elemId),
               turno: shiftData.targetShift || 'matutino',
@@ -3291,7 +3312,8 @@
               dia: diaKey,
               mes: shiftData.targetMes || undefined,
               anio: shiftData.targetAnio || undefined,
-              caseta: getActiveCaseta(),
+              caseta: nextAssigned || activeTerminalCaseta,
+              terminalCaseta: activeTerminalCaseta,
               foto: state.capturedBase64,
               isNextDay: shiftData.nextShiftIsNextDay || false
             };
@@ -3359,6 +3381,11 @@
 
           state.entryTime = horaFull;
 
+          const shiftDetails = shiftData.shiftDetails || {};
+          const assignedCaseta = (shiftDetails.Caseta || shiftDetails.caseta || shiftData.casetaAsignada || '').trim();
+          const activeTerminalCaseta = getActiveCaseta();
+          const finalCaseta = assignedCaseta || activeTerminalCaseta;
+
           const payload = {
             elemId: String(state.elemId),
             turno: shiftData.targetShift || 'matutino',
@@ -3367,7 +3394,8 @@
             dia: diaKey,
             mes: shiftData.targetMes || undefined,
             anio: shiftData.targetAnio || undefined,
-            Caseta: getActiveCaseta(),
+            Caseta: finalCaseta,
+            terminalCaseta: activeTerminalCaseta,
             foto: state.capturedBase64,
             tipo: 'salida'
           };
@@ -3438,6 +3466,11 @@
           : (payload.turno || 'TURNO').toUpperCase();
         receiptEntryTime.textContent = `${horaFull} hrs`;
         receiptDate.textContent = payload.fecha;
+
+        const receiptCasetaVal = document.getElementById('receiptCasetaVal');
+        if (receiptCasetaVal) {
+          receiptCasetaVal.textContent = payload.Caseta || 'Caseta Principal';
+        }
 
         if (receiptPhotoImg) {
           if (state.capturedBase64) {
