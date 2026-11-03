@@ -24,6 +24,7 @@ export default function ChecadorApp({ theme, onToggleTheme }) {
   const [capturedPhotoUrl, setCapturedPhotoUrl] = useState(null);
   const [currentTime, setCurrentTime] = useState('');
   const [keypadReason, setKeypadReason] = useState('');
+  const [showNumpad, setShowNumpad] = useState(false);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -611,18 +612,46 @@ export default function ChecadorApp({ theme, onToggleTheme }) {
 
           {!socioShiftData ? (
             <>
-              <div className="checador-numpad-grid">
-                {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', 'DEL'].map((key) => (
-                  <button
-                    key={key}
-                    type="button"
-                    className={`numpad-key ${key === 'C' || key === 'DEL' ? 'key-action' : ''}`}
-                    onClick={() => handleKeypadPress(key)}
-                  >
-                    {key}
-                  </button>
-                ))}
+              {/* Botón para desplegar teclado numérico en pantalla en PC */}
+              <div style={{ display: 'flex', justifyContent: 'center', margin: '4px 0 10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowNumpad(!showNumpad)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    background: showNumpad ? 'rgba(37, 99, 235, 0.18)' : 'rgba(255, 255, 255, 0.06)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '20px',
+                    padding: '5px 12px',
+                    color: showNumpad ? '#38bdf8' : '#94a3b8',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                  title="Mostrar/ocultar teclado en pantalla"
+                >
+                  <span>⌨️</span>
+                  <span>Teclado en pantalla</span>
+                  <span>{showNumpad ? '▲' : '▼'}</span>
+                </button>
               </div>
+
+              {showNumpad && (
+                <div className="checador-numpad-grid">
+                  {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', 'DEL'].map((key) => (
+                    <button
+                      key={key}
+                      type="button"
+                      className={`numpad-key ${key === 'C' || key === 'DEL' ? 'key-action' : ''}`}
+                      onClick={() => handleKeypadPress(key)}
+                    >
+                      {key}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               <button
                 type="button"

@@ -136,8 +136,10 @@ html, body, #root {
 }
 
 .miniapps-pane-left {
-  flex: 1 1 50%;
-  min-width: 320px;
+  flex: 0 0 30% !important;
+  width: 30% !important;
+  max-width: 30% !important;
+  min-width: 260px;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -148,7 +150,9 @@ html, body, #root {
 }
 
 .miniapps-pane-right {
-  flex: 1 1 50%;
+  flex: 0 0 70% !important;
+  width: 70% !important;
+  max-width: 70% !important;
   min-width: 320px;
   height: 100%;
   display: flex;

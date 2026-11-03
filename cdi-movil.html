@@ -730,9 +730,11 @@
     }
 
     .desktop-split-root.split-active .cdi-desktop-left {
-      flex: 1 1 50%;
+      flex: 0 0 30% !important;
+      width: 30% !important;
+      max-width: 30% !important;
       border-right: 2px solid var(--card-border);
-      min-width: 320px;
+      min-width: 260px;
     }
 
     .desktop-split-root.split-active .app-dock-wrapper {
@@ -740,7 +742,9 @@
     }
 
     .desktop-parallel-panel {
-      flex: 1 1 50%;
+      flex: 0 0 70% !important;
+      width: 70% !important;
+      max-width: 70% !important;
       height: 100%;
       display: flex;
       flex-direction: column;
@@ -1431,6 +1435,26 @@
   <!-- LÓGICA DE CONTROL, SINCRONIZACIÓN Y ACTUALIZACIÓN EN VIVO -->
   <script>
     (function() {
+      // Detección estricta PC vs Móvil (Desactiva por completo simulación de PC en móviles)
+      function checkIsPcMode() {
+        if (window.location.search.includes('device=mobile')) return false;
+        if (window.location.search.includes('device=pc')) return true;
+
+        try {
+          const ua = navigator.userAgent || '';
+          const platform = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '';
+          const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|Silk|Kindle/i.test(ua) || (navigator.userAgentData && navigator.userAgentData.mobile);
+
+          // EN MÓVILES: DESACTIVAR POR COMPLETO LA VISTA DE COMPUTADORA
+          if (isMobileUA) return false;
+
+          const isDesktopOS = (/Win|Mac|Linux|X11/i.test(platform) || /Windows NT|Macintosh|X11/i.test(ua)) && !isMobileUA;
+          if (isDesktopOS && window.innerWidth >= 768) return true;
+        } catch (e) {}
+
+        return false;
+      }
+
       // Detección dinámica e inteligente del backend (Local, Red Caseta 10.x / 192.168.x, o Cloud Worker UBE)
       const resolveBackendBase = () => {
         // Limpieza preventiva de túneles trycloudflare obsoletos, ngrok inactivo y Mixed Content
@@ -1850,7 +1874,8 @@
 
         if (parallelIframe) {
           const search = window.location.search || '';
-          parallelIframe.src = cfg.route + search;
+          const separator = cfg.route.includes('?') ? '&' : '?';
+          parallelIframe.src = `${cfg.route}${separator}embedded=1&device=pc${search ? '&' + search.replace(/^\?/, '') : ''}`;
         }
 
         if (desktopSplitRoot) desktopSplitRoot.classList.add('split-active');
@@ -1962,7 +1987,7 @@
         btn.addEventListener('click', (e) => {
           e.preventDefault();
           const search = window.location.search || '';
-          const isDesktop = window.innerWidth >= 768;
+          const isDesktop = checkIsPcMode();
 
           // En escritorio: si no está abierta en paralelo, abrirla en paralelo directamente o cambiarla
           if (isDesktop) {
@@ -1976,7 +2001,8 @@
           }
 
           // En móvil: pantalla completa como siempre
-          window.location.href = cfg.route + search;
+          const sep = cfg.route.includes('?') ? '&' : '?';
+          window.location.href = `${cfg.route}${sep}device=mobile${search ? '&' + search.replace(/^\?/, '') : ''}`;
         });
 
         // Clic derecho (ContextMenu): Menú con opción explícita "Mostrar en paralelo"
@@ -2037,7 +2063,7 @@
       // Restaurar app paralela al cargar si está en escritorio y hay preferencia guardada
       try {
         const savedParallel = localStorage.getItem('miniapps_parallel_app');
-        if (savedParallel && window.innerWidth >= 768) {
+        if (savedParallel && checkIsPcMode()) {
           const cfg = Object.values(appConfigs).find(c => c.key === savedParallel);
           if (cfg) {
             setTimeout(() => openParallelApp(cfg), 200);

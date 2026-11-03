@@ -27,6 +27,32 @@
       }
       window.addEventListener('load', removeMobileDock);
     }
+
+    // Detección estricta PC vs Móvil (Desactiva por completo simulación de PC en móviles)
+    function checkIsPcMode() {
+      if (window.location.search.includes('device=mobile')) return false;
+      if (window.location.search.includes('device=pc')) return true;
+
+      try {
+        const ua = navigator.userAgent || '';
+        const platform = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '';
+        const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|Silk|Kindle/i.test(ua) || (navigator.userAgentData && navigator.userAgentData.mobile);
+
+        // EN MÓVILES: DESACTIVAR POR COMPLETO LA VISTA DE COMPUTADORA
+        if (isMobileUA) return false;
+
+        const isDesktopOS = (/Win|Mac|Linux|X11/i.test(platform) || /Windows NT|Macintosh|X11/i.test(ua)) && !isMobileUA;
+        if (isDesktopOS && window.innerWidth >= 768) return true;
+      } catch (e) {}
+
+      return false;
+    }
+
+    if (checkIsPcMode()) {
+      document.documentElement.classList.add('is-pc');
+    } else {
+      document.documentElement.classList.add('is-mobile');
+    }
   </script>
   
   <style>
@@ -234,6 +260,289 @@
     .id-display-input:focus {
       border-color: var(--accent-cyan);
       box-shadow: 0 0 16px var(--primary-glow);
+    }
+
+    /* BOTÓN TOGGLE TECLADO EN PANTALLA (ESPECIALMENTE PC) */
+    .numpad-toggle-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 8px 0 12px;
+    }
+
+    .btn-toggle-numpad {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 14px;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      outline: none;
+      user-select: none;
+    }
+
+    .btn-toggle-numpad:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    .btn-toggle-numpad:active {
+      transform: scale(0.96);
+    }
+
+    .toggle-numpad-arrow {
+      font-size: 0.72rem;
+      transition: transform 0.2s ease;
+      display: inline-block;
+    }
+
+    .btn-toggle-numpad.is-open {
+      background: rgba(37, 99, 235, 0.14);
+      border-color: rgba(37, 99, 235, 0.35);
+      color: #38bdf8;
+    }
+
+    .numpad-grid.pc-collapsed {
+      display: none !important;
+    }
+
+    /* ========================================================
+       DISEÑO EN PC (ESCRITORIO 70% ANCHO):
+       Columna Izquierda: Identificación del oficial con resultados debajo.
+       Columna Derecha: Listado de elementos en turno (Salida Rápida).
+       ======================================================== */
+    html.is-pc body {
+      overflow: hidden;
+    }
+
+    html.is-pc .main-content {
+      height: calc(100vh - 58px);
+      overflow: hidden;
+      padding: 0;
+      max-width: 100% !important;
+    }
+
+    html.is-pc #step1Screen {
+      display: grid !important;
+      grid-template-columns: minmax(300px, 1fr) minmax(320px, 1fr);
+      gap: 16px;
+      height: 100%;
+      padding: 12px 18px 18px;
+      box-sizing: border-box;
+      max-width: 100% !important;
+      align-items: stretch;
+      overflow: hidden;
+    }
+
+    /* Columna Izquierda en PC: Identificación + Resultados Debajo */
+    html.is-pc .pc-identificacion-col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      height: 100%;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    html.is-pc .pc-identificacion-col .card {
+      margin-bottom: 0;
+      flex-shrink: 0;
+    }
+
+    /* Contenedor de Resultados Debajo en PC */
+    .pc-results-box {
+      display: none;
+    }
+
+    html.is-pc .pc-results-box {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .pc-results-empty {
+      background: var(--bg-card);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 0.84rem;
+      text-align: center;
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .pc-results-empty .empty-icon {
+      font-size: 2rem;
+      opacity: 0.7;
+    }
+
+    .pc-results-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .pc-results-card.hidden {
+      display: none !important;
+    }
+
+    /* Columna Derecha en PC: Control de Turnos en UNA SOLA COLUMNA (Arriba Entrantes, Abajo En Turno) */
+    html.is-pc .pending-salida-section {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-sizing: border-box;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .shifts-column-container {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-right: 4px;
+      margin-top: 10px;
+    }
+
+    .shifts-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .shifts-group-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .shifts-group-header.incoming {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.28);
+      color: #34d399;
+    }
+
+    .shifts-group-header.current {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.28);
+      color: #f87171;
+    }
+
+    .shifts-group-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .shifts-count-badge {
+      padding: 1px 7px;
+      border-radius: 999px;
+      font-size: 0.70rem;
+      font-weight: 800;
+    }
+
+    .shifts-count-badge.badge-incoming {
+      background: #10b981;
+      color: #042f2e;
+    }
+
+    .shifts-count-badge.badge-current {
+      background: #ef4444;
+      color: #ffffff;
+    }
+
+    .shifts-cards-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .pending-window-pill {
+      font-size: 0.72rem;
+      color: #38bdf8;
+      font-weight: 600;
+      display: inline-block;
+      margin-left: 4px;
+    }
+
+    /* UNA SOLA COLUMNA ESTRICTA: Las tarjetas abarcan el ancho completo */
+    html.is-pc .pending-salida-grid,
+    html.is-pc .shifts-cards-list {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 8px !important;
+      max-height: none !important;
+      overflow: visible !important;
+    }
+
+    .btn-quick-entrada {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 11px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+      transition: all 0.16s ease;
+      user-select: none;
+    }
+
+    .btn-quick-entrada:hover {
+      background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+      transform: scale(1.04);
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.55);
+    }
+
+    .btn-quick-entrada:active {
+      transform: scale(0.95);
+    }
+
+    .btn-salida-modal-confirm.is-entrada {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45) !important;
+    }
+
+    .btn-salida-modal-confirm.is-entrada:hover {
+      background: linear-gradient(135deg, #34d399 0%, #10b981 100%) !important;
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.65) !important;
     }
 
     .numpad-grid {
@@ -1620,52 +1929,113 @@
          PASO 1: EL ELEMENTO PONE SU NÚMERO DE SOCIO
          ======================================================== -->
     <div class="step-screen" id="step1Screen">
-      <div class="card">
-        <div class="card-title-row">
-          <span style="font-size: 1.25rem;">👤</span>
-          <h2>Identificación del Oficial</h2>
+      <!-- COLUMNA IZQUIERDA EN PC: IDENTIFICACIÓN DEL OFICIAL Y RESULTADOS DEBAJO -->
+      <div class="pc-identificacion-col" id="pcIdentificacionCol">
+        <div class="card" id="cardIdentificacionSocio">
+          <div class="card-title-row">
+            <span style="font-size: 1.25rem;">👤</span>
+            <h2>Identificación del Oficial</h2>
+          </div>
+
+          <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.45;" id="identificacionHelpText">
+            Ingresa tu <strong>Número de Socio</strong> para verificar turno y registrar asistencia.
+          </p>
+
+          <div class="id-display-input-wrap">
+            <input type="text" id="inputId" class="id-display-input" placeholder="NO. DE SOCIO" inputmode="numeric" maxlength="10" autocomplete="off">
+          </div>
+
+          <!-- Botón Desplegable para Teclado en Pantalla -->
+          <div class="numpad-toggle-wrap" id="numpadToggleWrap">
+            <button type="button" class="btn-toggle-numpad" id="btnToggleNumpad" title="Mostrar/ocultar teclado en pantalla">
+              <span class="toggle-numpad-icon">⌨️</span>
+              <span class="toggle-numpad-label">Teclado en pantalla</span>
+              <span class="toggle-numpad-arrow" id="toggleNumpadArrow">▼</span>
+            </button>
+          </div>
+
+          <!-- Teclado Táctil Integrado -->
+          <div class="numpad-grid" id="numpadGrid">
+            <button type="button" class="numpad-btn" data-key="1">1</button>
+            <button type="button" class="numpad-btn" data-key="2">2</button>
+            <button type="button" class="numpad-btn" data-key="3">3</button>
+            <button type="button" class="numpad-btn" data-key="4">4</button>
+            <button type="button" class="numpad-btn" data-key="5">5</button>
+            <button type="button" class="numpad-btn" data-key="6">6</button>
+            <button type="button" class="numpad-btn" data-key="7">7</button>
+            <button type="button" class="numpad-btn" data-key="8">8</button>
+            <button type="button" class="numpad-btn" data-key="9">9</button>
+            <button type="button" class="numpad-btn btn-clear" data-key="C">Limpiar</button>
+            <button type="button" class="numpad-btn" data-key="0">0</button>
+            <button type="button" class="numpad-btn btn-backspace" data-key="DEL">⌫</button>
+          </div>
+
+          <button type="button" class="btn-action-primary" id="btnSubmitSocio">
+            <span id="btnSubmitSocioText">Continuar a Cámara Facial →</span>
+          </button>
         </div>
 
-        <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.45;">
-          Ingresa tu <strong>Número de Socio</strong> para iniciar el proceso de asistencia y verificación facial.
-        </p>
+        <!-- RESULTADOS DEBAJO DE LA IDENTIFICACIÓN (EN PC) -->
+        <div class="pc-results-box" id="pcResultsBox">
+          <div class="pc-results-empty" id="pcResultsEmpty">
+            <span class="empty-icon">ℹ️</span>
+            <span>Escribe el número de socio y presiona <strong style="color: #38bdf8;">Enter</strong> para consultar turno y registrar entrada o salida directamente sin cámara.</span>
+          </div>
 
-        <div class="id-display-input-wrap">
-          <input type="text" id="inputId" class="id-display-input" placeholder="NO. DE SOCIO" inputmode="numeric" maxlength="10" autocomplete="off">
+          <div class="pc-results-card hidden" id="pcResultsCard">
+            <div class="detail-profile-box">
+              <div class="detail-mini-photo-wrap">
+                <img id="pcResultThumbImg" class="detail-mini-img" src="iconos/silueta.svg" alt="Foto Oficial">
+              </div>
+              <div class="detail-officer-info">
+                <div class="detail-officer-name" id="pcResultOfficerName">Nombre Oficial</div>
+                <div class="detail-officer-role" id="pcResultOfficerRole">Oficial de Seguridad</div>
+                <div class="detail-officer-id" id="pcResultOfficerId">ID: #000000</div>
+              </div>
+            </div>
+
+            <div class="shift-status-banner status-available" id="pcResultShiftBanner">
+              <div class="shift-banner-header">
+                <span class="shift-banner-icon" id="pcResultShiftBannerIcon">🌅</span>
+                <span class="shift-banner-title" id="pcResultShiftBannerTitle">Turno Disponible</span>
+              </div>
+              <div class="shift-banner-text" id="pcResultShiftBannerText">
+                Validando turno...
+              </div>
+              <div class="shift-meta-grid">
+                <div class="shift-meta-item">
+                  <span class="shift-meta-label">Caseta</span>
+                  <span class="shift-meta-value" id="pcResultCasetaVal">-</span>
+                </div>
+                <div class="shift-meta-item">
+                  <span class="shift-meta-label">Horario</span>
+                  <span class="shift-meta-value" id="pcResultHorarioVal">07:00 a 15:00 hrs</span>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" class="btn-action-primary" id="btnPcActionAttendance">
+              <span id="btnPcActionText">📥 REGISTRAR MI ENTRADA</span>
+            </button>
+
+            <button type="button" class="btn-secondary-exit" id="btnPcOnlySalida" style="display: none;">
+              <span>🚪 Solo Marcar Salida (Sin Doblete)</span>
+            </button>
+          </div>
         </div>
-
-        <!-- Teclado Táctil Integrado -->
-        <div class="numpad-grid">
-          <button type="button" class="numpad-btn" data-key="1">1</button>
-          <button type="button" class="numpad-btn" data-key="2">2</button>
-          <button type="button" class="numpad-btn" data-key="3">3</button>
-          <button type="button" class="numpad-btn" data-key="4">4</button>
-          <button type="button" class="numpad-btn" data-key="5">5</button>
-          <button type="button" class="numpad-btn" data-key="6">6</button>
-          <button type="button" class="numpad-btn" data-key="7">7</button>
-          <button type="button" class="numpad-btn" data-key="8">8</button>
-          <button type="button" class="numpad-btn" data-key="9">9</button>
-          <button type="button" class="numpad-btn btn-clear" data-key="C">Limpiar</button>
-          <button type="button" class="numpad-btn" data-key="0">0</button>
-          <button type="button" class="numpad-btn btn-backspace" data-key="DEL">⌫</button>
-        </div>
-
-        <button type="button" class="btn-action-primary" id="btnSubmitSocio">
-          <span>Continuar a Cámara Facial →</span>
-        </button>
       </div>
 
-      <!-- SECCIÓN: OFICIALES EN TURNO PENDIENTES DE SALIDA (FILTRADOS POR CASETA SELECCIONADA EN CDI) -->
+      <!-- SECCIÓN DERECHA EN PC: CONTROL DE TURNOS (UNA SOLA COLUMNA: ARRIBA ENTRANTES, ABAJO EN TURNO) -->
       <div class="pending-salida-section" id="pendingSalidaSection">
         <div class="pending-salida-header">
           <div class="pending-header-title-wrap">
-            <span class="pending-header-icon">🚪</span>
+            <span class="pending-header-icon" id="pendingHeaderIcon">📋</span>
             <div>
-              <div class="pending-header-title">En Turno • Salida Rápida</div>
-              <div class="pending-header-sub" id="pendingCasetaSub">Caseta CDI: <strong id="pendingCasetaName">Detectando...</strong></div>
+              <div class="pending-header-title">Relevo y Control de Turnos</div>
+              <div class="pending-header-sub" id="pendingCasetaSub">Caseta: <strong id="pendingCasetaName">Detectando...</strong> • <span id="pendingWindowPill" class="pending-window-pill">Calculando turno...</span></div>
             </div>
           </div>
-          <button type="button" class="btn-refresh-pending" id="btnRefreshPending" title="Actualizar lista de oficiales en turno">
+          <button type="button" class="btn-refresh-pending" id="btnRefreshPending" title="Actualizar lista de oficiales">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="23 4 23 10 17 10"></polyline>
               <polyline points="1 20 1 14 7 14"></polyline>
@@ -1674,11 +2044,40 @@
           </button>
         </div>
 
-        <!-- Tarjetas dinámicas de elementos con entrada registrada pero sin salida -->
-        <div class="pending-salida-grid" id="pendingSalidaGrid">
-          <div class="pending-loading-state">
-            <div class="spinner-sm"></div>
-            <span>Consultando oficiales en turno en esta caseta...</span>
+        <!-- Contenedor en UNA SOLA COLUMNA: Arriba los que van a entrar, Abajo los en turno -->
+        <div class="shifts-column-container" id="shiftsColumnContainer">
+          <!-- 1. GRUPO ARRIBA: ELEMENTOS QUE VAN A ENTRAR -->
+          <div class="shifts-group incoming-group" id="groupEntrantes">
+            <div class="shifts-group-header incoming">
+              <div class="shifts-group-title">
+                <span class="group-icon">📥</span>
+                <span id="titleEntrantesGroup">Elementos por Entrar</span>
+              </div>
+              <span class="shifts-count-badge badge-incoming" id="badgeEntrantesCount">0</span>
+            </div>
+            <div class="shifts-cards-list" id="pendingEntradaList">
+              <div class="pending-loading-state">
+                <div class="spinner-sm"></div>
+                <span>Consultando oficiales por entrar...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. GRUPO ABAJO: ELEMENTOS EN TURNO (PENDIENTES DE SALIDA) -->
+          <div class="shifts-group current-group" id="groupEnTurno">
+            <div class="shifts-group-header current">
+              <div class="shifts-group-title">
+                <span class="group-icon">🚪</span>
+                <span id="titleEnTurnoGroup">Elementos en Turno</span>
+              </div>
+              <span class="shifts-count-badge badge-current" id="badgeEnTurnoCount">0</span>
+            </div>
+            <div class="shifts-cards-list" id="pendingSalidaGrid">
+              <div class="pending-loading-state">
+                <div class="spinner-sm"></div>
+                <span>Consultando oficiales en turno...</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -2065,6 +2464,12 @@
       }
 
       function setStep(stepNum) {
+        // En PC: omitir reconocimiento facial en todos los casos
+        if (stepNum === 2 && isDesktopView()) {
+          console.warn('[Checador PC] Omitiendo paso 2 (cámara biométrica) en PC');
+          return;
+        }
+
         state.currentStep = stepNum;
         document.querySelectorAll('.step-screen').forEach((el, idx) => {
           el.classList.toggle('hidden', idx + 1 !== stepNum);
@@ -2116,90 +2521,71 @@
         });
       });
 
-      // Detección precisa de modo escritorio/PC para permitir brincarse la foto exclusivamente en PC
-      function isDesktopView() {
-        try {
-          const ua = navigator.userAgent || '';
-          const platform = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '';
-          const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-          const isDesktopOS = /Win|Mac|Linux|X11/i.test(platform) || /Windows NT|Macintosh|X11/i.test(ua);
+      // En PC: ocultar el teclado en pantalla por defecto y permitir desplegarlo con la flechita
+      const isPc = isDesktopView() || window.location.search.includes('device=pc');
+      const numpadGrid = document.getElementById('numpadGrid') || document.querySelector('.numpad-grid');
+      const btnToggleNumpad = document.getElementById('btnToggleNumpad');
+      const toggleNumpadArrow = document.getElementById('toggleNumpadArrow');
 
-          // Si es un sistema operativo de escritorio (Windows, Mac, Linux) y no es UA móvil, es PC 100%
-          if (isDesktopOS && !isMobileUA) {
-            return true;
-          }
-
-          if (window.top && (window.top.innerWidth >= 600 || window.top.screen.width >= 768)) return true;
-        } catch (e) {}
-
-        if (window.innerWidth >= 600) return true;
-        if (window.screen && window.screen.width >= 768) return true;
-        return false;
+      if (isPc) {
+        if (numpadGrid) numpadGrid.classList.add('pc-collapsed');
+        if (btnToggleNumpad) {
+          btnToggleNumpad.classList.remove('is-open');
+          btnToggleNumpad.title = 'Desplegar teclado numérico en pantalla';
+        }
+        if (toggleNumpadArrow) toggleNumpadArrow.textContent = '▼';
+        // Enfoque automático al campo de socio en PC para teclear directamente con el teclado físico
+        if (inputId) {
+          setTimeout(() => {
+            try { inputId.focus(); } catch (e) {}
+          }, 150);
+        }
+      } else {
+        // En móvil mantener el teclado abierto por defecto para interacción táctil
+        if (numpadGrid) numpadGrid.classList.remove('pc-collapsed');
+        if (btnToggleNumpad) {
+          btnToggleNumpad.classList.add('is-open');
+          btnToggleNumpad.title = 'Ocultar teclado numérico en pantalla';
+        }
+        if (toggleNumpadArrow) toggleNumpadArrow.textContent = '▲';
       }
 
-      // Verificación profunda de cámara activa real con eliminación de falsos positivos
-      // (Cámaras virtuales de OBS/Teams/ManyCam, drivers huérfanos de Windows o hardware desconectado)
+      if (btnToggleNumpad && numpadGrid) {
+        btnToggleNumpad.addEventListener('click', () => {
+          soundBeep();
+          const isCollapsed = numpadGrid.classList.contains('pc-collapsed');
+          if (isCollapsed) {
+            numpadGrid.classList.remove('pc-collapsed');
+            btnToggleNumpad.classList.add('is-open');
+            btnToggleNumpad.title = 'Ocultar teclado numérico en pantalla';
+            if (toggleNumpadArrow) toggleNumpadArrow.textContent = '▲';
+          } else {
+            numpadGrid.classList.add('pc-collapsed');
+            btnToggleNumpad.classList.remove('is-open');
+            btnToggleNumpad.title = 'Desplegar teclado numérico en pantalla';
+            if (toggleNumpadArrow) toggleNumpadArrow.textContent = '▼';
+          }
+        });
+      }
+
+      // Detección precisa de modo escritorio/PC (exclusivo para PC real, nunca móviles)
+      function isDesktopView() {
+        return typeof checkIsPcMode === 'function' ? checkIsPcMode() : false;
+      }
+
+      // Si estamos en PC, ajustar textos iniciales
+      if (isDesktopView()) {
+        const btnText = document.getElementById('btnSubmitSocioText');
+        if (btnText) btnText.textContent = 'Consultar Socio →';
+      }
+
+      // Verificación de cámara activa real
       async function hasWorkingCamera() {
+        if (isDesktopView()) return false; // En PC omite reconocimiento facial en todos los casos
         try {
           if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return false;
-
-          // 1. Filtrado de dispositivos virtuales en lista de enumerateDevices
-          if (navigator.mediaDevices.enumerateDevices) {
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            const videoInputs = devices.filter(d => d.kind === 'videoinput');
-            if (videoInputs.length === 0) return false;
-
-            const virtualPattern = /virtual|obs|vmix|ndi|droidcam|iriun|manycam|youcam|splitcam|fake|dummy|loopback/i;
-            const hasRealLabel = videoInputs.some(d => d.label && !virtualPattern.test(d.label));
-            const allAreVirtual = videoInputs.every(d => d.label && virtualPattern.test(d.label));
-            if (allAreVirtual && !hasRealLabel) {
-              console.warn('[Checador] Falso positivo: Todas las entradas de video son cámaras virtuales:', videoInputs.map(v => v.label));
-              return false;
-            }
-          }
-
-          // 2. En PC, realizar un test real de adquisición de video con timeout corto (1.2s)
-          // para comprobar si realmente hay hardware físico respondiendo y no una pantalla congelada/muerta
-          if (isDesktopView()) {
-            const testPromise = navigator.mediaDevices.getUserMedia({
-              video: { width: { ideal: 320 }, height: { ideal: 240 } },
-              audio: false
-            });
-
-            const timeoutPromise = new Promise((_, reject) =>
-              setTimeout(() => reject(new Error('CAMERA_TIMEOUT')), 1200)
-            );
-
-            try {
-              const testStream = await Promise.race([testPromise, timeoutPromise]);
-              const tracks = testStream.getVideoTracks();
-              if (!tracks || tracks.length === 0) {
-                testStream.getTracks().forEach(t => t.stop());
-                return false;
-              }
-              const track = tracks[0];
-              const label = track.label || '';
-              if (/virtual|obs|vmix|ndi|droidcam|iriun|manycam|youcam|splitcam/i.test(label)) {
-                tracks.forEach(t => t.stop());
-                console.warn('[Checador] Falso positivo en PC: stream activo proviene de cámara virtual:', label);
-                return false;
-              }
-              if (track.readyState === 'ended' || track.muted) {
-                tracks.forEach(t => t.stop());
-                return false;
-              }
-              // Liberar el stream de prueba de inmediato
-              tracks.forEach(t => t.stop());
-              return true;
-            } catch (testErr) {
-              console.warn('[Checador] Test de cámara en PC falló o expiró:', testErr.message || testErr.name);
-              return false;
-            }
-          }
-
           return true;
         } catch (e) {
-          console.warn('[Checador] Error evaluando disponibilidad de cámara:', e);
           return false;
         }
       }
@@ -2212,7 +2598,30 @@
       inputId.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
-          processSocioStep();
+          const currentVal = inputId.value.trim();
+          if (isDesktopView() && state.elemId && currentVal === state.elemId && state.shiftData) {
+            submitPcAttendance(false);
+          } else {
+            processSocioStep();
+          }
+        }
+      });
+
+      inputId.addEventListener('input', () => {
+        if (isDesktopView() && state.elemId && inputId.value.trim() !== state.elemId) {
+          const pcResultsCard = document.getElementById('pcResultsCard');
+          const pcResultsEmpty = document.getElementById('pcResultsEmpty');
+          if (pcResultsCard) {
+            pcResultsCard.classList.add('hidden');
+            pcResultsCard.style.display = 'none';
+          }
+          if (pcResultsEmpty) {
+            pcResultsEmpty.style.display = 'flex';
+            pcResultsEmpty.innerHTML = `
+              <span class="empty-icon">ℹ️</span>
+              <span>Escribe el número de socio y presiona <strong style="color: #38bdf8;">Enter</strong> para consultar turno y registrar entrada o salida directamente sin cámara.</span>
+            `;
+          }
         }
       });
 
@@ -2224,6 +2633,7 @@
           return;
         }
 
+        const isPc = isDesktopView();
         btnSubmitSocio.disabled = true;
         btnSubmitSocio.innerHTML = '<span>⏳ Consultando socio...</span>';
 
@@ -2236,6 +2646,18 @@
           if (!res.ok || !data.success) {
             showToast(data.error || 'Número de socio no encontrado en el sistema');
             soundWarning();
+            if (isPc) {
+              const pcResultsEmpty = document.getElementById('pcResultsEmpty');
+              const pcResultsCard = document.getElementById('pcResultsCard');
+              if (pcResultsEmpty) {
+                pcResultsEmpty.style.display = 'flex';
+                pcResultsEmpty.innerHTML = `<span class="empty-icon">⚠️</span><span style="color:#ef4444; font-weight:600;">${escapeHtml(data.error || 'Número de socio no encontrado en el sistema')}</span>`;
+              }
+              if (pcResultsCard) {
+                pcResultsCard.classList.add('hidden');
+                pcResultsCard.style.display = 'none';
+              }
+            }
             return;
           }
 
@@ -2246,19 +2668,16 @@
 
           soundBeep();
 
-          // REGLA 1: Es PC. REGLA 2: No tiene cámara funcionando
-          // Si ambas se cumplen, mandar al registro directamente sin pasar por cámara ni agregar botones extra
-          const isPc = isDesktopView();
-          const hasCam = await hasWorkingCamera();
-          if (isPc && !hasCam) {
-            console.log('[Checador] Equipo PC sin cámara funcionando: pasando directo a registro de turno');
+          // REGLA CLAVE: En PC OMITIR RECONOCIMIENTO FACIAL EN TODOS LOS CASOS
+          // Coloca los resultados debajo de la identificación sin cambiar de pantalla
+          if (isPc) {
+            console.log('[Checador PC] Omitiendo reconocimiento facial en PC: desplegando resultado debajo');
             state.capturedBase64 = null;
-            renderStep3Detail();
-            setStep(3);
+            renderPcSocioResult(data);
             return;
           }
 
-          // Flujo estándar con cámara
+          // Flujo móvil estándar: avanzar a reconocimiento facial con cámara
           setStep(2);
         } catch (err) {
           console.error('[Error consultando socio]', err);
@@ -2266,8 +2685,293 @@
           soundWarning();
         } finally {
           btnSubmitSocio.disabled = false;
-          btnSubmitSocio.innerHTML = '<span>Continuar a Cámara Facial →</span>';
+          btnSubmitSocio.innerHTML = isPc
+            ? '<span>Consultar Socio →</span>'
+            : '<span>Continuar a Cámara Facial →</span>';
         }
+      }
+
+      // Renderizar resultados debajo de la identificación en PC
+      function renderPcSocioResult(data) {
+        const elem = data.elemento || {};
+        const shiftDetails = data.shiftDetails || {};
+        const pcResultsEmpty = document.getElementById('pcResultsEmpty');
+        const pcResultsCard = document.getElementById('pcResultsCard');
+        if (!pcResultsCard) return;
+
+        if (pcResultsEmpty) pcResultsEmpty.style.display = 'none';
+        pcResultsCard.classList.remove('hidden');
+        pcResultsCard.style.display = 'flex';
+
+        const thumbImg = document.getElementById('pcResultThumbImg');
+        const nameEl = document.getElementById('pcResultOfficerName');
+        const roleEl = document.getElementById('pcResultOfficerRole');
+        const idEl = document.getElementById('pcResultOfficerId');
+        const bannerEl = document.getElementById('pcResultShiftBanner');
+        const bannerIcon = document.getElementById('pcResultShiftBannerIcon');
+        const bannerTitle = document.getElementById('pcResultShiftBannerTitle');
+        const bannerText = document.getElementById('pcResultShiftBannerText');
+        const casetaVal = document.getElementById('pcResultCasetaVal');
+        const horarioVal = document.getElementById('pcResultHorarioVal');
+        const btnAction = document.getElementById('btnPcActionAttendance');
+        const btnActionText = document.getElementById('btnPcActionText');
+        const btnOnlySalida = document.getElementById('btnPcOnlySalida');
+
+        if (thumbImg) {
+          if (elem.foto) {
+            thumbImg.src = elem.foto;
+          } else if (data.elemId || state.elemId) {
+            thumbImg.src = `${BACKEND_BASE}/api/photos/elementos/${encodeURIComponent(data.elemId || state.elemId)}`;
+          } else {
+            thumbImg.src = 'iconos/silueta.svg';
+          }
+          thumbImg.onerror = function() {
+            this.onerror = null;
+            this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" rx="14" fill="%231e293b"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="34">👤</text></svg>';
+          };
+        }
+
+        if (nameEl) nameEl.textContent = elem.nombre || `Oficial #${data.elemId || state.elemId}`;
+        if (roleEl) roleEl.textContent = elem.puesto || 'Oficial de Seguridad';
+        if (idEl) idEl.textContent = `No. Socio: #${data.elemId || state.elemId}`;
+
+        const assignedCaseta = (shiftDetails.Caseta || shiftDetails.caseta || data.casetaAsignada || '').trim();
+        const activeTerminalCaseta = getActiveCaseta();
+        if (casetaVal) {
+          casetaVal.textContent = assignedCaseta || activeTerminalCaseta || 'Caseta General';
+        }
+        if (horarioVal) {
+          horarioVal.textContent = data.targetHorario || '07:00 a 15:00 hrs';
+        }
+
+        const action = data.action || 'sin_registro';
+        if (btnOnlySalida) btnOnlySalida.style.display = 'none';
+
+        if (action === 'ausentismo') {
+          if (bannerEl) bannerEl.className = 'shift-status-banner status-error';
+          if (bannerIcon) bannerIcon.textContent = '⛔';
+          if (bannerTitle) bannerTitle.textContent = 'Ausentismo Asignado';
+          if (bannerText) bannerText.textContent = data.legend || 'No se puede registrar asistencia, se asignó ausentismo.';
+          if (btnAction) btnAction.style.display = 'none';
+        } else if (action === 'sin_registro') {
+          if (bannerEl) bannerEl.className = 'shift-status-banner status-warning';
+          if (bannerIcon) bannerIcon.textContent = 'ℹ️';
+          if (bannerTitle) bannerTitle.textContent = 'Sin Registro Asignado';
+          if (bannerText) bannerText.textContent = data.legend || 'No cuenta con turno asignado para este día/horario.';
+          if (btnAction) btnAction.style.display = 'none';
+        } else if (action === 'salida') {
+          if (data.isConsecutive) {
+            if (bannerEl) bannerEl.className = 'shift-status-banner status-swap';
+            if (bannerIcon) bannerIcon.textContent = '🔄';
+            if (bannerTitle) bannerTitle.textContent = 'Relevo Continuo Asignado';
+            if (bannerText) bannerText.textContent = `Oficial en turno (${data.targetLabel || ''}). Doblete continuo (${data.nextShiftLabel || data.nextShiftKey}) asignado para hoy.`;
+            if (btnAction) {
+              btnAction.style.display = 'flex';
+              btnAction.className = 'btn-action-primary btn-action-swap';
+            }
+            if (btnActionText) {
+              btnActionText.innerHTML = `<span>🔄 CONTINUAR A TURNO ${(data.nextShiftShortLabel || data.nextShiftKey || '').toUpperCase()}</span>`;
+            }
+            if (btnOnlySalida) btnOnlySalida.style.display = 'flex';
+          } else {
+            if (bannerEl) bannerEl.className = 'shift-status-banner status-exit';
+            if (bannerIcon) bannerIcon.textContent = '🚪';
+            if (bannerTitle) bannerTitle.textContent = 'Salida de Turno';
+            if (bannerText) bannerText.textContent = data.statusMessage || `Entrada registrada a las ${data.horaEntrada || ''} hrs. Listo para registrar salida.`;
+            if (btnAction) {
+              btnAction.style.display = 'flex';
+              btnAction.className = 'btn-action-primary btn-action-exit';
+            }
+            if (btnActionText) {
+              btnActionText.innerHTML = '<span>🚪 REGISTRAR MI SALIDA</span>';
+            }
+          }
+        } else {
+          // Entrada estándar
+          if (bannerEl) bannerEl.className = 'shift-status-banner status-available';
+          if (bannerIcon) bannerIcon.textContent = '📥';
+          if (bannerTitle) bannerTitle.textContent = 'Entrada a Turno';
+          if (bannerText) bannerText.textContent = data.statusMessage || `Turno programado (${data.targetLabel || ''}). Listo para registrar entrada.`;
+          if (btnAction) {
+            btnAction.style.display = 'flex';
+            btnAction.className = 'btn-action-primary btn-action-entry';
+          }
+          if (btnActionText) {
+            btnActionText.innerHTML = '<span>📥 REGISTRAR MI ENTRADA</span>';
+          }
+        }
+      }
+
+      async function submitPcAttendance(isOnlySalida = false) {
+        soundBeep();
+        const shiftData = state.shiftData || {};
+        const isSalida = (shiftData.action === 'salida') || isOnlySalida;
+        const isSwap = Boolean(shiftData.action === 'salida' && shiftData.isConsecutive && !isOnlySalida);
+
+        const btnAction = document.getElementById('btnPcActionAttendance');
+        const btnActionText = document.getElementById('btnPcActionText');
+        const btnOnlySalida = document.getElementById('btnPcOnlySalida');
+
+        if (btnAction) btnAction.disabled = true;
+        if (btnOnlySalida) btnOnlySalida.disabled = true;
+        if (btnActionText) btnActionText.innerHTML = '<span>⏳ Guardando registro...</span>';
+
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const horaStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        const horaFull = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const diaKey = shiftData.targetDia || `${pad(now.getDate())}${pad(now.getMonth() + 1)}${now.getFullYear()}`;
+        const fechaLegible = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
+
+        state.entryTime = horaFull;
+
+        const shiftDetails = shiftData.shiftDetails || {};
+        const assignedCaseta = (shiftDetails.Caseta || shiftDetails.caseta || shiftData.casetaAsignada || '').trim();
+        const activeTerminalCaseta = getActiveCaseta();
+        const finalCaseta = assignedCaseta || activeTerminalCaseta;
+
+        let endpoint = `${BACKEND_BASE}/api/asistencia/entrada`;
+        let payload = {
+          elemId: String(state.elemId),
+          turno: shiftData.targetShift || 'matutino',
+          hora: horaStr,
+          fecha: fechaLegible,
+          dia: diaKey,
+          mes: shiftData.targetMes || undefined,
+          anio: shiftData.targetAnio || undefined,
+          Caseta: finalCaseta,
+          terminalCaseta: activeTerminalCaseta,
+          foto: null, // Omitir reconocimiento facial en PC
+          tipo: isSalida ? 'salida' : 'entrada',
+          source: 'pc'
+        };
+
+        if (isSwap) {
+          endpoint = `${BACKEND_BASE}/api/asistencia/shift-swap`;
+          const nextAssigned = (shiftData.nextShiftDetails?.Caseta || shiftData.nextShiftDetails?.caseta || assignedCaseta || '').trim();
+          payload = {
+            elemId: String(state.elemId),
+            turno: shiftData.targetShift || 'matutino',
+            nextTurno: shiftData.nextShiftKey || 'vespertino',
+            hora: horaStr,
+            fecha: fechaLegible,
+            dia: diaKey,
+            mes: shiftData.targetMes || undefined,
+            anio: shiftData.targetAnio || undefined,
+            caseta: nextAssigned || activeTerminalCaseta,
+            terminalCaseta: activeTerminalCaseta,
+            foto: null,
+            isNextDay: shiftData.nextShiftIsNextDay || false,
+            source: 'pc'
+          };
+        } else if (isSalida) {
+          endpoint = `${BACKEND_BASE}/api/asistencia/salida`;
+        }
+
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
+            body: JSON.stringify(payload)
+          });
+          const result = await res.json();
+
+          if (res.ok && result.success) {
+            soundSuccess();
+            const officerName = state.elementData?.nombre || `Socio #${state.elemId}`;
+            const successMsg = isSwap
+              ? `🔵 Relevo registrado: ${officerName}`
+              : (isSalida ? `🚪 Salida registrada: ${officerName}` : `✅ Entrada registrada: ${officerName}`);
+            showToast(successMsg);
+
+            // Actualizar lista de elementos en turno del lado derecho inmediatamente
+            if (typeof loadPendingSalida === 'function') {
+              loadPendingSalida();
+            }
+
+            // Mostrar estado de éxito en el card de resultados por 2.5s y reiniciar
+            const bannerEl = document.getElementById('pcResultShiftBanner');
+            const bannerIcon = document.getElementById('pcResultShiftBannerIcon');
+            const bannerTitle = document.getElementById('pcResultShiftBannerTitle');
+            const bannerText = document.getElementById('pcResultShiftBannerText');
+
+            if (bannerEl) bannerEl.className = 'shift-status-banner status-available';
+            if (bannerIcon) bannerIcon.textContent = '✅';
+            if (bannerTitle) bannerTitle.textContent = '¡Registro Completado!';
+            if (bannerText) bannerText.textContent = `${successMsg} (${horaFull} hrs). Listo para el siguiente socio.`;
+
+            if (btnAction) {
+              btnAction.className = 'btn-action-primary';
+              btnAction.style.background = '#10b981';
+            }
+            if (btnActionText) btnActionText.textContent = '✓ Registrado';
+
+            setTimeout(() => {
+              resetPcSocioResult();
+            }, 2500);
+
+          } else {
+            showToast(result.error || 'Error al guardar asistencia');
+            soundWarning();
+            if (btnAction) btnAction.disabled = false;
+            if (btnOnlySalida) btnOnlySalida.disabled = false;
+            if (btnActionText) {
+              btnActionText.innerHTML = isSwap
+                ? `<span>🔄 CONTINUAR A TURNO ${(shiftData.nextShiftShortLabel || shiftData.nextShiftKey || '').toUpperCase()}</span>`
+                : (isSalida ? '<span>🚪 REGISTRAR MI SALIDA</span>' : '<span>📥 REGISTRAR MI ENTRADA</span>');
+            }
+          }
+        } catch (err) {
+          console.error('[Error guardando asistencia en PC]', err);
+          showToast('Error de conexión al guardar asistencia');
+          soundWarning();
+          if (btnAction) btnAction.disabled = false;
+          if (btnOnlySalida) btnOnlySalida.disabled = false;
+        }
+      }
+
+      function resetPcSocioResult() {
+        state.elemId = '';
+        state.elementData = null;
+        state.shiftData = null;
+        state.capturedBase64 = null;
+        if (inputId) {
+          inputId.value = '';
+          try { inputId.focus(); } catch(e) {}
+        }
+        const pcResultsCard = document.getElementById('pcResultsCard');
+        const pcResultsEmpty = document.getElementById('pcResultsEmpty');
+        if (pcResultsCard) {
+          pcResultsCard.classList.add('hidden');
+          pcResultsCard.style.display = 'none';
+        }
+        if (pcResultsEmpty) {
+          pcResultsEmpty.style.display = 'flex';
+          pcResultsEmpty.innerHTML = `
+            <span class="empty-icon">ℹ️</span>
+            <span>Escribe el número de socio y presiona <strong style="color: #38bdf8;">Enter</strong> para consultar turno y registrar entrada o salida directamente sin cámara.</span>
+          `;
+        }
+        const btnAction = document.getElementById('btnPcActionAttendance');
+        const btnOnlySalida = document.getElementById('btnPcOnlySalida');
+        if (btnAction) {
+          btnAction.disabled = false;
+          btnAction.style.background = '';
+        }
+        if (btnOnlySalida) {
+          btnOnlySalida.disabled = false;
+          btnOnlySalida.style.display = 'none';
+        }
+      }
+
+      const btnPcActionAttendance = document.getElementById('btnPcActionAttendance');
+      if (btnPcActionAttendance) {
+        btnPcActionAttendance.addEventListener('click', () => submitPcAttendance(false));
+      }
+
+      const btnPcOnlySalida = document.getElementById('btnPcOnlySalida');
+      if (btnPcOnlySalida) {
+        btnPcOnlySalida.addEventListener('click', () => submitPcAttendance(true));
       }
 
       // =========================================================================
@@ -2293,7 +2997,7 @@
       const salidaModalSalidaHora = document.getElementById('salidaModalSalidaHora');
 
       let currentModalElement = null;
-      let currentModalIsSwap = false;
+      let currentModalAction = 'salida'; // 'entrada' | 'salida' | 'swap'
 
       function getActiveCaseta() {
         const qCaseta = new URLSearchParams(window.location.search).get('caseta');
@@ -2308,7 +3012,6 @@
       }
 
       async function loadPendingSalida() {
-        if (!pendingSalidaGrid) return;
         const caseta = getActiveCaseta();
         if (pendingCasetaName) pendingCasetaName.textContent = caseta || 'General';
 
@@ -2318,119 +3021,261 @@
           });
           const data = await res.json();
 
-          if (res.ok && data.success && Array.isArray(data.elementos)) {
-            renderPendingSalidaCards(data.elementos, caseta);
+          if (res.ok && data.success) {
+            renderShiftsLists(data, caseta);
           } else {
-            renderPendingSalidaCards([], caseta);
+            renderShiftsLists({ entrantes: [], enTurno: [] }, caseta);
           }
         } catch (err) {
-          console.warn('[Error cargando pendientes de salida]', err);
-          renderPendingSalidaCards([], caseta);
+          console.warn('[Error cargando oficiales]', err);
+          renderShiftsLists({ entrantes: [], enTurno: [] }, caseta);
         }
       }
 
-      function renderPendingSalidaCards(elementos, caseta) {
-        if (!pendingSalidaGrid) return;
+      function renderShiftsLists(data, caseta) {
+        const entrantes = Array.isArray(data.entrantes) ? data.entrantes : [];
+        const enTurno = Array.isArray(data.enTurno) ? data.enTurno : (Array.isArray(data.elementos) ? data.elementos : []);
 
-        if (!elementos || elementos.length === 0) {
-          pendingSalidaGrid.innerHTML = `
-            <div class="pending-empty-state">
-              <span class="empty-icon">✓</span>
-              <span>No hay oficiales en turno pendientes de salida en Caseta <strong>${caseta || 'esta caseta'}</strong></span>
-            </div>
-          `;
-          return;
+        const pendingWindowPill = document.getElementById('pendingWindowPill');
+        if (pendingWindowPill) {
+          pendingWindowPill.textContent = data.windowTitle || '';
         }
 
-        let html = '';
-        elementos.forEach((el) => {
-          const photoSrc = el.foto || `${BACKEND_BASE}/api/photos/elementos/${el.id}`;
-          const elJson = encodeURIComponent(JSON.stringify(el));
+        const titleEntrantesGroup = document.getElementById('titleEntrantesGroup');
+        if (titleEntrantesGroup) {
+          titleEntrantesGroup.textContent = `Elementos por Entrar • ${data.incomingLabel || 'Turno Entrante'}`;
+        }
 
-          if (el.isConsecutive) {
-            // Oficial con Turno Continuo / Doblete asignado -> Botón Azul de Relevo Continuo
-            html += `
-              <div class="officer-salida-card" id="cardOfficer_${el.id}">
-                <div class="officer-card-avatar-wrap">
-                  <img src="${photoSrc}" class="officer-card-avatar" alt="${el.nombre}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 40 40\\'><rect width=\\'40\\' height=\\'40\\' fill=\\'%231e293b\\'/><text x=\\'50%\\' y=\\'54%\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' font-size=\\'18\\'>👤</text></svg>';">
-                  <span class="officer-card-status-dot" style="background:#3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.85);" title="Turno Continuo Asignado"></span>
-                </div>
-                <div class="officer-card-content">
-                  <div class="officer-card-name" title="${el.nombre}">${el.nombre}</div>
-                  <div class="officer-card-sub">
-                    <span class="officer-card-socio">Socio #${el.id}</span>
-                    <span class="officer-card-shift-tag" style="background: rgba(37,99,235,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.35);">Doblete: ${el.turnoLabel} ➔ ${el.nextShiftLabel || el.nextShiftKey}</span>
-                  </div>
-                  <div class="officer-card-time">
-                    <span>Entrada: <strong>${el.horaEntrada} hrs</strong></span>
-                  </div>
-                </div>
-                <div class="officer-salida-actions">
-                  <button type="button" class="btn-quick-salida btn-quick-swap" data-officer="${elJson}" data-swap="true" title="🔵 Relevo Continuo (Azul): Salida de ${el.turno} e ingreso inmediato a ${el.nextShiftLabel || el.nextShiftKey}">
-                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6">
-                      <polyline points="13 17 18 12 13 7"/>
-                      <polyline points="6 17 11 12 6 7"/>
-                    </svg>
-                    <span>Continuar a ${el.nextShiftLabel || el.nextShiftKey}</span>
-                  </button>
-                  <button type="button" class="btn-quick-salida-icon-only" data-officer="${elJson}" data-swap="false" title="Solo marcar salida de turno ${el.turno}">
-                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                      <polyline points="16 17 21 12 16 7"/>
-                      <line x1="21" y1="12" x2="9" y2="12"/>
-                    </svg>
-                  </button>
-                </div>
+        const titleEnTurnoGroup = document.getElementById('titleEnTurnoGroup');
+        if (titleEnTurnoGroup) {
+          titleEnTurnoGroup.textContent = `Elementos en Turno • ${data.outgoingLabel || 'En Turno'}`;
+        }
+
+        const badgeEntrantesCount = document.getElementById('badgeEntrantesCount');
+        if (badgeEntrantesCount) badgeEntrantesCount.textContent = entrantes.length;
+
+        const badgeEnTurnoCount = document.getElementById('badgeEnTurnoCount');
+        if (badgeEnTurnoCount) badgeEnTurnoCount.textContent = enTurno.length;
+
+        // 1. RENDERIZAR ENTRANTES (ARRIBA - UNA SOLA COLUMNA)
+        const pendingEntradaList = document.getElementById('pendingEntradaList');
+        if (pendingEntradaList) {
+          if (entrantes.length === 0) {
+            pendingEntradaList.innerHTML = `
+              <div class="pending-empty-state">
+                <span class="empty-icon">✓</span>
+                <span>No hay oficiales pendientes de entrar en ${data.incomingLabel || 'este turno'}</span>
               </div>
             `;
           } else {
-            // Oficial con turno estándar -> Botón Rojo de Salida
-            html += `
-              <div class="officer-salida-card" id="cardOfficer_${el.id}">
-                <div class="officer-card-avatar-wrap">
-                  <img src="${photoSrc}" class="officer-card-avatar" alt="${el.nombre}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 40 40\\'><rect width=\\'40\\' height=\\'40\\' fill=\\'%231e293b\\'/><text x=\\'50%\\' y=\\'54%\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' font-size=\\'18\\'>👤</text></svg>';">
-                  <span class="officer-card-status-dot" title="En Turno"></span>
-                </div>
-                <div class="officer-card-content">
-                  <div class="officer-card-name" title="${el.nombre}">${el.nombre}</div>
-                  <div class="officer-card-sub">
-                    <span class="officer-card-socio">Socio #${el.id}</span>
-                    <span class="officer-card-shift-tag">${el.turnoLabel}</span>
+            let htmlEntrantes = '';
+            entrantes.forEach(el => {
+              const photoSrc = el.foto || `${BACKEND_BASE}/api/photos/elementos/${el.id}`;
+              const elJson = encodeURIComponent(JSON.stringify(el));
+              htmlEntrantes += `
+                <div class="officer-salida-card officer-card-entrante" id="cardOfficer_${el.id}">
+                  <div class="officer-card-avatar-wrap">
+                    <img src="${photoSrc}" class="officer-card-avatar" alt="${escapeHtml(el.nombre)}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 40 40\\'><rect width=\\'40\\' height=\\'40\\' fill=\\'%231e293b\\'/><text x=\\'50%\\' y=\\'54%\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' font-size=\\'18\\'>👤</text></svg>';">
+                    <span class="officer-card-status-dot" style="background:#10b981; box-shadow:0 0 8px rgba(16,185,129,0.85);" title="Programado para entrar"></span>
                   </div>
-                  <div class="officer-card-time">
-                    <span>Entrada: <strong>${el.horaEntrada} hrs</strong></span>
+                  <div class="officer-card-content">
+                    <div class="officer-card-name" title="${escapeHtml(el.nombre)}">${escapeHtml(el.nombre)}</div>
+                    <div class="officer-card-sub">
+                      <span class="officer-card-socio">Socio #${el.id}</span>
+                      <span class="officer-card-shift-tag" style="background: rgba(16,185,129,0.18); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3);">${el.turnoLabel}</span>
+                    </div>
+                    <div class="officer-card-time" style="color: #6ee7b7;">
+                      <span>Horario: <strong>${el.horario || 'Programado'}</strong></span>
+                    </div>
                   </div>
+                  <button type="button" class="btn-quick-entrada" data-officer="${elJson}" title="Marcar entrada con confirmación previa">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <polyline points="19 12 12 19 5 12"></polyline>
+                    </svg>
+                    <span>Marcar Entrada</span>
+                  </button>
                 </div>
-                <button type="button" class="btn-quick-salida" data-officer="${elJson}" data-swap="false" title="Marcar salida con un solo clic">
-                  <span>Marcar Salida</span>
-                  <span>→</span>
-                </button>
+              `;
+            });
+            pendingEntradaList.innerHTML = htmlEntrantes;
+          }
+        }
+
+        // 2. RENDERIZAR EN TURNO (ABAJO - UNA SOLA COLUMNA)
+        const pendingSalidaGrid = document.getElementById('pendingSalidaGrid');
+        if (pendingSalidaGrid) {
+          if (enTurno.length === 0) {
+            pendingSalidaGrid.innerHTML = `
+              <div class="pending-empty-state">
+                <span class="empty-icon">✓</span>
+                <span>No hay oficiales en turno pendientes de salida en Caseta <strong>${escapeHtml(caseta || 'esta caseta')}</strong></span>
               </div>
             `;
+          } else {
+            let htmlSalida = '';
+            enTurno.forEach(el => {
+              const photoSrc = el.foto || `${BACKEND_BASE}/api/photos/elementos/${el.id}`;
+              const elJson = encodeURIComponent(JSON.stringify(el));
+
+              if (el.isConsecutive) {
+                // Doblete / Relevo Continuo -> Botón Azul
+                htmlSalida += `
+                  <div class="officer-salida-card" id="cardOfficer_${el.id}">
+                    <div class="officer-card-avatar-wrap">
+                      <img src="${photoSrc}" class="officer-card-avatar" alt="${escapeHtml(el.nombre)}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 40 40\\'><rect width=\\'40\\' height=\\'40\\' fill=\\'%231e293b\\'/><text x=\\'50%\\' y=\\'54%\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' font-size=\\'18\\'>👤</text></svg>';">
+                      <span class="officer-card-status-dot" style="background:#3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.85);" title="Turno Continuo Asignado"></span>
+                    </div>
+                    <div class="officer-card-content">
+                      <div class="officer-card-name" title="${escapeHtml(el.nombre)}">${escapeHtml(el.nombre)}</div>
+                      <div class="officer-card-sub">
+                        <span class="officer-card-socio">Socio #${el.id}</span>
+                        <span class="officer-card-shift-tag" style="background: rgba(37,99,235,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.35);">Doblete: ${el.turnoLabel} ➔ ${el.nextShiftLabel || el.nextShiftKey}</span>
+                      </div>
+                      <div class="officer-card-time">
+                        <span>Entrada: <strong>${el.horaEntrada} hrs</strong></span>
+                      </div>
+                    </div>
+                    <div class="officer-salida-actions">
+                      <button type="button" class="btn-quick-salida btn-quick-swap" data-officer="${elJson}" data-swap="true" title="Confirmar Relevo Continuo: Salida de ${el.turno} e ingreso a ${el.nextShiftLabel || el.nextShiftKey}">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6">
+                          <polyline points="13 17 18 12 13 7"/>
+                          <polyline points="6 17 11 12 6 7"/>
+                        </svg>
+                        <span>Relevar a ${el.nextShiftLabel || el.nextShiftKey}</span>
+                      </button>
+                      <button type="button" class="btn-quick-salida-icon-only" data-officer="${elJson}" data-swap="false" title="Solo marcar salida de turno ${el.turno}">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                          <polyline points="16 17 21 12 16 7"/>
+                          <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                `;
+              } else {
+                // Salida Estándar -> Botón Rojo
+                htmlSalida += `
+                  <div class="officer-salida-card" id="cardOfficer_${el.id}">
+                    <div class="officer-card-avatar-wrap">
+                      <img src="${photoSrc}" class="officer-card-avatar" alt="${escapeHtml(el.nombre)}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 40 40\\'><rect width=\\'40\\' height=\\'40\\' fill=\\'%231e293b\\'/><text x=\\'50%\\' y=\\'54%\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' font-size=\\'18\\'>👤</text></svg>';">
+                      <span class="officer-card-status-dot" title="En Turno"></span>
+                    </div>
+                    <div class="officer-card-content">
+                      <div class="officer-card-name" title="${escapeHtml(el.nombre)}">${escapeHtml(el.nombre)}</div>
+                      <div class="officer-card-sub">
+                        <span class="officer-card-socio">Socio #${el.id}</span>
+                        <span class="officer-card-shift-tag">${el.turnoLabel}</span>
+                      </div>
+                      <div class="officer-card-time">
+                        <span>Entrada: <strong>${el.horaEntrada} hrs</strong></span>
+                      </div>
+                    </div>
+                    <button type="button" class="btn-quick-salida" data-officer="${elJson}" data-swap="false" title="Confirmar y marcar salida">
+                      <span>Marcar Salida</span>
+                      <span>→</span>
+                    </button>
+                  </div>
+                `;
+              }
+            });
+            pendingSalidaGrid.innerHTML = htmlSalida;
           }
-        });
+        }
 
-        pendingSalidaGrid.innerHTML = html;
-
-        // Asignar listeners de clic a los botones de salida y relevo
-        pendingSalidaGrid.querySelectorAll('.btn-quick-salida, .btn-quick-salida-icon-only').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            try {
-              const elData = JSON.parse(decodeURIComponent(btn.dataset.officer));
-              const isSwap = (btn.dataset.swap === 'true');
-              openSalidaConfirmModal(elData, isSwap);
-            } catch (err) {
-              console.error('Error abriendo modal de confirmación:', err);
-            }
+        // Asignar listeners a ENTRANTES (solicitando confirmación)
+        if (pendingEntradaList) {
+          pendingEntradaList.querySelectorAll('.btn-quick-entrada').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              try {
+                const elData = JSON.parse(decodeURIComponent(btn.dataset.officer));
+                openEntradaConfirmModal(elData);
+              } catch (err) {
+                console.error('Error abriendo modal de confirmación de entrada:', err);
+              }
+            });
           });
-        });
+        }
+
+        // Asignar listeners a EN TURNO / SALIENTES (solicitando confirmación)
+        if (pendingSalidaGrid) {
+          pendingSalidaGrid.querySelectorAll('.btn-quick-salida, .btn-quick-salida-icon-only').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              try {
+                const elData = JSON.parse(decodeURIComponent(btn.dataset.officer));
+                const isSwap = (btn.dataset.swap === 'true');
+                openSalidaConfirmModal(elData, isSwap);
+              } catch (err) {
+                console.error('Error abriendo modal de confirmación de salida:', err);
+              }
+            });
+          });
+        }
+      }
+
+      function openEntradaConfirmModal(el) {
+        if (!el || !salidaConfirmModal) return;
+        currentModalElement = el;
+        currentModalAction = 'entrada';
+
+        soundBeep();
+
+        const photoSrc = el.foto || `${BACKEND_BASE}/api/photos/elementos/${el.id}`;
+        if (salidaModalPhoto) {
+          salidaModalPhoto.src = photoSrc;
+          salidaModalPhoto.onerror = function() {
+            this.onerror = null;
+            this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%231e293b"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="44">👤</text></svg>';
+          };
+        }
+
+        const modalIcon = document.getElementById('salidaModalIcon');
+        const modalTitle = document.getElementById('salidaModalTitle');
+        const modalAlertText = document.getElementById('salidaModalAlertText');
+        const modalTurnoLabel = document.getElementById('salidaModalTurnoLabel');
+        const modalHoraLabel = document.getElementById('salidaModalHoraLabel');
+
+        if (modalIcon) modalIcon.textContent = '📥';
+        if (modalTitle) modalTitle.textContent = 'Confirmar Entrada de Oficial';
+        if (modalTurnoLabel) modalTurnoLabel.textContent = 'Turno a Registrar';
+        if (salidaModalTurno) salidaModalTurno.textContent = el.turnoLabel || el.turno;
+        if (modalHoraLabel) modalHoraLabel.textContent = 'Hora de Entrada Actual';
+        if (salidaModalEntrada) salidaModalEntrada.textContent = el.horario || 'Programado';
+        if (modalAlertText) {
+          modalAlertText.textContent = `📥 ¿Confirmar registro oficial de ENTRADA para este elemento en Caseta ${el.caseta || getActiveCaseta()}?`;
+        }
+        if (btnSalidaModalConfirm) {
+          btnSalidaModalConfirm.className = 'btn-salida-modal-confirm is-entrada';
+        }
+        if (btnSalidaModalConfirmText) {
+          btnSalidaModalConfirmText.textContent = 'Confirmar Entrada';
+        }
+
+        if (salidaModalName) salidaModalName.textContent = el.nombre || `Oficial #${el.id}`;
+        if (salidaModalId) salidaModalId.textContent = `Socio #${el.id}`;
+        if (salidaModalRole) salidaModalRole.textContent = el.puesto || 'Oficial de Seguridad';
+        if (salidaModalCaseta) salidaModalCaseta.textContent = el.caseta || getActiveCaseta();
+
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        if (salidaModalSalidaHora) {
+          salidaModalSalidaHora.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())} hrs`;
+        }
+
+        if (btnSalidaModalConfirm) {
+          btnSalidaModalConfirm.disabled = false;
+        }
+
+        salidaConfirmModal.style.display = 'flex';
       }
 
       function openSalidaConfirmModal(el, isSwap = false) {
         if (!el || !salidaConfirmModal) return;
         currentModalElement = el;
-        currentModalIsSwap = isSwap;
+        currentModalAction = isSwap ? 'swap' : 'salida';
 
         soundBeep();
 
@@ -2505,10 +3350,10 @@
           salidaConfirmModal.style.display = 'none';
         }
         currentModalElement = null;
-        currentModalIsSwap = false;
+        currentModalAction = 'salida';
       }
 
-      async function confirmQuickSalida() {
+      async function confirmQuickAction() {
         if (!currentModalElement) return;
 
         if (btnSalidaModalConfirm) btnSalidaModalConfirm.disabled = true;
@@ -2517,10 +3362,46 @@
         const now = new Date();
         const pad = n => String(n).padStart(2, '0');
         const horaStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-        const fechaLegible = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}${now.getFullYear()}`;
+        const fechaLegible = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
+        const diaKey = currentModalElement.dia || `${pad(now.getDate())}${pad(now.getMonth() + 1)}${now.getFullYear()}`;
 
         try {
-          if (currentModalIsSwap) {
+          if (currentModalAction === 'entrada') {
+            // ENTRADA
+            const payloadEntrada = {
+              elemId: String(currentModalElement.id),
+              turno: currentModalElement.turno || 'matutino',
+              hora: horaStr,
+              fecha: fechaLegible,
+              dia: diaKey,
+              mes: currentModalElement.mes,
+              anio: currentModalElement.anio,
+              Caseta: currentModalElement.caseta || getActiveCaseta(),
+              terminalCaseta: getActiveCaseta(),
+              foto: null,
+              source: 'pc',
+              tipo: 'entrada'
+            };
+
+            const res = await fetch(`${BACKEND_BASE}/api/asistencia/entrada`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
+              body: JSON.stringify(payloadEntrada)
+            });
+            const result = await res.json();
+
+            if (res.ok && result.success) {
+              soundSuccess();
+              showToast(`✅ Entrada registrada con éxito para ${currentModalElement.nombre}`);
+              closeSalidaConfirmModal();
+              loadPendingSalida();
+            } else {
+              showToast(result.error || 'Error al registrar la entrada');
+              soundWarning();
+              if (btnSalidaModalConfirm) btnSalidaModalConfirm.disabled = false;
+              if (btnSalidaModalConfirmText) btnSalidaModalConfirmText.textContent = 'Confirmar Entrada';
+            }
+          } else if (currentModalAction === 'swap') {
             // RELEVO CONTINUO / DOBLETE (AZUL)
             const payloadSwap = {
               elemId: String(currentModalElement.id),
@@ -2528,10 +3409,13 @@
               nextTurno: currentModalElement.nextShiftKey || 'vespertino',
               hora: horaStr,
               fecha: fechaLegible,
-              dia: currentModalElement.dia,
+              dia: diaKey,
               mes: currentModalElement.mes,
               anio: currentModalElement.anio,
               caseta: currentModalElement.caseta || getActiveCaseta(),
+              terminalCaseta: getActiveCaseta(),
+              foto: null,
+              source: 'pc',
               isNextDay: currentModalElement.nextShiftIsNextDay || false
             };
 
@@ -2560,11 +3444,13 @@
               turno: currentModalElement.turno || 'matutino',
               hora: horaStr,
               fecha: fechaLegible,
-              dia: currentModalElement.dia,
+              dia: diaKey,
               mes: currentModalElement.mes,
               anio: currentModalElement.anio,
               Caseta: currentModalElement.caseta || getActiveCaseta(),
+              terminalCaseta: getActiveCaseta(),
               foto: null,
+              source: 'pc',
               tipo: 'salida'
             };
 
@@ -2593,7 +3479,7 @@
           soundWarning();
           if (btnSalidaModalConfirm) btnSalidaModalConfirm.disabled = false;
           if (btnSalidaModalConfirmText) {
-            btnSalidaModalConfirmText.textContent = currentModalIsSwap ? 'Confirmar Relevo' : 'Confirmar Salida';
+            btnSalidaModalConfirmText.textContent = currentModalAction === 'entrada' ? 'Confirmar Entrada' : (currentModalAction === 'swap' ? 'Confirmar Relevo' : 'Confirmar Salida');
           }
         }
       }
@@ -2602,7 +3488,7 @@
       if (btnSalidaModalClose) btnSalidaModalClose.addEventListener('click', closeSalidaConfirmModal);
       if (btnSalidaModalCancel) btnSalidaModalCancel.addEventListener('click', closeSalidaConfirmModal);
       if (salidaModalBackdrop) salidaModalBackdrop.addEventListener('click', closeSalidaConfirmModal);
-      if (btnSalidaModalConfirm) btnSalidaModalConfirm.addEventListener('click', confirmQuickSalida);
+      if (btnSalidaModalConfirm) btnSalidaModalConfirm.addEventListener('click', confirmQuickAction);
 
       if (btnRefreshPending) {
         btnRefreshPending.addEventListener('click', () => {

@@ -167,19 +167,19 @@ export default function App() {
 
     if (qApp === 'checador') {
       if (features.checador === true) {
-        window.location.replace('checador-movil.html' + search);
+        window.location.replace('checador-movil.html?device=mobile' + (search ? '&' + search.replace(/^\?/, '') : ''));
       } else {
         setActiveApp('cdi');
       }
     } else if (qApp === 'recorridos') {
       if (features.recorridos === true) {
-        window.location.replace('recorrido-movil.html' + search);
+        window.location.replace('recorrido-movil.html?device=mobile' + (search ? '&' + search.replace(/^\?/, '') : ''));
       } else {
         setActiveApp('cdi');
       }
     } else if (qApp === 'bitacora' || qApp === 'bitacoras') {
       if (features.bitacoras === true || features.bitacora === true) {
-        window.location.replace('bitacora-movil.html' + search);
+        window.location.replace('bitacora-movil.html?device=mobile' + (search ? '&' + search.replace(/^\?/, '') : ''));
       } else {
         setActiveApp('cdi');
       }
@@ -205,15 +205,15 @@ export default function App() {
 
     if (forceFullScreen || isMobile) {
       if (appId === 'checador') {
-        window.location.href = 'checador-movil.html' + search;
+        window.location.href = 'checador-movil.html?device=mobile' + (search ? '&' + search.replace(/^\?/, '') : '');
         return;
       }
       if (appId === 'recorridos') {
-        window.location.href = 'recorrido-movil.html' + search;
+        window.location.href = 'recorrido-movil.html?device=mobile' + (search ? '&' + search.replace(/^\?/, '') : '');
         return;
       }
       if (appId === 'bitacora' || appId === 'bitacoras') {
-        window.location.href = 'bitacora-movil.html' + search;
+        window.location.href = 'bitacora-movil.html?device=mobile' + (search ? '&' + search.replace(/^\?/, '') : '');
         return;
       }
     }
@@ -242,8 +242,15 @@ export default function App() {
   return (
     <div className="miniapps-app-shell" data-theme={theme}>
       <main className={`miniapps-content-view ${isSplitMode ? 'split-mode' : ''}`}>
-        {/* PANEL IZQUIERDO: CDI permanente en PC (o app activa en móvil) */}
-        <div className={`miniapps-pane ${isSplitMode ? 'miniapps-pane-left' : ''}`} style={{ flex: isSplitMode ? '1 1 50%' : '1' }}>
+        {/* PANEL IZQUIERDO: CDI permanente en PC (30% de ancho) o app activa en móvil */}
+        <div
+          className={`miniapps-pane ${isSplitMode ? 'miniapps-pane-left' : ''}`}
+          style={{
+            flex: isSplitMode ? '0 0 30%' : '1',
+            width: isSplitMode ? '30%' : '100%',
+            maxWidth: isSplitMode ? '30%' : '100%'
+          }}
+        >
           {activeApp === 'cdi' && <CDIApp theme={theme} onToggleTheme={toggleTheme} />}
           {activeApp === 'checador' && features.checador && (
             <iframe src="checador-movil.html?embedded=1" className="miniapps-app-iframe" allow="camera; microphone; geolocation" title="Checador" />
@@ -256,13 +263,20 @@ export default function App() {
           )}
         </div>
 
-        {/* PANEL DERECHO: Exclusivo en PC con Checador (u otra autorizada en RegAs) en paralelo */}
+        {/* PANEL DERECHO: Exclusivo en PC con Checador (70% de ancho) en paralelo */}
         {isSplitMode && (
-          <div className="miniapps-pane miniapps-pane-right">
+          <div
+            className="miniapps-pane miniapps-pane-right"
+            style={{
+              flex: '0 0 70%',
+              width: '70%',
+              maxWidth: '70%'
+            }}
+          >
             <div className="miniapps-pane-body">
               {effectiveRightApp === 'checador' && (
                 <iframe
-                  src="checador-movil.html?embedded=1"
+                  src="checador-movil.html?embedded=1&device=pc"
                   className="miniapps-app-iframe"
                   allow="camera; microphone; geolocation"
                   title="Checador Facial Móvil"
