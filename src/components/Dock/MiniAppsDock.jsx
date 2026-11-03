@@ -138,6 +138,11 @@ export default function MiniAppsDock({
     return false;
   });
 
+  // Si es un dock de panel interno (panel derecho) y no hay aplicaciones para seleccionar, ocultar completamente
+  if (isPaneDock && visibleApps.length === 0 && !showCloseButton) {
+    return null;
+  }
+
   // Si solo CDI está habilitado y no es un dock de panel con botón de cerrar, ocultar completamente
   if (!showCloseButton && !isPaneDock && visibleApps.length <= 1) {
     return null;

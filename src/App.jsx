@@ -9,9 +9,17 @@ import {
   saveDeviceFeatures,
   fetchDeviceFeatures,
   getDeviceUuid,
+  detectDeviceInfo,
   initCdiSse
 } from './services/api';
 import './index.css';
+
+// Detección de PC exclusiva: navegador de escritorio en pantalla >= 768px
+const isPcDevice = () => {
+  if (typeof window === 'undefined') return true;
+  const dev = detectDeviceInfo();
+  return dev.type === 'pc' && window.innerWidth >= 768;
+};
 
 export default function App() {
   // Tema claro por defecto, con persistencia en localStorage
@@ -22,16 +30,34 @@ export default function App() {
   // Funciones / permisos activos del dispositivo (por defecto solo CDI)
   const [features, setFeatures] = useState(() => getDeviceFeatures());
 
+  // Detección reactiva de PC (PC con pantalla >= 768px)
+  const [isPc, setIsPc] = useState(() => isPcDevice());
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsPc(isPcDevice());
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const isAppAllowed = (appId, feats = features) => {
+    const f = feats || {};
     if (!appId || appId === 'cdi') return true;
-    if (appId === 'checador') return feats.checador === true;
-    if (appId === 'recorridos') return feats.recorridos === true;
-    if (appId === 'bitacora' || appId === 'bitacoras') return (feats.bitacoras === true || feats.bitacora === true);
+    if (appId === 'checador') return f.checador === true;
+    if (appId === 'recorridos') return f.recorridos === true;
+    if (appId === 'bitacora' || appId === 'bitacoras') return (f.bitacoras === true || f.bitacora === true);
     return false;
   };
 
-  // App principal por defecto: CDI (lado izquierdo en escritorio)
+  // App principal (panel izquierdo en PC, pantalla única en móvil)
   const [activeApp, setActiveApp] = useState(() => {
+    const onPc = isPcDevice();
+    // En PC, la app del panel izquierdo siempre es CDI
+    if (onPc) {
+      return 'cdi';
+    }
+
     const params = new URLSearchParams(window.location.search);
     const qApp = (params.get('app') || '').toLowerCase();
     const initialFeats = getDeviceFeatures();
@@ -43,17 +69,54 @@ export default function App() {
     return 'cdi';
   });
 
-  // App paralela (lado derecho en escritorio, activable mediante clic derecho en dock)
+  // App paralela (panel derecho en PC)
   const [parallelApp, setParallelApp] = useState(() => {
-    const saved = localStorage.getItem('miniapps_parallel_app');
+    const onPc = isPcDevice();
     const initialFeats = getDeviceFeatures();
-    if (saved && ['checador', 'recorridos', 'bitacora'].includes(saved)) {
-      if (isAppAllowed(saved, initialFeats)) {
+    const saved = localStorage.getItem('miniapps_parallel_app');
+
+    // En PC, si checador está explícitamente autorizado en RegAs, checador es la app por defecto
+    if (onPc && initialFeats.checador === true) {
+      if (saved && ['checador', 'recorridos', 'bitacora'].includes(saved) && isAppAllowed(saved, initialFeats)) {
         return saved;
       }
+      return 'checador';
     }
     return null;
   });
+
+  // Asegurar que en PC la app izquierda sea siempre CDI
+  useEffect(() => {
+    if (isPc && activeApp !== 'cdi') {
+      setActiveApp('cdi');
+    }
+  }, [isPc, activeApp]);
+
+  // Sincronización de app paralela ante cambios de permisos en RegAs o cambios de tamaño de pantalla
+  useEffect(() => {
+    if (isPc) {
+      if (features.checador === true) {
+        // En PC con checador autorizado:
+        // Si no hay app paralela o la actual perdió permisos, volver por defecto a 'checador'
+        if (!parallelApp || !isAppAllowed(parallelApp, features)) {
+          setParallelApp('checador');
+          localStorage.setItem('miniapps_parallel_app', 'checador');
+        }
+      } else {
+        // Si checador NO está explícitamente autorizado en RegAs: "solo muestra cdi como hasta ahora"
+        if (parallelApp) {
+          setParallelApp(null);
+          localStorage.removeItem('miniapps_parallel_app');
+        }
+      }
+    } else {
+      // En móvil nunca se utiliza modo split/paralelo
+      if (parallelApp) {
+        setParallelApp(null);
+        localStorage.removeItem('miniapps_parallel_app');
+      }
+    }
+  }, [features, isPc, parallelApp]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -96,8 +159,7 @@ export default function App() {
 
   // Si estamos en móvil y la URL pide una app externa, redirigir congruentemente
   useEffect(() => {
-    const isMobile = window.innerWidth < 768;
-    if (!isMobile) return;
+    if (isPc) return;
 
     const params = new URLSearchParams(window.location.search);
     const qApp = (params.get('app') || '').toLowerCase();
@@ -122,9 +184,9 @@ export default function App() {
         setActiveApp('cdi');
       }
     }
-  }, [features]);
+  }, [features, isPc]);
 
-  // Si la app activa pierde sus permisos en vivo, regresar automáticamente a CDI
+  // Si la app activa pierde sus permisos en vivo (en móvil o CDI-only), regresar a CDI
   useEffect(() => {
     if (activeApp !== 'cdi' && !isAppAllowed(activeApp, features)) {
       setActiveApp('cdi');
@@ -134,25 +196,14 @@ export default function App() {
     }
   }, [features, activeApp]);
 
-  // Si la app paralela pierde sus permisos en vivo, desactivar el panel paralelo
-  useEffect(() => {
-    if (parallelApp && !isAppAllowed(parallelApp, features)) {
-      setParallelApp(null);
-      localStorage.removeItem('miniapps_parallel_app');
-    }
-  }, [features, parallelApp]);
-
   const handleSelectApp = (appId, forceFullScreen = false) => {
     if (!isAppAllowed(appId, features)) {
       return;
     }
     const search = window.location.search || '';
-    const isMobile = window.innerWidth < 768;
+    const isMobile = !isPc;
 
     if (forceFullScreen || isMobile) {
-      setParallelApp(null);
-      localStorage.removeItem('miniapps_parallel_app');
-
       if (appId === 'checador') {
         window.location.href = 'checador-movil.html' + search;
         return;
@@ -173,28 +224,25 @@ export default function App() {
     window.history.replaceState({}, '', url);
   };
 
-  const handleToggleParallel = (appId) => {
-    if (!appId || parallelApp === appId) {
-      setParallelApp(null);
-      localStorage.removeItem('miniapps_parallel_app');
-    } else {
-      if (isAppAllowed(appId, features)) {
-        setParallelApp(appId);
-        localStorage.setItem('miniapps_parallel_app', appId);
-        // Si la app izquierda era la misma que la elegida para paralelo, CDI pasa a la izquierda
-        if (activeApp === appId) {
-          setActiveApp('cdi');
-        }
-      }
-    }
+  const handleSelectParallelApp = (appId) => {
+    if (!isAppAllowed(appId, features)) return;
+    setParallelApp(appId);
+    localStorage.setItem('miniapps_parallel_app', appId);
   };
 
-  const isSplitMode = Boolean(parallelApp && isAppAllowed(parallelApp, features));
+  // Modo paralelo split-screen: Exclusivamente en PC y cuando checador está autorizado en RegAs
+  const isSplitMode = Boolean(isPc && features.checador === true);
+
+  // App a renderizar en el panel derecho (por defecto checador)
+  const effectiveRightApp = (parallelApp && isAppAllowed(parallelApp, features)) ? parallelApp : 'checador';
+
+  // Verificar si hay OTRAS aplicaciones autorizadas explícitamente en RegAs (recorridos o bitácoras)
+  const hasOtherAuthorizedApps = Boolean(features.recorridos === true || features.bitacoras === true || features.bitacora === true);
 
   return (
     <div className="miniapps-app-shell" data-theme={theme}>
       <main className={`miniapps-content-view ${isSplitMode ? 'split-mode' : ''}`}>
-        {/* PANEL IZQUIERDO: App Principal (CDI por defecto) */}
+        {/* PANEL IZQUIERDO: CDI permanente en PC (o app activa en móvil) */}
         <div className={`miniapps-pane ${isSplitMode ? 'miniapps-pane-left' : ''}`} style={{ flex: isSplitMode ? '1 1 50%' : '1' }}>
           {activeApp === 'cdi' && <CDIApp theme={theme} onToggleTheme={toggleTheme} />}
           {activeApp === 'checador' && features.checador && (
@@ -208,12 +256,11 @@ export default function App() {
           )}
         </div>
 
-        {/* PANEL DERECHO: App Paralela activada por Clic Derecho en el Dock */}
+        {/* PANEL DERECHO: Exclusivo en PC con Checador (u otra autorizada en RegAs) en paralelo */}
         {isSplitMode && (
           <div className="miniapps-pane miniapps-pane-right">
-            {/* Sin el encabezado adicional: el iframe ocupa la altura completa */}
             <div className="miniapps-pane-body">
-              {parallelApp === 'checador' && (
+              {effectiveRightApp === 'checador' && (
                 <iframe
                   src="checador-movil.html?embedded=1"
                   className="miniapps-app-iframe"
@@ -221,7 +268,7 @@ export default function App() {
                   title="Checador Facial Móvil"
                 />
               )}
-              {parallelApp === 'recorridos' && (
+              {effectiveRightApp === 'recorridos' && features.recorridos && (
                 <iframe
                   src="recorrido-movil.html?embedded=1"
                   className="miniapps-app-iframe"
@@ -229,7 +276,7 @@ export default function App() {
                   title="Recorridos Móvil"
                 />
               )}
-              {parallelApp === 'bitacora' && (
+              {effectiveRightApp === 'bitacora' && (features.bitacoras || features.bitacora) && (
                 <iframe
                   src="bitacora-movil.html?embedded=1"
                   className="miniapps-app-iframe"
@@ -238,21 +285,19 @@ export default function App() {
               )}
             </div>
 
-            {/* DOCK NORMAL SOLO EN LA APLICACIÓN DE LA DERECHA (solo muestra las apps NO visibles y botón rojo de cerrar) */}
-            <MiniAppsDock
-              currentApp={parallelApp}
-              parallelApp={parallelApp}
-              excludeApps={[activeApp, parallelApp]}
-              isPaneDock={true}
-              showCloseButton={true}
-              onCloseParallel={() => handleToggleParallel(null)}
-              onSelectApp={(appId) => {
-                handleToggleParallel(appId);
-              }}
-              onToggleParallel={handleToggleParallel}
-              features={features}
-              theme={theme}
-            />
+            {/* DOCK EN PANEL DERECHO: Solo visible si hay OTRA aplicación autorizada explícitamente en RegAs */}
+            {hasOtherAuthorizedApps && (
+              <MiniAppsDock
+                currentApp={effectiveRightApp}
+                parallelApp={effectiveRightApp}
+                excludeApps={['cdi', effectiveRightApp]}
+                isPaneDock={true}
+                showCloseButton={false}
+                onSelectApp={(appId) => handleSelectParallelApp(appId)}
+                features={features}
+                theme={theme}
+              />
+            )}
           </div>
         )}
       </main>
@@ -261,9 +306,8 @@ export default function App() {
       {!isSplitMode && (
         <MiniAppsDock
           currentApp={activeApp}
-          parallelApp={parallelApp}
+          parallelApp={null}
           onSelectApp={handleSelectApp}
-          onToggleParallel={handleToggleParallel}
           features={features}
           theme={theme}
         />

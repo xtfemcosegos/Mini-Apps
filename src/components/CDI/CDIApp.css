@@ -516,3 +516,8 @@
 [data-theme="dark"] .summary-sub {
   color: #38bdf8;
 }
+
+/* En vista dividida / paralela en PC (Split Screen), CDI no requiere la holgura del dock inferior */
+.split-mode .cdi-container {
+  padding-bottom: calc(env(safe-area-inset-bottom, 8px) + 12px);
+}
