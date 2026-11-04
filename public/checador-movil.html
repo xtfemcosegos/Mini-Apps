@@ -12,6 +12,25 @@
   <meta http-equiv="Expires" content="0">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2'><path d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/><circle cx='12' cy='13' r='4'/></svg>">
   <script>
+    // ── SINCRONIZACIÓN DE TEMA DESDE EL PADRE (postMessage) ──────────────────
+    (function() {
+      // Aplicar tema guardado en localStorage (mismo clave que App.jsx)
+      var savedTheme = localStorage.getItem('miniapps_theme') || 'dark';
+      document.addEventListener('DOMContentLoaded', function() {
+        document.body.setAttribute('data-theme', savedTheme);
+      });
+      // Escuchar cambios de tema enviados por el iframe padre en tiempo real
+      window.addEventListener('message', function(evt) {
+        if (evt.data && evt.data.type === 'miniapps_theme') {
+          var t = evt.data.theme;
+          if (t === 'light' || t === 'dark') {
+            document.body.setAttribute('data-theme', t);
+            localStorage.setItem('miniapps_theme', t);
+          }
+        }
+      });
+    })();
+
     const isEmbeddedInIframe = (window.self !== window.top) || window.location.search.includes('embedded=1');
     if (isEmbeddedInIframe) {
       document.documentElement.classList.add('is-embedded-iframe');
@@ -56,6 +75,9 @@
   </script>
   
   <style>
+    /* =====================================================
+       TEMA OSCURO (por defecto) y TEMA CLARO
+       ===================================================== */
     :root {
       --bg-dark: #070a13;
       --bg-card: #101626;
@@ -75,6 +97,376 @@
       --radius: 16px;
       --radius-sm: 10px;
       --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* Tema claro: anula variables cuando el body tiene data-theme="light" */
+    body[data-theme="light"] {
+      --bg-dark: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-surface: #f8fafc;
+      --bg-input: #ffffff;
+      --primary: #2563eb;
+      --primary-glow: rgba(37, 99, 235, 0.25);
+      --accent-green: #047857;
+      --accent-green-glow: rgba(4, 120, 87, 0.25);
+      --accent-amber: #b45309;
+      --accent-red: #ef4444;
+      --accent-cyan: #0369a1;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border: rgba(148, 163, 184, 0.3);
+      --border-focus: rgba(37, 99, 235, 0.5);
+    }
+
+    /* ========================================================
+       AJUSTES COMPLETOS DE CONTRASTE — TEMA CLARO
+       ======================================================== */
+    /* Header (móvil) */
+    body[data-theme="light"] .app-header {
+      background: rgba(255, 255, 255, 0.95);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+    }
+    body[data-theme="light"] .brand-title {
+      color: #0f172a;
+    }
+    body[data-theme="light"] .brand-subtitle {
+      color: #64748b;
+    }
+
+    /* Perfil del Oficial / Miniatura de Resultados */
+    body[data-theme="light"] .detail-profile-box {
+      background: #ffffff;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    }
+    body[data-theme="light"] .detail-officer-name {
+      color: #0f172a !important;
+    }
+    body[data-theme="light"] .detail-officer-role {
+      color: #475569 !important;
+    }
+    body[data-theme="light"] .detail-officer-id {
+      color: #64748b !important;
+    }
+
+    /* Banners de Estado de Turno (al consultar oficial) */
+    /* 1. Salida de Turno (Rojo) */
+    body[data-theme="light"] .shift-status-banner.status-exit {
+      background: #fef2f2 !important;
+      border: 1.5px solid #f87171 !important;
+    }
+    body[data-theme="light"] .status-exit .shift-banner-title {
+      color: #b91c1c !important;
+      font-weight: 800 !important;
+    }
+    body[data-theme="light"] .status-exit .shift-banner-text {
+      color: #7f1d1d !important;
+      font-weight: 600 !important;
+    }
+    body[data-theme="light"] .status-exit .shift-meta-grid {
+      border-top: 1px solid rgba(239, 68, 68, 0.25) !important;
+    }
+    body[data-theme="light"] .status-exit .shift-meta-label {
+      color: #991b1b !important;
+      font-weight: 700 !important;
+    }
+    body[data-theme="light"] .status-exit .shift-meta-value {
+      color: #0f172a !important;
+      font-weight: 800 !important;
+    }
+
+    /* 2. Entrada / Turno Disponible (Verde) */
+    body[data-theme="light"] .shift-status-banner.status-available {
+      background: #f0fdf4 !important;
+      border: 1.5px solid #34d399 !important;
+    }
+    body[data-theme="light"] .status-available .shift-banner-title {
+      color: #047857 !important;
+      font-weight: 800 !important;
+    }
+    body[data-theme="light"] .status-available .shift-banner-text {
+      color: #065f46 !important;
+      font-weight: 600 !important;
+    }
+    body[data-theme="light"] .status-available .shift-meta-grid {
+      border-top: 1px solid rgba(16, 185, 129, 0.25) !important;
+    }
+    body[data-theme="light"] .status-available .shift-meta-label {
+      color: #047857 !important;
+      font-weight: 700 !important;
+    }
+    body[data-theme="light"] .status-available .shift-meta-value {
+      color: #0f172a !important;
+      font-weight: 800 !important;
+    }
+
+    /* 3. Relevo Continuo / Doblete (Azul) */
+    body[data-theme="light"] .shift-status-banner.status-swap {
+      background: #eff6ff !important;
+      border: 1.5px solid #60a5fa !important;
+    }
+    body[data-theme="light"] .shift-status-banner.status-swap .shift-banner-title {
+      color: #1d4ed8 !important;
+      font-weight: 800 !important;
+    }
+    body[data-theme="light"] .status-swap .shift-banner-text {
+      color: #1e40af !important;
+      font-weight: 600 !important;
+    }
+    body[data-theme="light"] .status-swap .shift-meta-grid {
+      border-top: 1px solid rgba(59, 130, 246, 0.25) !important;
+    }
+    body[data-theme="light"] .status-swap .shift-meta-label {
+      color: #1d4ed8 !important;
+      font-weight: 700 !important;
+    }
+    body[data-theme="light"] .status-swap .shift-meta-value {
+      color: #0f172a !important;
+      font-weight: 800 !important;
+    }
+
+    /* 4. Advertencia / Sin Registro (Ámbar) */
+    body[data-theme="light"] .shift-status-banner.status-warning {
+      background: #fffbeb !important;
+      border: 1.5px solid #fcd34d !important;
+    }
+    body[data-theme="light"] .status-warning .shift-banner-title {
+      color: #b45309 !important;
+      font-weight: 800 !important;
+    }
+    body[data-theme="light"] .status-warning .shift-banner-text {
+      color: #92400e !important;
+      font-weight: 600 !important;
+    }
+    body[data-theme="light"] .status-warning .shift-meta-grid {
+      border-top: 1px solid rgba(245, 158, 11, 0.25) !important;
+    }
+    body[data-theme="light"] .status-warning .shift-meta-label {
+      color: #b45309 !important;
+      font-weight: 700 !important;
+    }
+    body[data-theme="light"] .status-warning .shift-meta-value {
+      color: #0f172a !important;
+      font-weight: 800 !important;
+    }
+
+    /* 5. Error / Ausentismo (Rojo) */
+    body[data-theme="light"] .shift-status-banner.status-error {
+      background: #fef2f2 !important;
+      border: 1.5px solid #f87171 !important;
+    }
+    body[data-theme="light"] .status-error .shift-banner-title {
+      color: #b91c1c !important;
+      font-weight: 800 !important;
+    }
+    body[data-theme="light"] .status-error .shift-banner-text {
+      color: #7f1d1d !important;
+      font-weight: 600 !important;
+    }
+    body[data-theme="light"] .status-error .shift-meta-grid {
+      border-top: 1px solid rgba(239, 68, 68, 0.25) !important;
+    }
+    body[data-theme="light"] .status-error .shift-meta-label {
+      color: #991b1b !important;
+      font-weight: 700 !important;
+    }
+    body[data-theme="light"] .status-error .shift-meta-value {
+      color: #0f172a !important;
+      font-weight: 800 !important;
+    }
+
+    /* Botón Secundario de Salida */
+    body[data-theme="light"] .btn-secondary-exit {
+      background: rgba(239, 68, 68, 0.08) !important;
+      border: 1.5px solid #f87171 !important;
+      color: #b91c1c !important;
+      font-weight: 800 !important;
+    }
+    body[data-theme="light"] .btn-secondary-exit:hover {
+      background: #ef4444 !important;
+      border-color: #ef4444 !important;
+      color: #ffffff !important;
+    }
+
+    /* Botón Outline */
+    body[data-theme="light"] .btn-action-outline {
+      border-color: rgba(148, 163, 184, 0.4);
+      color: #334155;
+    }
+    body[data-theme="light"] .btn-action-outline:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    /* ========================================================
+       MODAL DE CONFIRMACIÓN DE SALIDA (salida-modal-dialog)
+       ======================================================== */
+    body[data-theme="light"] .salida-modal-dialog {
+      background: #ffffff !important;
+      border: 1.5px solid #ef4444 !important;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.2), 0 0 24px rgba(239, 68, 68, 0.15) !important;
+    }
+    body[data-theme="light"] .salida-modal-header {
+      background: #f8fafc !important;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2) !important;
+    }
+    body[data-theme="light"] .salida-modal-header h3 {
+      color: #0f172a !important;
+    }
+    body[data-theme="light"] .salida-modal-close-btn {
+      color: #64748b !important;
+    }
+    body[data-theme="light"] .salida-modal-close-btn:hover {
+      background: rgba(15, 23, 42, 0.08) !important;
+      color: #0f172a !important;
+    }
+    body[data-theme="light"] .salida-modal-photo-pill {
+      background: #f1f5f9 !important;
+      border: 1px solid rgba(148, 163, 184, 0.3) !important;
+      color: #475569 !important;
+    }
+    body[data-theme="light"] .salida-modal-name {
+      color: #0f172a !important;
+    }
+    body[data-theme="light"] .salida-modal-role {
+      color: #475569 !important;
+    }
+    body[data-theme="light"] .salida-modal-id {
+      background: rgba(37, 99, 235, 0.1) !important;
+      color: #1d4ed8 !important;
+    }
+    body[data-theme="light"] .salida-modal-data-grid {
+      background: #f8fafc !important;
+      border: 1px solid rgba(148, 163, 184, 0.2) !important;
+    }
+    body[data-theme="light"] .salida-data-label {
+      color: #64748b !important;
+    }
+    body[data-theme="light"] .salida-data-value {
+      color: #0f172a !important;
+    }
+    body[data-theme="light"] .salida-data-item.highlight {
+      background: #fef2f2 !important;
+      border: 1px solid rgba(239, 68, 68, 0.3) !important;
+    }
+    body[data-theme="light"] .salida-data-item.highlight .salida-data-label {
+      color: #991b1b !important;
+    }
+    body[data-theme="light"] .salida-data-item.highlight .salida-data-value {
+      color: #b91c1c !important;
+    }
+    body[data-theme="light"] .salida-modal-alert {
+      background: #fffbeb !important;
+      border: 1px solid #fcd34d !important;
+      color: #92400e !important;
+    }
+    body[data-theme="light"] .salida-modal-footer {
+      background: #f8fafc !important;
+      border-top: 1px solid rgba(148, 163, 184, 0.2) !important;
+    }
+    body[data-theme="light"] .btn-salida-modal-cancel {
+      background: #f1f5f9 !important;
+      border: 1px solid rgba(148, 163, 184, 0.3) !important;
+      color: #334155 !important;
+    }
+    body[data-theme="light"] .btn-salida-modal-cancel:hover {
+      background: #e2e8f0 !important;
+      color: #0f172a !important;
+    }
+
+    /* Tarjetas de oficiales y lista de turnos (PC & móvil) */
+    body[data-theme="light"] .officer-salida-card {
+      background: #ffffff !important;
+      border: 1px solid rgba(148, 163, 184, 0.25) !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06) !important;
+    }
+    body[data-theme="light"] .officer-salida-card:hover {
+      background: #f8fafc !important;
+      border-color: rgba(239, 68, 68, 0.4) !important;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.12) !important;
+    }
+    body[data-theme="light"] .officer-card-name {
+      color: #0f172a !important;
+    }
+    body[data-theme="light"] .officer-card-socio {
+      color: #475569 !important;
+    }
+    body[data-theme="light"] .officer-card-shift-tag {
+      background: #e0f2fe !important;
+      color: #0369a1 !important;
+    }
+    body[data-theme="light"] .officer-card-time {
+      color: #047857 !important;
+    }
+    body[data-theme="light"] .shifts-group-header.current {
+      background: #fef2f2 !important;
+      border-color: #fecaca !important;
+      color: #b91c1c !important;
+    }
+    body[data-theme="light"] .shifts-group-header.incoming {
+      background: #f0fdf4 !important;
+      border-color: #bbf7d0 !important;
+      color: #047857 !important;
+    }
+    body[data-theme="light"] .pending-header-title {
+      color: #0f172a !important;
+    }
+    body[data-theme="light"] .pending-header-sub strong {
+      color: #0369a1 !important;
+    }
+    body[data-theme="light"] .pending-window-pill {
+      color: #0369a1 !important;
+    }
+    body[data-theme="light"] .btn-refresh-pending {
+      background: #f1f5f9 !important;
+      border: 1px solid rgba(148, 163, 184, 0.3) !important;
+      color: #475569 !important;
+    }
+    body[data-theme="light"] .btn-refresh-pending:hover {
+      background: #e0f2fe !important;
+      border-color: #0284c7 !important;
+      color: #0284c7 !important;
+    }
+    body[data-theme="light"] .pending-empty-state {
+      background: #f8fafc !important;
+      border-color: rgba(148, 163, 184, 0.3) !important;
+      color: #64748b !important;
+    }
+
+    /* Dropdown de búsqueda de socio */
+    body[data-theme="light"] .officer-match-dropdown {
+      background: #ffffff !important;
+      border: 1.5px solid #38bdf8 !important;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.15) !important;
+    }
+    body[data-theme="light"] .officer-match-item {
+      border-bottom-color: rgba(148, 163, 184, 0.2) !important;
+    }
+    body[data-theme="light"] .officer-match-item:hover,
+    body[data-theme="light"] .officer-match-item.is-selected {
+      background: #eff6ff !important;
+    }
+    body[data-theme="light"] .match-item-name {
+      color: #0f172a !important;
+    }
+    body[data-theme="light"] .match-item-id {
+      color: #475569 !important;
+    }
+    body[data-theme="light"] .match-item-role {
+      background: #f1f5f9 !important;
+      color: #334155 !important;
+    }
+
+    /* Contenedor de resultados en PC */
+    body[data-theme="light"] .pc-results-card {
+      background: #ffffff !important;
+      border-color: rgba(148, 163, 184, 0.3) !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06) !important;
+    }
+    body[data-theme="light"] .pc-results-empty {
+      background: #ffffff !important;
+      border-color: rgba(148, 163, 184, 0.3) !important;
+      color: #64748b !important;
     }
 
     * {
@@ -2029,6 +2421,14 @@
     .dock-item-btn.active .dock-item-label {
       color: #ffffff;
       font-weight: 800;
+    }
+    /* Ocultar encabezado del checador cuando está embebido en iframe de PC (el encabezado se muestra en App.jsx) */
+    html.is-embedded-iframe .app-header {
+      display: none !important;
+    }
+
+    html.is-embedded-iframe .main-content {
+      height: 100dvh !important;
     }
   </style>
 </head>

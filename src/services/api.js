@@ -97,6 +97,17 @@ async function apiRequest(endpoint, options = {}) {
 // ==========================================
 // IDENTIFICACIÓN Y TELEMETRÍA DEL DISPOSITIVO
 // ==========================================
+export async function sendDeviceIdentifySignal() {
+  const deviceId = getDeviceUuid();
+  return apiRequest('/api/cdi/devices/identify', {
+    method: 'POST',
+    body: JSON.stringify({
+      deviceId,
+      timestamp: Date.now()
+    })
+  });
+}
+
 export function getDeviceUuid() {
   if (typeof window === 'undefined') return 'server_node';
   let id = localStorage.getItem('regas_cdi_device_uuid');

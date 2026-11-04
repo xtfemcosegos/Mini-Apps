@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import CDIApp from './components/CDI/CDIApp';
 import ChecadorApp from './components/Checador/ChecadorApp';
 import RecorridosApp from './components/Recorridos/RecorridosApp';
@@ -9,8 +9,10 @@ import {
   saveDeviceFeatures,
   fetchDeviceFeatures,
   getDeviceUuid,
+  sendDeviceIdentifySignal,
   detectDeviceInfo,
-  initCdiSse
+  initCdiSse,
+  sounds
 } from './services/api';
 import './index.css';
 
@@ -22,10 +24,42 @@ const isPcDevice = () => {
 };
 
 export default function App() {
-  // Tema claro por defecto, con persistencia en localStorage
+  // Tema oscuro por defecto, con persistencia en localStorage
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('miniapps_theme') || 'light';
+    return localStorage.getItem('miniapps_theme') || 'dark';
   });
+
+  // Reloj en tiempo real (para el encabezado unificado en PC)
+  // Estado de identificación del dispositivo hacia RegAs 3
+  const [isIdentifying, setIsIdentifying] = useState(false);
+
+  const handleIdentifyDevice = async () => {
+    sounds.click();
+    setIsIdentifying(true);
+    try {
+      await sendDeviceIdentifySignal();
+      sounds.success();
+    } catch (err) {
+      console.warn("Error enviando señal de identificación:", err);
+    }
+    setTimeout(() => {
+      setIsIdentifying(false);
+    }, 2500);
+  };
+
+  const [currentTime, setCurrentTime] = useState(() => {
+    const now = new Date();
+    return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  });
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setCurrentTime(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+    };
+    const timer = setInterval(updateTime, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Funciones / permisos activos del dispositivo (por defecto solo CDI)
   const [features, setFeatures] = useState(() => getDeviceFeatures());
@@ -122,6 +156,16 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme);
     document.body.setAttribute('data-theme', theme);
     localStorage.setItem('miniapps_theme', theme);
+
+    // Sincronizar tema con iframes del checador (panel derecho en PC)
+    try {
+      const iframes = document.querySelectorAll('iframe');
+      iframes.forEach(iframe => {
+        try {
+          iframe.contentWindow.postMessage({ type: 'miniapps_theme', theme }, '*');
+        } catch (e) {}
+      });
+    } catch (e) {}
   }, [theme]);
 
   const toggleTheme = () => {
@@ -241,6 +285,85 @@ export default function App() {
 
   return (
     <div className="miniapps-app-shell" data-theme={theme}>
+      {/* ENCABEZADO UNIFICADO "CONTROL DE ACCESOS" — solo visible en PC (modo split) */}
+      {isSplitMode && (
+        <header className="miniapps-global-header">
+          <div className="miniapps-global-header-left">
+            <span className="miniapps-global-header-icon">
+              {/* Ícono cámara */}
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>
+            </span>
+            <h1 className="miniapps-global-header-title">Control de Accesos</h1>
+          </div>
+
+          {/* BOTONES DE APPS — solo Recorridos y Bitácora (el Checador es siempre el panel derecho fijo) */}
+          <nav className="miniapps-global-header-nav" aria-label="Acceso rápido apps">
+            {hasOtherAuthorizedApps && (
+              <>
+                {features.recorridos && (
+                  <button
+                    type="button"
+                    className={`miniapps-header-app-btn ${effectiveRightApp === 'recorridos' ? 'active' : ''}`}
+                    onClick={() => { sounds.click(); handleSelectParallelApp('recorridos'); }}
+                    title="Recorridos"
+                  >
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+                      <line x1="8" y1="2" x2="8" y2="18" />
+                      <line x1="16" y1="6" x2="16" y2="22" />
+                    </svg>
+                    <span>Recorridos</span>
+                  </button>
+                )}
+                {(features.bitacoras || features.bitacora) && (
+                  <button
+                    type="button"
+                    className={`miniapps-header-app-btn ${effectiveRightApp === 'bitacora' ? 'active' : ''}`}
+                    onClick={() => { sounds.click(); handleSelectParallelApp('bitacora'); }}
+                    title="Bitácora"
+                  >
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                      <line x1="16" y1="13" x2="8" y2="13" />
+                      <line x1="16" y1="17" x2="8" y2="17" />
+                    </svg>
+                    <span>Bitácora</span>
+                  </button>
+                )}
+              </>
+            )}
+          </nav>
+
+          <div className="miniapps-global-header-right">
+            {/* Botón Identificar Dispositivo en RegAs 3 */}
+            <button
+              type="button"
+              className={`miniapps-id-btn ${isIdentifying ? 'active' : ''}`}
+              onClick={handleIdentifyDevice}
+              title="Identificar este dispositivo en RegAs 3 (Actividades > CDI)"
+            >
+              <span>ID</span>
+            </button>
+
+            {/* Botón cambio de tema: solo icono sin texto */}
+            <button
+              type="button"
+              className="cdi-theme-btn"
+              onClick={() => { sounds.click(); toggleTheme(); }}
+              title={`Cambiar a modo ${theme === 'dark' ? 'claro' : 'oscuro'}`}
+            >
+              <span className="cdi-theme-btn-icon" style={{ fontSize: '1.25rem', lineHeight: 1 }}>{theme === 'dark' ? '🌙' : '☀️'}</span>
+            </button>
+            {/* Reloj grande */}
+            <div className="miniapps-global-clock">{currentTime}</div>
+          </div>
+        </header>
+      )}
+
       <main className={`miniapps-content-view ${isSplitMode ? 'split-mode' : ''}`}>
         {/* PANEL IZQUIERDO: CDI permanente en PC (30% de ancho) o app activa en móvil */}
         <div
@@ -251,7 +374,7 @@ export default function App() {
             maxWidth: isSplitMode ? '30%' : '100%'
           }}
         >
-          {activeApp === 'cdi' && <CDIApp theme={theme} onToggleTheme={toggleTheme} />}
+          {activeApp === 'cdi' && <CDIApp theme={theme} onToggleTheme={isSplitMode ? null : toggleTheme} onIdentifyDevice={isSplitMode ? null : handleIdentifyDevice} isIdentifying={isIdentifying} />}
           {activeApp === 'checador' && features.checador && (
             <iframe src="checador-movil.html?embedded=1" className="miniapps-app-iframe" allow="camera; microphone; geolocation" title="Checador" />
           )}
@@ -299,19 +422,7 @@ export default function App() {
               )}
             </div>
 
-            {/* DOCK EN PANEL DERECHO: Solo visible si hay OTRA aplicación autorizada explícitamente en RegAs */}
-            {hasOtherAuthorizedApps && (
-              <MiniAppsDock
-                currentApp={effectiveRightApp}
-                parallelApp={effectiveRightApp}
-                excludeApps={['cdi', effectiveRightApp]}
-                isPaneDock={true}
-                showCloseButton={false}
-                onSelectApp={(appId) => handleSelectParallelApp(appId)}
-                features={features}
-                theme={theme}
-              />
-            )}
+            {/* DOCK EN PANEL DERECHO: Suprimido en modo PC — los botones están en el encabezado global */}
           </div>
         )}
       </main>

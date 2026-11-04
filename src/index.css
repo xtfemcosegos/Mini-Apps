@@ -1,4 +1,51 @@
-:root, [data-theme="light"] {
+/* ============================================================
+   TEMA OSCURO — DEFAULT (root)
+   ============================================================ */
+:root,
+[data-theme="dark"] {
+  --theme-mode: dark;
+  --bg-body: #0f172a;
+  --bg-shell: radial-gradient(circle at 50% -10%, #1e293b 0%, #0f172a 60%, #020617 100%);
+  --bg-card: #1e293b;
+  --bg-card-subtle: #162032;
+  --bg-surface: #1e293b;
+  --bg-input: #0f172a;
+  --border-card: rgba(148, 163, 184, 0.12);
+  --border-subtle: rgba(148, 163, 184, 0.08);
+  --border-focus: #3b82f6;
+  --text-main: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 14px -2px rgba(0, 0, 0, 0.4), 0 2px 6px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.5), 0 4px 10px -2px rgba(0, 0, 0, 0.3);
+
+  --dock-bg: rgba(15, 23, 42, 0.95);
+  --dock-border: rgba(148, 163, 184, 0.15);
+  --dock-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4), 0 -1px 6px rgba(0, 0, 0, 0.2);
+  --dock-fade: linear-gradient(180deg, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, 0.88) 45%, rgba(15, 23, 42, 0.98) 100%);
+  --dock-btn-hover: rgba(248, 250, 252, 0.07);
+  --dock-btn-active: rgba(59, 130, 246, 0.15);
+  --dock-text: #94a3b8;
+  --dock-text-active: #f1f5f9;
+
+  --total-banner-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  --total-banner-text: #ffffff;
+  --total-banner-sub: #94a3b8;
+
+  --primary: #3b82f6;
+  --accent-green: #10b981;
+  --accent-amber: #f59e0b;
+  --accent-purple: #8b5cf6;
+  --accent-cyan: #06b6d4;
+  --accent-red: #ef4444;
+}
+
+/* ============================================================
+   TEMA CLARO — override cuando data-theme="light"
+   ============================================================ */
+[data-theme="light"] {
   --theme-mode: light;
   --bg-body: #f1f5f9;
   --bg-shell: radial-gradient(circle at 50% -10%, #ffffff 0%, #f1f5f9 60%, #e2e8f0 100%);
@@ -11,19 +58,22 @@
   --border-focus: #2563eb;
   --text-main: #0f172a;
   --text-secondary: #334155;
-  --text-muted: #64748b;
-  --text-dim: #94a3b8;
+  /* #475569 en modo claro: 7.58:1 sobre blanco / 6.92:1 sobre bg-body ✅ */
+  --text-muted: #475569;
+  /* text-dim solo se usa para decoración (nunca como texto standalone importante) */
+  --text-dim: #64748b;
   --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
   --shadow-md: 0 4px 14px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
   --shadow-lg: 0 10px 25px -3px rgba(15, 23, 42, 0.1), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
-  
+
   --dock-bg: rgba(255, 255, 255, 0.92);
   --dock-border: rgba(148, 163, 184, 0.35);
   --dock-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(15, 23, 42, 0.06);
   --dock-fade: linear-gradient(180deg, rgba(241, 245, 249, 0) 0%, rgba(241, 245, 249, 0.88) 45%, rgba(241, 245, 249, 0.98) 100%);
   --dock-btn-hover: rgba(15, 23, 42, 0.05);
   --dock-btn-active: rgba(37, 99, 235, 0.1);
-  --dock-text: #64748b;
+  /* dock-text #475569: 7.58:1 sobre blanco ✅ */
+  --dock-text: #475569;
   --dock-text-active: #0f172a;
 
   --total-banner-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
@@ -31,52 +81,14 @@
   --total-banner-sub: #94a3b8;
 
   --primary: #2563eb;
-  --accent-green: #059669;
-  --accent-amber: #d97706;
-  --accent-purple: #7c3aed;
-  --accent-cyan: #0284c7;
+  /* Acentos modo claro con contraste WCAG AA sobre fondos claros */
+  --accent-green: #047857;  /* 5.48:1 sobre blanco ✅ */
+  --accent-amber: #b45309;  /* 5.02:1 sobre blanco ✅ */
+  --accent-purple: #7c3aed; /* 5.70:1 sobre blanco ✅ */
+  --accent-cyan: #0369a1;   /* 5.93:1 sobre blanco ✅ */
   --accent-red: #ef4444;
 }
 
-[data-theme="dark"] {
-  --theme-mode: dark;
-  --bg-body: #090d16;
-  --bg-shell: radial-gradient(circle at 50% 0%, #1e293b 0%, #090d16 80%);
-  --bg-card: #101626;
-  --bg-card-subtle: #182238;
-  --bg-surface: #131c31;
-  --bg-input: #0f172a;
-  --border-card: rgba(255, 255, 255, 0.1);
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-focus: #38bdf8;
-  --text-main: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
-  --text-dim: #64748b;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 14px -2px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.5);
-
-  --dock-bg: rgba(30, 41, 59, 0.88);
-  --dock-border: rgba(255, 255, 255, 0.12);
-  --dock-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.6);
-  --dock-fade: linear-gradient(180deg, rgba(9, 13, 22, 0) 0%, rgba(9, 13, 22, 0.85) 45%, rgba(9, 13, 22, 0.98) 100%);
-  --dock-btn-hover: rgba(255, 255, 255, 0.08);
-  --dock-btn-active: rgba(255, 255, 255, 0.14);
-  --dock-text: #94a3b8;
-  --dock-text-active: #f8fafc;
-
-  --total-banner-bg: linear-gradient(135deg, #182238 0%, #0d1424 100%);
-  --total-banner-text: #f8fafc;
-  --total-banner-sub: #38bdf8;
-
-  --primary: #3b82f6;
-  --accent-green: #10b981;
-  --accent-amber: #f59e0b;
-  --accent-purple: #8b5cf6;
-  --accent-cyan: #38bdf8;
-  --accent-red: #ef4444;
-}
 
 * {
   box-sizing: border-box;
@@ -117,6 +129,114 @@ html, body, #root {
   display: flex;
   flex-direction: column;
 }
+
+/* ========================================================
+   ENCABEZADO GLOBAL UNIFICADO "CONTROL DE ACCESOS" (solo PC)
+   ======================================================== */
+.miniapps-global-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 60px;
+  padding: 0 20px;
+  background: var(--bg-card);
+  border-bottom: 1.5px solid var(--border-card);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+  z-index: 100;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.miniapps-global-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.miniapps-global-header-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #10b981, #0284c7);
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.35);
+  flex-shrink: 0;
+}
+
+.miniapps-global-header-title {
+  font-size: 1.08rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* Botones de apps en la barra de encabezado de PC */
+.miniapps-global-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+}
+
+.miniapps-header-app-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 1px solid var(--border-card);
+  background: var(--bg-card-subtle);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.miniapps-header-app-btn:hover {
+  background: var(--dock-btn-hover);
+  color: var(--text-main);
+  border-color: var(--primary);
+}
+
+.miniapps-header-app-btn.active {
+  background: rgba(37, 99, 235, 0.14);
+  color: var(--primary);
+  border-color: rgba(37, 99, 235, 0.4);
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
+}
+
+.miniapps-global-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* Reloj grande en el encabezado global */
+.miniapps-global-clock {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  background: var(--bg-card-subtle);
+  padding: 4px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border-card);
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+
+
 
 /* ========================================================
    VISTA PARALELA EN ESCRITORIO (SPLIT-SCREEN)
@@ -206,10 +326,14 @@ html, body, #root {
   padding: 2px 8px;
   border-radius: 999px;
   background: rgba(37, 99, 235, 0.12);
-  color: var(--primary);
+  color: #1d4ed8; /* 5.82:1 sobre fondo azul claro ✅ */
   border: 1px solid rgba(37, 99, 235, 0.25);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+[data-theme="dark"] .miniapps-pane-badge {
+  color: #60a5fa; /* 5.17:1 sobre fondo azul oscuro ✅ */
 }
 
 .miniapps-pane-actions {
@@ -327,4 +451,80 @@ html, body, #root {
   align-items: center;
   justify-content: center;
   width: 20px;
+}
+
+/* Botón ID (Identificar Dispositivo en RegAs) */
+.miniapps-id-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  min-width: 38px;
+  padding: 0 10px;
+  background: var(--bg-card-subtle);
+  border: 1.5px solid var(--border-card);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 900;
+  color: var(--primary);
+  letter-spacing: 0.05em;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-sm);
+  outline: none;
+  user-select: none;
+}
+
+.miniapps-id-btn:hover {
+  background: rgba(37, 99, 235, 0.12);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.miniapps-id-btn:active {
+  transform: scale(0.95);
+}
+
+.miniapps-id-btn.active {
+  background: #10b981 !important;
+  border-color: #059669 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.75) !important;
+  animation: pulseGreenId 0.55s infinite alternate !important;
+}
+
+@keyframes pulseGreenId {
+  from { box-shadow: 0 0 6px rgba(16, 185, 129, 0.5); }
+  to { box-shadow: 0 0 16px rgba(16, 185, 129, 0.95); }
+}
+
+.cdi-theme-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 6px;
+  background: var(--bg-card-subtle);
+  border: 1.5px solid var(--border-card);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-sm);
+  outline: none;
+}
+
+.cdi-theme-btn:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.cdi-theme-btn:active {
+  transform: scale(0.95);
+}
+
+.cdi-theme-btn-icon,
+.theme-btn-icon {
+  font-size: 1.25rem !important;
+  line-height: 1;
 }

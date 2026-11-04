@@ -77,7 +77,7 @@
   padding: 2px 6px;
   border-radius: 6px;
   background: rgba(16, 185, 129, 0.12);
-  color: #059669;
+  color: #047857; /* 5.00:1 sobre fondo verde claro ✅ (era #059669: 3.44:1 ❌) */
 }
 
 [data-theme="dark"] .cdi-live-badge {
@@ -397,22 +397,22 @@
   pointer-events: none;
 }
 
-/* Colores de acción según categoría */
+/* Colores de acción según categoría — modo CLARO */
 .card-internos .btn-tap-action {
   background: rgba(37, 99, 235, 0.1);
-  color: #2563eb;
+  color: #1d4ed8; /* 5.76:1 sobre #e8eefb ✅ / 6.47:1 sobre blanco ✅ */
 }
 .card-externos .btn-tap-action {
   background: rgba(5, 150, 105, 0.1);
-  color: #059669;
+  color: #047857; /* 5.00:1 sobre #ebf7f4 ✅ / 5.48:1 sobre blanco ✅ */
 }
 .card-prestadores .btn-tap-action {
   background: rgba(217, 119, 6, 0.1);
-  color: #d97706;
+  color: #b45309; /* 4.56:1 sobre #fbf3e6 ✅ / 5.02:1 sobre blanco ✅ */
 }
 .card-visitas .btn-tap-action {
   background: rgba(124, 58, 237, 0.1);
-  color: #7c3aed;
+  color: #7c3aed; /* 4.99:1 sobre #f2eefb ✅ */
 }
 
 .mode-correction .btn-tap-action {
@@ -603,7 +603,7 @@
   padding: 3px 8px;
   border-radius: 999px;
   background: rgba(16, 185, 129, 0.12);
-  color: #059669;
+  color: #047857; /* 5.00:1 sobre fondo verde claro ✅ (era #059669: 3.44:1 ❌) */
   border: 1px solid rgba(16, 185, 129, 0.3);
   letter-spacing: 0.04em;
 }
@@ -658,7 +658,7 @@
 .strip-total-num {
   font-size: 1.25rem;
   font-weight: 900;
-  color: #0284c7;
+  color: #0369a1; /* 5.93:1 sobre blanco ✅ (era #0284c7: 4.10:1 ❌) */
   line-height: 1;
 }
 
@@ -775,7 +775,7 @@
   font-size: 0.54rem;
   font-weight: 800;
   background: rgba(16, 185, 129, 0.18);
-  color: #059669;
+  color: #047857; /* 4.76:1 sobre fondo verde ✅ (era #059669: 3.27:1 ❌) */
   border: 1px solid rgba(16, 185, 129, 0.35);
   padding: 1px 5px;
   border-radius: 999px;

@@ -34,7 +34,7 @@ const findCasetaCounts = (casetasMap, targetCaseta) => {
   return matchedKey ? casetasMap[matchedKey] : null;
 };
 
-export default function CDIApp({ theme, onToggleTheme }) {
+export default function CDIApp({ theme, onToggleTheme, onIdentifyDevice, isIdentifying }) {
   const [caseta, setCaseta] = useState(() => {
     return localStorage.getItem('selectedCaseta') || 'Recepción Edison';
   });
@@ -464,20 +464,31 @@ export default function CDIApp({ theme, onToggleTheme }) {
               </div>
 
               <div className="cdi-top-actions">
-                {/* SELECTOR DE MODO CLARO / OSCURO */}
-                <button
-                  type="button"
-                  className="cdi-theme-btn"
-                  onClick={() => {
-                    sounds.click();
-                    if (onToggleTheme) onToggleTheme();
-                  }}
-                  title={`Cambiar a modo ${theme === 'light' ? 'oscuro' : 'claro'}`}
-                  aria-label="Alternar modo claro u oscuro"
-                >
-                  <span className="theme-btn-icon">{theme === 'light' ? '☀️' : '🌙'}</span>
-                  <span className="theme-btn-text">{theme === 'light' ? 'Claro' : 'Oscuro'}</span>
-                </button>
+                {/* SELECTOR DE MODO CLARO / OSCURO — solo cuando el encabezado global no lo gestiona */}
+                {onIdentifyDevice && (
+                  <button
+                    type="button"
+                    className={`miniapps-id-btn ${isIdentifying ? 'active' : ''}`}
+                    onClick={onIdentifyDevice}
+                    title="Identificar este dispositivo en RegAs 3 (Actividades > CDI)"
+                  >
+                    <span>ID</span>
+                  </button>
+                )}
+                {onToggleTheme && (
+                  <button
+                    type="button"
+                    className="cdi-theme-btn"
+                    onClick={() => {
+                      sounds.click();
+                      if (onToggleTheme) onToggleTheme();
+                    }}
+                    title={`Cambiar a modo ${theme === 'light' ? 'oscuro' : 'claro'}`}
+                    aria-label="Alternar modo claro u oscuro"
+                  >
+                    <span className="theme-btn-icon" style={{ fontSize: '1.25rem', lineHeight: 1 }}>{theme === 'light' ? '☀️' : '🌙'}</span>
+                  </button>
+                )}
 
                 <span className="cdi-date-tag">{currentDateStr}</span>
               </div>
