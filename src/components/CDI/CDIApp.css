@@ -517,6 +517,333 @@
   color: #38bdf8;
 }
 
+/* SUMMARY DOCK INTERACTIVO (CLIC PARA ABRIR RESUMEN GENERAL) */
+.cdi-bottom-summary.is-clickable {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cdi-bottom-summary.is-clickable:hover {
+  border-color: #38bdf8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.16);
+}
+
+.cdi-bottom-summary.is-clickable:active {
+  transform: scale(0.99);
+}
+
+/* ==========================================================================
+   5. VISTA RESUMEN COMPACTA DE TODAS LAS CASETAS EN TIEMPO REAL
+   ========================================================================== */
+.cdi-all-casetas-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  animation: fadeInSummary 0.18s ease-out;
+  gap: 6px;
+}
+
+@keyframes fadeInSummary {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.compact-summary-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  padding: 2px 0 4px 0;
+}
+
+.compact-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.compact-back-btn:hover {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: #3b82f6;
+  color: #2563eb;
+}
+
+[data-theme="dark"] .compact-back-btn:hover {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+.compact-top-title {
+  font-size: 0.90rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+}
+
+.compact-live-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.60rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  letter-spacing: 0.04em;
+}
+
+[data-theme="dark"] .compact-live-tag {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.18);
+}
+
+.compact-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+  animation: pulse-dot 1s infinite alternate;
+}
+
+/* STRIP TOTAL GENERAL */
+.compact-total-strip {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 10px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .compact-total-strip {
+  background: rgba(16, 22, 38, 0.95);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.strip-total-main {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.strip-total-lbl {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.strip-total-num {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #0284c7;
+  line-height: 1;
+}
+
+[data-theme="dark"] .strip-total-num {
+  color: #38bdf8;
+}
+
+.strip-breakdown {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.strip-chip {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: rgba(15, 23, 42, 0.035);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 2px 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .strip-chip {
+  background: rgba(255, 255, 255, 0.04);
+  color: #cbd5e1;
+}
+
+.strip-chip strong {
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+/* LISTADO DE CASETAS COMPACTAS */
+.compact-casetas-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 12px;
+  padding-right: 2px;
+}
+
+.compact-caseta-row {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 10px;
+  padding: 7px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+  min-height: 42px;
+  box-sizing: border-box;
+}
+
+.compact-caseta-row:hover {
+  border-color: #3b82f6;
+  background: rgba(37, 99, 235, 0.04);
+  transform: translateX(2px);
+}
+
+.compact-caseta-row:active {
+  transform: scale(0.995);
+}
+
+.compact-caseta-row.is-active {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.06);
+}
+
+[data-theme="dark"] .compact-caseta-row {
+  background: rgba(16, 22, 38, 0.95);
+  border-color: rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="dark"] .compact-caseta-row:hover {
+  background: rgba(56, 189, 248, 0.08);
+  border-color: #38bdf8;
+}
+
+[data-theme="dark"] .compact-caseta-row.is-active {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: #10b981;
+}
+
+.row-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 120px;
+}
+
+.row-caseta-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row-active-tag {
+  font-size: 0.54rem;
+  font-weight: 800;
+  background: rgba(16, 185, 129, 0.18);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  padding: 1px 5px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .row-active-tag {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.22);
+}
+
+.row-metrics {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.row-metric {
+  font-size: 0.70rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+[data-theme="dark"] .row-metric {
+  color: #cbd5e1;
+}
+
+.metric-ico {
+  font-size: 0.68rem;
+  opacity: 0.85;
+}
+
+.row-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.row-total-val {
+  font-size: 0.98rem;
+  font-weight: 900;
+  color: var(--text-main);
+  min-width: 28px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.row-arrow {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+.compact-caseta-row:hover .row-arrow {
+  color: #3b82f6;
+}
+
+[data-theme="dark"] .compact-caseta-row:hover .row-arrow {
+  color: #38bdf8;
+}
+
 /* En vista dividida / paralela en PC (Split Screen), CDI no requiere la holgura del dock inferior */
 .split-mode .cdi-container {
   padding-bottom: calc(env(safe-area-inset-bottom, 8px) + 12px);

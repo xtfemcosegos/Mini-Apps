@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cic-miniapps-v17';
+const CACHE_NAME = 'cic-miniapps-v19';
 
 const PRECACHE_ASSETS = [
   './',

@@ -586,6 +586,281 @@
       line-height: 1.15;
     }
 
+    /* FOOTER SUMMARY DOCK CLICABLE */
+    .footer-summary.is-clickable {
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .footer-summary.is-clickable:hover {
+      border-color: #38bdf8;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(56, 189, 248, 0.22);
+    }
+
+    .footer-summary.is-clickable:active {
+      transform: scale(0.985);
+    }
+
+    /* MODAL OVERLAY DE RESUMEN DE TODAS LAS CASETAS EN TIEMPO REAL (COMPACTO) */
+    .all-casetas-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-body, #0f172a);
+      z-index: 9999;
+      display: none;
+      flex-direction: column;
+      padding: 10px 12px calc(env(safe-area-inset-bottom, 10px) + 12px) 12px;
+      box-sizing: border-box;
+      overflow: hidden;
+      animation: modalFadeIn 0.18s ease-out;
+      gap: 6px;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .compact-summary-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      padding: 2px 0 4px 0;
+    }
+
+    .compact-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .compact-back-btn:hover {
+      background: rgba(37, 99, 235, 0.1);
+      border-color: #38bdf8;
+      color: #38bdf8;
+    }
+
+    .compact-top-title {
+      font-size: 0.90rem;
+      font-weight: 800;
+      margin: 0;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .compact-live-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.60rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      letter-spacing: 0.04em;
+    }
+
+    .compact-live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 6px #10b981;
+      animation: pulseSync 1s infinite alternate;
+    }
+
+    /* STRIP TOTAL GENERAL */
+    .compact-total-strip {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      gap: 8px;
+    }
+
+    .strip-total-main {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .strip-total-lbl {
+      font-size: 0.62rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    .strip-total-num {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: #38bdf8;
+      line-height: 1;
+    }
+
+    .strip-breakdown {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .strip-chip {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 2px 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      white-space: nowrap;
+    }
+
+    .strip-chip strong {
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    /* LISTADO COMPACTO DE CASETAS */
+    .compact-casetas-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding-bottom: 12px;
+    }
+
+    .compact-caseta-row {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 7px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+      min-height: 42px;
+      box-sizing: border-box;
+    }
+
+    .compact-caseta-row:hover {
+      border-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.08);
+      transform: translateX(2px);
+    }
+
+    .compact-caseta-row:active {
+      transform: scale(0.995);
+    }
+
+    .compact-caseta-row.is-active {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .row-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      flex: 1 1 120px;
+    }
+
+    .row-caseta-name {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .row-active-tag {
+      font-size: 0.54rem;
+      font-weight: 800;
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      padding: 1px 5px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .row-metrics {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .row-metric {
+      font-size: 0.70rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .metric-ico {
+      font-size: 0.68rem;
+      opacity: 0.85;
+    }
+
+    .row-right {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .row-total-val {
+      font-size: 0.98rem;
+      font-weight: 900;
+      color: var(--text);
+      min-width: 28px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .row-arrow {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      line-height: 1;
+    }
+
+    .compact-caseta-row:hover .row-arrow {
+      color: #38bdf8;
+    }
+
     /* ── TOAST NOTIFICACIONES ── */
     .toast-sync {
       position: fixed;
@@ -1284,8 +1559,8 @@
 
   <!-- SECCIÓN INFERIOR COMPACTA (RESUMEN DEBAJO DE CONTADORES + DOCK DE APPS) -->
   <div class="bottom-section">
-    <!-- RESUMEN: CONTEO POR CASETA Y CONTEO GENERAL (DEBAJO DE LOS BOTONES CONTADORES) -->
-    <div class="footer-summary">
+    <!-- RESUMEN: CONTEO POR CASETA Y CONTEO GENERAL (CLICABLE PARA VER RESUMEN COMPACTO) -->
+    <div class="footer-summary is-clickable" id="footerSummaryDock" role="button" tabindex="0" title="Resumen de Conteos">
       <div class="summary-item">
         <span class="summary-title">Total Caseta</span>
         <span class="summary-value" id="totalCaseta">0</span>
@@ -1293,6 +1568,41 @@
       <div class="summary-item" style="text-align: right;">
         <span class="summary-title">Total General</span>
         <span class="summary-value" id="totalGeneral">0</span>
+      </div>
+    </div>
+
+    <!-- MODAL OVERLAY: RESUMEN DE TODAS LAS CASETAS EN TIEMPO REAL (COMPACTO) -->
+    <div class="all-casetas-modal-overlay" id="allCasetasModalOverlay">
+      <div class="compact-summary-top">
+        <button type="button" class="compact-back-btn" id="btnAllCasetasBack">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span id="btnModalBackText">Volver</span>
+        </button>
+        <h2 class="compact-top-title">Resumen de Casetas</h2>
+        <div class="compact-live-tag">
+          <span class="compact-live-dot"></span>
+          <span>EN VIVO</span>
+        </div>
+      </div>
+
+      <div class="compact-total-strip">
+        <div class="strip-total-main">
+          <span class="strip-total-lbl">TOTAL GENERAL:</span>
+          <span class="strip-total-num" id="modalTotalGeneralVal">0</span>
+        </div>
+        <div class="strip-breakdown">
+          <span class="strip-chip" title="Internos">👤 <strong id="modalChipInternos">0</strong></span>
+          <span class="strip-chip" title="Externos">🏢 <strong id="modalChipExternos">0</strong></span>
+          <span class="strip-chip" title="Prestadores">🔧 <strong id="modalChipPrestadores">0</strong></span>
+          <span class="strip-chip" title="Visitas">📋 <strong id="modalChipVisitas">0</strong></span>
+        </div>
+      </div>
+
+      <div class="compact-casetas-list" id="allCasetasModalList">
+        <!-- Renderizado dinámico en tiempo real -->
       </div>
     </div>
 
@@ -2240,6 +2550,121 @@
       // Cargar datos iniciales
       let cdiRateLimitUntil = 0;
       let evtSource = null;
+      let latestCdiCasetas = {};
+      let latestCdiTotals = {};
+      let isAllCasetasSummaryOpen = false;
+
+      function renderAllCasetasModal() {
+        const modalList = document.getElementById('allCasetasModalList');
+        const totalGenVal = document.getElementById('modalTotalGeneralVal');
+        const chipInternos = document.getElementById('modalChipInternos');
+        const chipExternos = document.getElementById('modalChipExternos');
+        const chipPrestadores = document.getElementById('modalChipPrestadores');
+        const chipVisitas = document.getElementById('modalChipVisitas');
+        const btnModalBackText = document.getElementById('btnModalBackText');
+
+        if (btnModalBackText) btnModalBackText.textContent = `Volver a ${currentCaseta}`;
+        if (totalGenVal) totalGenVal.textContent = latestCdiTotals.total || 0;
+        if (chipInternos) chipInternos.textContent = latestCdiTotals.internos || 0;
+        if (chipExternos) chipExternos.textContent = latestCdiTotals.externos || 0;
+        if (chipPrestadores) chipPrestadores.textContent = latestCdiTotals.prestadores || 0;
+        if (chipVisitas) chipVisitas.textContent = latestCdiTotals.visitas || 0;
+
+        if (!modalList) return;
+
+        const defaultCasetas = [
+          'Recepción Edison', 'Edison', 'Impulso', 'Michelena',
+          'Simón Bolívar', 'Carranza', 'Universidad', 'Anexo Edison', 'Centro de Control'
+        ];
+
+        const allKnown = Array.from(new Set([
+          ...defaultCasetas,
+          ...Object.keys(latestCdiCasetas || {})
+        ])).filter(Boolean);
+
+        let html = '';
+        allKnown.forEach(cName => {
+          const cObj = findCasetaInMap(latestCdiCasetas, cName) || { internos: 0, externos: 0, prestadores: 0, visitas: 0 };
+          const cTotal = Number(cObj.total || (Number(cObj.internos || 0) + Number(cObj.externos || 0) + Number(cObj.prestadores || 0) + Number(cObj.visitas || 0)));
+          const isSelected = normCasetaStr(cName) === normCasetaStr(currentCaseta);
+
+          html += `
+            <div class="compact-caseta-row ${isSelected ? 'is-active' : ''}" data-caseta="${escapeHtml(cName)}">
+              <div class="row-left">
+                <span class="row-caseta-name">${escapeHtml(cName)}</span>
+                ${isSelected ? '<span class="row-active-tag">Activa</span>' : ''}
+              </div>
+              <div class="row-metrics">
+                <span class="row-metric" title="Internos"><span class="metric-ico">👤</span>${cObj.internos || 0}</span>
+                <span class="row-metric" title="Externos"><span class="metric-ico">🏢</span>${cObj.externos || 0}</span>
+                <span class="row-metric" title="Prestadores"><span class="metric-ico">🔧</span>${cObj.prestadores || 0}</span>
+                <span class="row-metric" title="Visitas"><span class="metric-ico">📋</span>${cObj.visitas || 0}</span>
+              </div>
+              <div class="row-right">
+                <span class="row-total-val">${cTotal}</span>
+                <span class="row-arrow">›</span>
+              </div>
+            </div>
+          `;
+        });
+
+        modalList.innerHTML = html;
+
+        modalList.querySelectorAll('.compact-caseta-row').forEach(card => {
+          card.addEventListener('click', () => {
+            const selectedName = card.getAttribute('data-caseta');
+            if (selectedName) {
+              soundClick();
+              currentCaseta = selectedName;
+              localStorage.setItem('selectedCaseta', selectedName);
+              localStorage.setItem('regas_cdi_last_caseta', selectedName);
+              localStorage.setItem('caseta_seleccionada_cic', selectedName);
+              if (casetaSelect) casetaSelect.value = selectedName;
+              notifyParallelCasetaChange();
+              fetchCdiData();
+              closeAllCasetasSummary();
+              showToast('Caseta seleccionada: ' + selectedName);
+            }
+          });
+        });
+      }
+
+      function openAllCasetasSummary() {
+        isAllCasetasSummaryOpen = true;
+        const modal = document.getElementById('allCasetasModalOverlay');
+        if (modal) {
+          renderAllCasetasModal();
+          modal.style.display = 'flex';
+        }
+        fetchCdiData();
+      }
+
+      function closeAllCasetasSummary() {
+        isAllCasetasSummaryOpen = false;
+        const modal = document.getElementById('allCasetasModalOverlay');
+        if (modal) {
+          modal.style.display = 'none';
+        }
+      }
+
+      const footerSummaryDock = document.getElementById('footerSummaryDock');
+      if (footerSummaryDock) {
+        footerSummaryDock.addEventListener('click', (e) => {
+          e.preventDefault();
+          soundClick();
+          openAllCasetasSummary();
+        });
+      }
+
+      const btnAllCasetasBack = document.getElementById('btnAllCasetasBack');
+      if (btnAllCasetasBack) {
+        btnAllCasetasBack.addEventListener('click', (e) => {
+          e.preventDefault();
+          soundClick();
+          closeAllCasetasSummary();
+        });
+      }
+
       const fetchCdiData = async () => {
         if (Date.now() < cdiRateLimitUntil) return;
         try {
@@ -2255,6 +2680,8 @@
           if (res.ok) {
             const data = await res.json();
             if (data && data.cdi) {
+              latestCdiCasetas = data.cdi.casetas || {};
+              latestCdiTotals = data.cdi.totals || {};
               const casObj = findCasetaInMap(data.cdi.casetas, currentCaseta);
               counts.internos = casObj.internos || 0;
               counts.externos = casObj.externos || 0;
@@ -2264,6 +2691,10 @@
               const totalGenEl = document.getElementById('totalGeneral');
               if (totalGenEl && data.cdi.totals) {
                 totalGenEl.textContent = data.cdi.totals.total || 0;
+              }
+
+              if (isAllCasetasSummaryOpen) {
+                renderAllCasetasModal();
               }
             }
             updateUI();
@@ -2392,6 +2823,17 @@
               if (msg && msg.type === 'cdi_update' && msg.payload) {
                 const data = msg.payload;
                 if (data.fecha === currentDate || (data.cdi && data.cdi.fecha === currentDate)) {
+                  if (data.cdi && data.cdi.casetas) {
+                    latestCdiCasetas = data.cdi.casetas;
+                    if (data.cdi.totals) latestCdiTotals = data.cdi.totals;
+                  } else if (data.caseta && data.casetaCounts) {
+                    latestCdiCasetas[data.caseta] = data.casetaCounts;
+                    if (data.totals) latestCdiTotals = data.totals;
+                  }
+                  if (isAllCasetasSummaryOpen) {
+                    renderAllCasetasModal();
+                  }
+
                   const hasPending = Object.values(pendingDeltas).some(v => v !== 0);
                   if (data.cdi && data.cdi.casetas && !hasPending) {
                     const casObj = findCasetaInMap(data.cdi.casetas, currentCaseta);
