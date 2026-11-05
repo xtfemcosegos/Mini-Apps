@@ -1,0 +1,100 @@
+{
+  "id": "/",
+  "name": "CIC Mini Apps — Control de Ingresos y Operaciones",
+  "short_name": "Mini Apps",
+  "description": "Suite de micro-aplicaciones táctiles operativas CIC OS 3: Conteo Dinámico de Ingresos (CDI), Checador Facial IA, Recorridos GPS y Bitácoras.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "window-controls-overlay"],
+  "orientation": "portrait-primary",
+  "background_color": "#f1f5f9",
+  "theme_color": "#2563eb",
+  "lang": "es-MX",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "utilities", "security"],
+  "icons": [
+    {
+      "src": "iconos/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "iconos/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "iconos/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "iconos/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "iconos/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "iconos/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "iconos/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "iconos/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "iconos/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "CDI Móvil",
+      "short_name": "CDI",
+      "description": "Conteo Dinámico de Ingresos por Caseta",
+      "url": "./?app=cdi",
+      "icons": [{ "src": "iconos/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Checador Facial IA",
+      "short_name": "Checador",
+      "description": "Asistencia y Reconocimiento Facial Biométrico",
+      "url": "./?app=checador",
+      "icons": [{ "src": "iconos/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Recorridos GPS",
+      "short_name": "Recorridos",
+      "description": "Rondines y Odómetro en tiempo real",
+      "url": "./?app=recorridos",
+      "icons": [{ "src": "iconos/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Bitácoras",
+      "short_name": "Bitácoras",
+      "description": "Registro de novedades y consignas",
+      "url": "./?app=bitacora",
+      "icons": [{ "src": "iconos/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

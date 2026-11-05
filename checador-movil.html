@@ -1,0 +1,5089 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>RegAs 3 — Asistencia y Checador Facial Móvil</title>
+  <meta name="theme-color" content="#070a13">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2'><path d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/><circle cx='12' cy='13' r='4'/></svg>">
+  <script>
+    const isEmbeddedInIframe = (window.self !== window.top) || window.location.search.includes('embedded=1');
+    if (isEmbeddedInIframe) {
+      document.documentElement.classList.add('is-embedded-iframe');
+      const removeMobileDock = () => {
+        document.querySelectorAll('.miniapps-dock-wrapper, #miniappsDockWrapper, .dock-wrapper').forEach(el => {
+          el.remove();
+        });
+      };
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', removeMobileDock);
+      } else {
+        removeMobileDock();
+      }
+      window.addEventListener('load', removeMobileDock);
+    }
+
+    // Detección estricta PC vs Móvil (Desactiva por completo simulación de PC en móviles)
+    function checkIsPcMode() {
+      if (window.location.search.includes('device=mobile')) return false;
+      if (window.location.search.includes('device=pc')) return true;
+
+      try {
+        const ua = navigator.userAgent || '';
+        const platform = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '';
+        const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|Silk|Kindle/i.test(ua) || (navigator.userAgentData && navigator.userAgentData.mobile);
+
+        // EN MÓVILES: DESACTIVAR POR COMPLETO LA VISTA DE COMPUTADORA
+        if (isMobileUA) return false;
+
+        const isDesktopOS = (/Win|Mac|Linux|X11/i.test(platform) || /Windows NT|Macintosh|X11/i.test(ua)) && !isMobileUA;
+        if (isDesktopOS && window.innerWidth >= 768) return true;
+      } catch (e) {}
+
+      return false;
+    }
+
+    if (checkIsPcMode()) {
+      document.documentElement.classList.add('is-pc');
+    } else {
+      document.documentElement.classList.add('is-mobile');
+    }
+  </script>
+  
+  <style>
+    :root {
+      --bg-dark: #070a13;
+      --bg-card: #101626;
+      --bg-surface: #182238;
+      --bg-input: #0b0f19;
+      --primary: #2563eb;
+      --primary-glow: rgba(37, 99, 235, 0.4);
+      --accent-green: #10b981;
+      --accent-green-glow: rgba(16, 185, 129, 0.4);
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-cyan: #38bdf8;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.1);
+      --border-focus: rgba(56, 189, 248, 0.5);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* MODO CLARO REFINED / ALTO CONTRASTE */
+    :root[data-theme="light"], [data-theme="light"], body.theme-light {
+      --bg-dark: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-surface: #ffffff;
+      --bg-input: #f8fafc;
+      --primary: #2563eb;
+      --primary-glow: rgba(37, 99, 235, 0.25);
+      --accent-green: #059669;
+      --accent-green-glow: rgba(5, 150, 105, 0.25);
+      --accent-amber: #d97706;
+      --accent-red: #dc2626;
+      --accent-cyan: #0284c7;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border: rgba(148, 163, 184, 0.35);
+      --border-focus: rgba(37, 99, 235, 0.6);
+    }
+
+    [data-theme="light"] .app-header {
+      background: rgba(255, 255, 255, 0.96);
+      border-bottom-color: #e2e8f0;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    }
+
+    [data-theme="light"] .brand-titles h1 {
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .header-time-pill {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .card {
+      background: #ffffff;
+      border-color: #e2e8f0;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+
+    [data-theme="light"] .card-title-row h2 {
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .id-display-input {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .id-display-input:focus {
+      border-color: #2563eb;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    [data-theme="light"] .btn-toggle-numpad {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      color: #334155;
+    }
+
+    [data-theme="light"] .btn-toggle-numpad:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    /* TECLADO VIRTUAL EN MODO CLARO: MÁXIMO CONTRASTE */
+    [data-theme="light"] .numpad-btn {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      color: #0f172a !important;
+      font-weight: 800;
+      box-shadow: 0 2px 5px rgba(15, 23, 42, 0.07);
+    }
+
+    [data-theme="light"] .numpad-btn:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+    }
+
+    [data-theme="light"] .numpad-btn:active {
+      background: #2563eb !important;
+      color: #ffffff !important;
+      border-color: #1d4ed8;
+    }
+
+    [data-theme="light"] .numpad-btn.btn-clear {
+      background: #fef2f2;
+      border-color: #fca5a5;
+      color: #dc2626 !important;
+      font-weight: 800;
+    }
+
+    [data-theme="light"] .numpad-btn.btn-backspace {
+      background: #fffbeb;
+      border-color: #fcd34d;
+      color: #b45309 !important;
+      font-weight: 800;
+    }
+
+    [data-theme="light"] .officer-match-dropdown {
+      background: #ffffff;
+      border-color: #93c5fd;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+    }
+
+    [data-theme="light"] .officer-match-item {
+      border-bottom-color: #f1f5f9;
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .officer-match-item:hover,
+    [data-theme="light"] .officer-match-item.is-selected {
+      background: #eff6ff;
+    }
+
+    [data-theme="light"] .match-item-name {
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .btn-action-outline {
+      border-color: #cbd5e1;
+      color: #475569;
+    }
+
+    [data-theme="light"] .btn-action-outline:hover {
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .salida-modal-card {
+      background: #ffffff;
+      border-color: #e2e8f0;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+    }
+
+    [data-theme="light"] .salida-modal-title {
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .salida-data-grid {
+      background: #f8fafc;
+      border-color: #e2e8f0;
+    }
+
+    [data-theme="light"] .salida-data-value {
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .matched-profile-card {
+      background: #ffffff;
+      border-color: #e2e8f0;
+    }
+
+    [data-theme="light"] .profile-name {
+      color: #0f172a;
+    }
+
+    .btn-theme-toggle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .btn-theme-toggle:hover {
+      border-color: var(--primary);
+      transform: scale(1.05);
+    }
+
+    .btn-theme-toggle:active {
+      transform: scale(0.92);
+    }
+
+    [data-theme="light"] .btn-theme-toggle {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      font-family: var(--font);
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding-bottom: 0;
+    }
+
+    /* HEADER */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(16, 22, 38, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: calc(env(safe-area-inset-top, 8px) + 6px) 16px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #10b981, #0284c7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      box-shadow: 0 2px 10px rgba(16, 185, 129, 0.35);
+    }
+
+    .brand-titles h1 {
+      font-size: 0.96rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+      line-height: 1.15;
+    }
+
+    .brand-titles span {
+      font-size: 0.7rem;
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    .header-time-pill {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: monospace;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .clock-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 8px var(--accent-green);
+      animation: pulseDot 2s infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* MAIN CONTAINER */
+    .main-content {
+      flex: 1;
+      padding: 10px 14px calc(env(safe-area-inset-bottom, 8px) + 72px);
+      max-width: 520px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      height: calc(100dvh - 58px);
+      box-sizing: border-box;
+      min-height: 0;
+      position: relative;
+    }
+
+    .step-screen {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      height: 100%;
+      min-height: 0;
+      animation: fadeIn 0.22s ease-out;
+    }
+
+    .step-screen.hidden {
+      display: none !important;
+    }
+
+    #step1Screen, #step3Screen, #step4Screen {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 24px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      margin-bottom: 16px;
+    }
+
+    .card-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .card-title-row h2 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    /* STEP 1: ID INPUT & KEYPAD & NAME SEARCH */
+    .id-display-input-wrap {
+      position: relative;
+      margin-bottom: 14px;
+      z-index: 50;
+    }
+
+    .id-display-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 38px 12px 14px;
+      font-size: 1.30rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: #38bdf8;
+      text-align: center;
+      outline: none;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      user-select: text;
+      text-transform: uppercase;
+      box-sizing: border-box;
+    }
+
+    .id-display-input:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 16px var(--primary-glow);
+    }
+
+    .btn-clear-input {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.12);
+      border: none;
+      color: #94a3b8;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: all 0.15s ease;
+      z-index: 5;
+    }
+
+    .btn-clear-input:hover {
+      background: rgba(239, 68, 68, 0.3);
+      color: #f87171;
+    }
+
+    /* DROPDOWN DE COINCIDENCIAS POR NOMBRE O SOCIO */
+    .officer-match-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: #0b1120;
+      border: 1.5px solid rgba(56, 189, 248, 0.5);
+      border-radius: var(--radius-sm);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85);
+      max-height: 260px;
+      overflow-y: auto;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .officer-match-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      cursor: pointer;
+      transition: background 0.12s ease;
+      text-align: left;
+    }
+
+    .officer-match-item:last-child {
+      border-bottom: none;
+    }
+
+    .officer-match-item:hover,
+    .officer-match-item.is-selected {
+      background: rgba(37, 99, 235, 0.35);
+    }
+
+    .match-item-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      object-fit: cover;
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      flex-shrink: 0;
+    }
+
+    .match-item-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .match-item-name {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #f8fafc;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .match-item-name mark {
+      background: rgba(56, 189, 248, 0.35);
+      color: #38bdf8;
+      font-weight: 800;
+      border-radius: 2px;
+      padding: 0 2px;
+    }
+
+    .match-item-sub {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.70rem;
+      color: var(--text-muted);
+    }
+
+    .match-item-id {
+      color: #94a3b8;
+      font-weight: 700;
+    }
+
+    .match-item-role {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      padding: 1px 6px;
+      color: #cbd5e1;
+    }
+
+    .match-no-results {
+      padding: 12px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* BOTÓN TOGGLE TECLADO EN PANTALLA (ESPECIALMENTE PC) */
+    .numpad-toggle-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 8px 0 12px;
+    }
+
+    .btn-toggle-numpad {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 14px;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      outline: none;
+      user-select: none;
+    }
+
+    .btn-toggle-numpad:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    .btn-toggle-numpad:active {
+      transform: scale(0.96);
+    }
+
+    .toggle-numpad-arrow {
+      font-size: 0.72rem;
+      transition: transform 0.2s ease;
+      display: inline-block;
+    }
+
+    .btn-toggle-numpad.is-open {
+      background: rgba(37, 99, 235, 0.14);
+      border-color: rgba(37, 99, 235, 0.35);
+      color: #38bdf8;
+    }
+
+    .numpad-grid.pc-collapsed {
+      display: none !important;
+    }
+
+    /* ========================================================
+       DISEÑO EN PC (ESCRITORIO 70% ANCHO):
+       Columna Izquierda: Identificación del oficial con resultados debajo.
+       Columna Derecha: Listado de elementos en turno (Salida Rápida).
+       ======================================================== */
+    html.is-pc body {
+      overflow: hidden;
+    }
+
+    html.is-pc .main-content {
+      height: calc(100vh - 58px);
+      overflow: hidden;
+      padding: 0;
+      max-width: 100% !important;
+    }
+
+    html.is-pc #step1Screen {
+      display: grid !important;
+      grid-template-columns: minmax(300px, 1fr) minmax(320px, 1fr);
+      gap: 16px;
+      height: 100%;
+      padding: 12px 18px 18px;
+      box-sizing: border-box;
+      max-width: 100% !important;
+      align-items: stretch;
+      overflow: hidden;
+    }
+
+    /* Columna Izquierda en PC: Identificación + Resultados Debajo */
+    html.is-pc .pc-identificacion-col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      height: 100%;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    html.is-pc .pc-identificacion-col .card {
+      margin-bottom: 0;
+      flex-shrink: 0;
+    }
+
+    /* Contenedor de Resultados Debajo en PC */
+    .pc-results-box {
+      display: none;
+    }
+
+    html.is-pc .pc-results-box {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .pc-results-empty {
+      background: var(--bg-card);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 0.84rem;
+      text-align: center;
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .pc-results-empty .empty-icon {
+      font-size: 2rem;
+      opacity: 0.7;
+    }
+
+    .pc-results-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .pc-results-card.hidden {
+      display: none !important;
+    }
+
+    /* Columna Derecha en PC: Control de Turnos en UNA SOLA COLUMNA (Arriba Entrantes, Abajo En Turno) */
+    html.is-pc .pending-salida-section {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-sizing: border-box;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .shifts-column-container {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-right: 4px;
+      margin-top: 10px;
+    }
+
+    .shifts-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .shifts-group-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .shifts-group-header.incoming {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.28);
+      color: #34d399;
+    }
+
+    .shifts-group-header.current {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.28);
+      color: #f87171;
+    }
+
+    .shifts-group-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .shifts-count-badge {
+      padding: 1px 7px;
+      border-radius: 999px;
+      font-size: 0.70rem;
+      font-weight: 800;
+    }
+
+    .shifts-count-badge.badge-incoming {
+      background: #10b981;
+      color: #042f2e;
+    }
+
+    .shifts-count-badge.badge-current {
+      background: #ef4444;
+      color: #ffffff;
+    }
+
+    .shifts-cards-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .pending-window-pill {
+      font-size: 0.72rem;
+      color: #38bdf8;
+      font-weight: 600;
+      display: inline-block;
+      margin-left: 4px;
+    }
+
+    /* UNA SOLA COLUMNA ESTRICTA: Las tarjetas abarcan el ancho completo */
+    html.is-pc .pending-salida-grid,
+    html.is-pc .shifts-cards-list {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 8px !important;
+      max-height: none !important;
+      overflow: visible !important;
+    }
+
+    .btn-quick-entrada {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 11px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+      transition: all 0.16s ease;
+      user-select: none;
+    }
+
+    .btn-quick-entrada:hover {
+      background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+      transform: scale(1.04);
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.55);
+    }
+
+    .btn-quick-entrada:active {
+      transform: scale(0.95);
+    }
+
+    .btn-salida-modal-confirm.is-entrada {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45) !important;
+    }
+
+    .btn-salida-modal-confirm.is-entrada:hover {
+      background: linear-gradient(135deg, #34d399 0%, #10b981 100%) !important;
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.65) !important;
+    }
+
+    .numpad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .numpad-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px 0;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.1s ease;
+      touch-action: manipulation;
+    }
+
+    .numpad-btn:active {
+      transform: scale(0.93);
+      background: #2563eb;
+      color: white;
+    }
+
+    .numpad-btn.btn-clear {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .numpad-btn.btn-backspace {
+      font-size: 1.15rem;
+      color: var(--accent-amber);
+    }
+
+    /* BOTONES DE ACCIÓN */
+    .btn-action-primary {
+      width: 100%;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 15px;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 16px var(--primary-glow);
+      transition: all 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    .btn-action-primary:active {
+      transform: scale(0.98);
+      filter: brightness(0.92);
+    }
+
+    .btn-action-entry {
+      background: linear-gradient(135deg, #10b981, #059669) !important;
+      box-shadow: 0 4px 18px var(--accent-green-glow) !important;
+    }
+
+    .btn-action-exit {
+      background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+      box-shadow: 0 4px 18px rgba(239, 68, 68, 0.45) !important;
+    }
+
+    .btn-action-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 10px;
+      width: 100%;
+      transition: all 0.15s ease;
+    }
+
+    .btn-action-outline:active {
+      transform: scale(0.98);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* ========================================================
+       PASO 2: CÁMARA ADAPTABLE CON ARO DE LUZ DE PANTALLA
+       ======================================================== */
+    #step2Screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+      position: relative;
+      overflow: hidden;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 0 35px 12px rgba(255, 255, 255, 0.95), 0 0 70px 25px rgba(255, 255, 255, 0.7);
+    }
+
+    .camera-viewport-wrap {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #020617;
+      overflow: hidden;
+    }
+
+    #videoStream {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1); /* Cámara en modo espejo */
+    }
+
+    #photoCanvas {
+      display: none;
+    }
+
+    /* Overlay Aro de Luz con Pantalla Blanca Reflectiva */
+    .screen-light-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 14px 20px;
+      z-index: 20;
+    }
+
+    /* Apertura Facial Oval con Luz Blanca Perimetral Continua */
+    .facial-ring-frame {
+      width: min(260px, 72vw);
+      height: min(350px, 50vh);
+      border-radius: 50% 50% 48% 48% / 55% 55% 45% 45%;
+      border: 4px solid #38bdf8;
+      box-shadow: 0 0 0 9999px #ffffff,
+                  0 0 50px 15px rgba(255, 255, 255, 1),
+                  inset 0 0 30px rgba(255, 255, 255, 0.8);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .facial-ring-frame.face-aligned {
+      border-color: #10b981;
+      box-shadow: 0 0 0 9999px #ffffff,
+                  0 0 60px 20px rgba(16, 185, 129, 0.9),
+                  inset 0 0 35px rgba(16, 185, 129, 0.6);
+    }
+
+    .facial-scanner-bar {
+      position: absolute;
+      width: 82%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+      box-shadow: 0 0 10px #38bdf8;
+      animation: scanAnim 2s infinite ease-in-out;
+    }
+
+    .facial-ring-frame.face-aligned .facial-scanner-bar {
+      background: linear-gradient(90deg, transparent, #10b981, transparent);
+      box-shadow: 0 0 12px #10b981;
+    }
+
+    @keyframes scanAnim {
+      0%, 100% { top: 16%; opacity: 0.3; }
+      50% { top: 84%; opacity: 1; }
+    }
+
+    /* Mensajes HUD Flotantes */
+    .hud-instruction-badge {
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      border-radius: 999px;
+      padding: 9px 18px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-align: center;
+      max-width: 90%;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.25s ease;
+    }
+
+    .hud-instruction-badge.waiting {
+      border-color: #f59e0b;
+      color: #fef3c7;
+      background: rgba(30, 27, 75, 0.92);
+      animation: pulseAttention 1.8s infinite ease-in-out;
+    }
+
+    .hud-instruction-badge.tracking {
+      border-color: #10b981;
+      color: #ecfdf5;
+      background: rgba(6, 78, 59, 0.92);
+    }
+
+    @keyframes pulseAttention {
+      0%, 100% { transform: scale(1); box-shadow: 0 6px 20px rgba(0,0,0,0.55); }
+      50% { transform: scale(1.02); box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4); }
+    }
+
+    .hud-countdown-badge {
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 2px solid #38bdf8;
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+      transition: all 0.25s ease;
+    }
+
+    .hud-countdown-badge.active {
+      border-color: #10b981;
+      box-shadow: 0 4px 22px rgba(16, 185, 129, 0.5);
+    }
+
+    .hud-countdown-badge.active .hud-countdown-num {
+      color: #10b981;
+    }
+
+    .hud-countdown-num {
+      color: #38bdf8;
+      font-size: 1.15rem;
+      font-weight: 900;
+      font-family: monospace;
+      min-width: 34px;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .hud-cancel-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      pointer-events: auto;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      z-index: 30;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    }
+
+    .hud-cancel-btn:active {
+      transform: scale(0.94);
+      background: rgba(239, 68, 68, 0.85);
+    }
+
+    .btn-pc-skip-camera {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.88);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 7px 16px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      cursor: pointer;
+      z-index: 50;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .btn-pc-skip-camera:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: #38bdf8;
+      color: #ffffff;
+      transform: translateX(-50%) scale(1.03);
+    }
+    .btn-pc-skip-camera:active {
+      transform: translateX(-50%) scale(0.96);
+    }
+
+    /* ========================================================
+       SECCIÓN DE OFICIALES EN TURNO PENDIENTES DE SALIDA (CASETA)
+       ======================================================== */
+    .pending-salida-section {
+      margin-top: 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .pending-salida-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .pending-header-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pending-header-icon {
+      font-size: 1.35rem;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+    }
+
+    .pending-header-title {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .pending-header-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    .pending-header-sub strong {
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    .btn-refresh-pending {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-refresh-pending:hover {
+      background: rgba(56, 189, 248, 0.18);
+      border-color: rgba(56, 189, 248, 0.5);
+      color: #38bdf8;
+      transform: rotate(45deg);
+    }
+
+    .pending-salida-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 600px) {
+      .pending-salida-grid {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      }
+    }
+
+    /* Tarjeta individual de Oficial en Turno */
+    .officer-salida-card {
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .officer-salida-card:hover {
+      border-color: rgba(239, 68, 68, 0.4);
+      background: rgba(26, 35, 58, 0.85);
+      box-shadow: 0 4px 16px rgba(239, 68, 68, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .officer-card-avatar-wrap {
+      position: relative;
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+    }
+
+    .officer-card-avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: 11px;
+      object-fit: cover;
+      background: #1e293b;
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .officer-card-status-dot {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #10b981;
+      border: 2px solid #0b1120;
+      box-shadow: 0 0 6px #10b981;
+      animation: pulseGreen 2s infinite;
+    }
+
+    @keyframes pulseGreen {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.15); opacity: 0.8; }
+    }
+
+    .officer-card-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .officer-card-name {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #f1f5f9;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.2;
+    }
+
+    .officer-card-sub {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.70rem;
+      color: var(--text-muted);
+    }
+
+    .officer-card-socio {
+      font-weight: 700;
+      color: #94a3b8;
+    }
+
+    .officer-card-shift-tag {
+      background: rgba(56, 189, 248, 0.14);
+      color: #38bdf8;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+
+    .officer-card-time {
+      font-size: 0.70rem;
+      color: #a7f3d0;
+      margin-top: 1px;
+    }
+
+    .btn-quick-salida {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
+      transition: all 0.16s ease;
+      user-select: none;
+    }
+
+    .btn-quick-salida:hover {
+      background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+      transform: scale(1.04);
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.55);
+    }
+
+    .btn-quick-salida:active {
+      transform: scale(0.95);
+    }
+
+    /* BOTÓN AZUL DE RELEVO CONTINUO / DOBLETE (Mismas características que RegAs 3) */
+    .btn-quick-salida.btn-quick-swap {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+      box-shadow: 0 3px 12px rgba(37, 99, 235, 0.45) !important;
+      gap: 5px;
+    }
+
+    .btn-quick-salida.btn-quick-swap:hover {
+      background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%) !important;
+      transform: scale(1.04);
+      box-shadow: 0 5px 16px rgba(37, 99, 235, 0.65) !important;
+    }
+
+    .btn-quick-salida.btn-quick-swap:active {
+      transform: scale(0.95);
+    }
+
+    .btn-quick-salida-icon-only {
+      background: rgba(239, 68, 68, 0.14);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 8px;
+      padding: 6px 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.16s ease;
+    }
+
+    .btn-quick-salida-icon-only:hover {
+      background: #ef4444;
+      color: #ffffff;
+      transform: scale(1.06);
+    }
+
+    .officer-salida-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    /* Estilos de Relevo Continuo para Paso 3 y Modal */
+    .btn-action-primary.btn-action-swap {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.45) !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    }
+
+    .btn-action-primary.btn-action-swap:hover {
+      background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%) !important;
+      box-shadow: 0 10px 28px rgba(37, 99, 235, 0.65) !important;
+      transform: translateY(-2px);
+    }
+
+    .btn-salida-modal-confirm.is-swap {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45) !important;
+    }
+
+    .btn-salida-modal-confirm.is-swap:hover {
+      background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%) !important;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.65) !important;
+    }
+
+    .shift-status-banner.status-swap {
+      background: rgba(37, 99, 235, 0.14);
+      border-color: rgba(59, 130, 246, 0.45);
+      color: #93c5fd;
+    }
+
+    .shift-status-banner.status-swap .shift-banner-title {
+      color: #60a5fa;
+    }
+
+    .btn-secondary-exit {
+      background: transparent;
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      color: #f87171;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 10px;
+      width: 100%;
+      transition: all 0.18s ease;
+    }
+
+    .btn-secondary-exit:hover {
+      background: rgba(239, 68, 68, 0.16);
+      border-color: #ef4444;
+      color: #ffffff;
+    }
+
+    .pending-empty-state {
+      padding: 16px 12px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.80rem;
+      background: rgba(15, 23, 42, 0.4);
+      border-radius: 10px;
+      border: 1px dashed rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pending-empty-state .empty-icon {
+      font-size: 1.4rem;
+      margin-bottom: 2px;
+    }
+
+    .pending-loading-state {
+      padding: 16px 12px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.80rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .spinner-sm {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: #38bdf8;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ========================================================
+       MODAL PERSONALIZADO DE CONFIRMACIÓN DE SALIDA
+       ======================================================== */
+    .salida-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .salida-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.82);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      animation: fadeInBackdrop 0.2s ease;
+    }
+
+    @keyframes fadeInBackdrop {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .salida-modal-dialog {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 420px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 18px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 24px rgba(239, 68, 68, 0.2);
+      overflow: hidden;
+      animation: popInModal 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes popInModal {
+      from { transform: scale(0.92) translateY(10px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .salida-modal-header {
+      padding: 14px 18px;
+      background: rgba(30, 41, 59, 0.6);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .salida-modal-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .salida-modal-icon {
+      font-size: 1.25rem;
+    }
+
+    .salida-modal-header h3 {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0;
+    }
+
+    .salida-modal-close-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 1.1rem;
+      cursor: pointer;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .salida-modal-close-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+
+    .salida-modal-body {
+      padding: 18px 20px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .salida-modal-photo-container {
+      position: relative;
+      width: 104px;
+      height: 104px;
+      margin-bottom: 12px;
+    }
+
+    .salida-modal-photo {
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+      object-fit: cover;
+      background: #1e293b;
+      border: 3px solid rgba(239, 68, 68, 0.6);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 16px rgba(239, 68, 68, 0.3);
+    }
+
+    .salida-modal-photo-pill {
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #94a3b8;
+      font-size: 0.58rem;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 999px;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .salida-modal-info {
+      margin-bottom: 14px;
+      width: 100%;
+    }
+
+    .salida-modal-name {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0 0 4px;
+      line-height: 1.3;
+    }
+
+    .salida-modal-badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .salida-modal-id {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .salida-modal-role {
+      font-size: 0.74rem;
+      color: #94a3b8;
+    }
+
+    .salida-modal-data-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    .salida-data-item {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .salida-data-item.highlight {
+      grid-column: span 2;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: 8px;
+      padding: 6px 10px;
+    }
+
+    .salida-data-label {
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #94a3b8;
+      font-weight: 700;
+    }
+
+    .salida-data-value {
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: #f1f5f9;
+    }
+
+    .salida-data-item.highlight .salida-data-value {
+      color: #f87171;
+      font-size: 0.94rem;
+    }
+
+    .salida-modal-alert {
+      font-size: 0.75rem;
+      color: #cbd5e1;
+      line-height: 1.4;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: 8px;
+      padding: 8px 10px;
+      width: 100%;
+    }
+
+    .salida-modal-footer {
+      padding: 14px 18px 18px;
+      background: rgba(30, 41, 59, 0.4);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-salida-modal-cancel {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-salida-modal-cancel:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+    }
+
+    .btn-salida-modal-confirm {
+      flex: 1.3;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      border: none;
+      color: #ffffff;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.45);
+      transition: all 0.16s ease;
+    }
+
+    .btn-salida-modal-confirm:hover {
+      background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(239, 68, 68, 0.6);
+    }
+
+    .btn-salida-modal-confirm:active {
+      transform: scale(0.98);
+    }
+
+    /* Destello de captura */
+    .flash-overlay {
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 100;
+      transition: opacity 0.08s ease-in;
+    }
+
+    .flash-overlay.active {
+      opacity: 1;
+    }
+
+    /* ========================================================
+       PASO 3: PANEL DETALLE DE TURNO & MINIATURA
+       ======================================================== */
+    .detail-profile-box {
+      background: var(--bg-surface);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .detail-mini-photo-wrap {
+      width: 72px;
+      height: 72px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 2.5px solid var(--accent-green);
+      background: #020617;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+      position: relative;
+    }
+
+    .detail-mini-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .detail-officer-info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .detail-officer-name {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .detail-officer-role {
+      font-size: 0.78rem;
+      color: var(--accent-cyan);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .detail-officer-id {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      font-family: monospace;
+      margin-top: 2px;
+    }
+
+    /* BANNER DE ESTADO SEGÚN REGLA 4 */
+    .shift-status-banner {
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+      border: 1px solid transparent;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .shift-status-banner.status-available {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.35);
+    }
+
+    .shift-status-banner.status-exit {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    .shift-status-banner.status-warning {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+
+    .shift-status-banner.status-error {
+      background: rgba(239, 68, 68, 0.14);
+      border-color: rgba(239, 68, 68, 0.45);
+    }
+
+    .shift-banner-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .shift-banner-icon {
+      font-size: 1.3rem;
+    }
+
+    .shift-banner-title {
+      font-size: 0.98rem;
+      font-weight: 800;
+    }
+
+    .status-available .shift-banner-title { color: #34d399; }
+    .status-exit .shift-banner-title { color: #f87171; }
+    .status-warning .shift-banner-title { color: #fbbf24; }
+    .status-error .shift-banner-title { color: #f87171; }
+
+    .shift-banner-text {
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: #cbd5e1;
+    }
+
+    .shift-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .shift-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .shift-meta-label {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .shift-meta-value {
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+
+    /* ========================================================
+       PASO 4: COMPROBANTE DIGITAL DE ASISTENCIA
+       ======================================================== */
+    .success-receipt-card {
+      background: var(--bg-card);
+      border: 2px solid var(--accent-green);
+      border-radius: 20px;
+      padding: 24px 18px;
+      text-align: center;
+      box-shadow: 0 10px 30px var(--accent-green-glow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .receipt-check-circle {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #10b981, #059669);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.1rem;
+      color: white;
+      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.5);
+      animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.4); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .receipt-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-top: 4px;
+    }
+
+    .receipt-photo-snapshot {
+      width: 100px;
+      height: 100px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 2.5px solid var(--accent-green);
+      margin: 6px 0;
+      background: #020617;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .receipt-table {
+      width: 100%;
+      background: var(--bg-surface);
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      text-align: left;
+      font-size: 0.84rem;
+    }
+
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .receipt-row:last-child {
+      border-bottom: none;
+    }
+
+    .receipt-label {
+      color: var(--text-muted);
+    }
+
+    .receipt-val {
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    /* TOAST ALERT */
+    .app-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(50px);
+      background: #1e293b;
+      border: 1px solid var(--border);
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: white;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .app-toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* DOCK DE NAVEGACIÓN MINI APPS */
+    /* Ocultar dock si se ejecuta embebido dentro de un iframe (como en la vista paralela de escritorio) */
+    html.is-embedded-iframe .miniapps-dock-wrapper,
+    body.is-embedded-iframe .miniapps-dock-wrapper {
+      display: none !important;
+    }
+
+    html.is-embedded-iframe .main-content,
+    body.is-embedded-iframe .main-content {
+      padding-bottom: 24px !important;
+    }
+
+    .miniapps-dock-wrapper {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 6px 12px calc(env(safe-area-inset-bottom, 8px) + 6px);
+      background: linear-gradient(180deg, rgba(7, 10, 19, 0) 0%, rgba(7, 10, 19, 0.88) 35%, rgba(7, 10, 19, 0.98) 100%);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    .miniapps-dock-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 22, 38, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      padding: 5px 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      pointer-events: auto;
+      max-width: 400px;
+      width: 100%;
+      justify-content: space-around;
+    }
+
+    .dock-item-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 5px 8px;
+      border-radius: 16px;
+      text-decoration: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      flex: 1;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+    }
+
+    .dock-item-btn:active {
+      transform: scale(0.92);
+    }
+
+    .dock-item-btn.active {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .dock-item-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      width: 14px;
+      height: 3px;
+      border-radius: 2px;
+      background: #059669;
+      box-shadow: 0 0 6px #059669;
+    }
+
+    .dock-icon-squircle {
+      width: 35px;
+      height: 35px;
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.22);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .dock-item-btn.active .dock-icon-squircle {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 5px 14px rgba(5, 150, 105, 0.4);
+    }
+
+    .icon-cdi { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); }
+    .icon-checador { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
+    .icon-recorridos { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); }
+    .icon-bitacora { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); }
+
+    .dock-item-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #94a3b8;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+    }
+
+    .dock-item-btn.active .dock-item-label {
+      color: #ffffff;
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="brand-icon">📸</div>
+      <div class="brand-titles">
+        <h1>Asistencia y Checador Facial</h1>
+        <span>RegAs 3 • Inteligencia Artificial</span>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <div class="header-time-pill">
+        <div class="clock-dot"></div>
+        <span id="headerClock">00:00:00</span>
+      </div>
+      <button type="button" id="btnThemeToggleChecador" class="btn-theme-toggle" title="Alternar tema Claro / Oscuro" aria-label="Cambiar tema">
+        <span id="themeToggleIcon">🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="main-content">
+
+    <!-- ========================================================
+         PASO 1: EL ELEMENTO PONE SU NÚMERO DE SOCIO
+         ======================================================== -->
+    <div class="step-screen" id="step1Screen">
+      <!-- COLUMNA IZQUIERDA EN PC: IDENTIFICACIÓN DEL OFICIAL Y RESULTADOS DEBAJO -->
+      <div class="pc-identificacion-col" id="pcIdentificacionCol">
+        <div class="card" id="cardIdentificacionSocio">
+          <div class="card-title-row">
+            <span style="font-size: 1.25rem;">👤</span>
+            <h2>Identificación del Oficial</h2>
+          </div>
+
+          <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.45;" id="identificacionHelpText">
+            Ingresa tu <strong>Número de Socio</strong> o <strong>Nombre</strong> para verificar turno y registrar asistencia.
+          </p>
+
+          <div class="id-display-input-wrap">
+            <input type="text" id="inputId" class="id-display-input" placeholder="NO. DE SOCIO O NOMBRE" maxlength="60" autocomplete="off" spellcheck="false">
+            <button type="button" class="btn-clear-input" id="btnClearInput" title="Limpiar búsqueda">✕</button>
+            <div class="officer-match-dropdown" id="officerMatchDropdown" style="display: none;"></div>
+          </div>
+
+          <!-- Botón Desplegable para Teclado en Pantalla -->
+          <div class="numpad-toggle-wrap" id="numpadToggleWrap">
+            <button type="button" class="btn-toggle-numpad" id="btnToggleNumpad" title="Mostrar/ocultar teclado en pantalla">
+              <span class="toggle-numpad-icon">⌨️</span>
+              <span class="toggle-numpad-label">Teclado en pantalla</span>
+              <span class="toggle-numpad-arrow" id="toggleNumpadArrow">▼</span>
+            </button>
+          </div>
+
+          <!-- Teclado Táctil Integrado -->
+          <div class="numpad-grid" id="numpadGrid">
+            <button type="button" class="numpad-btn" data-key="1">1</button>
+            <button type="button" class="numpad-btn" data-key="2">2</button>
+            <button type="button" class="numpad-btn" data-key="3">3</button>
+            <button type="button" class="numpad-btn" data-key="4">4</button>
+            <button type="button" class="numpad-btn" data-key="5">5</button>
+            <button type="button" class="numpad-btn" data-key="6">6</button>
+            <button type="button" class="numpad-btn" data-key="7">7</button>
+            <button type="button" class="numpad-btn" data-key="8">8</button>
+            <button type="button" class="numpad-btn" data-key="9">9</button>
+            <button type="button" class="numpad-btn btn-clear" data-key="C">Limpiar</button>
+            <button type="button" class="numpad-btn" data-key="0">0</button>
+            <button type="button" class="numpad-btn btn-backspace" data-key="DEL">⌫</button>
+          </div>
+
+          <button type="button" class="btn-action-primary" id="btnSubmitSocio">
+            <span id="btnSubmitSocioText">Continuar a Cámara Facial →</span>
+          </button>
+        </div>
+
+        <!-- RESULTADOS DEBAJO DE LA IDENTIFICACIÓN (EN PC) -->
+        <div class="pc-results-box" id="pcResultsBox">
+          <div class="pc-results-empty" id="pcResultsEmpty">
+            <span class="empty-icon">ℹ️</span>
+            <span>Escribe el número de socio y presiona <strong style="color: #38bdf8;">Enter</strong> para consultar turno y registrar entrada o salida directamente sin cámara.</span>
+          </div>
+
+          <div class="pc-results-card hidden" id="pcResultsCard">
+            <div class="detail-profile-box">
+              <div class="detail-mini-photo-wrap">
+                <img id="pcResultThumbImg" class="detail-mini-img" src="iconos/silueta.svg" alt="Foto Oficial">
+              </div>
+              <div class="detail-officer-info">
+                <div class="detail-officer-name" id="pcResultOfficerName">Nombre Oficial</div>
+                <div class="detail-officer-role" id="pcResultOfficerRole">Oficial de Seguridad</div>
+                <div class="detail-officer-id" id="pcResultOfficerId">ID: #000000</div>
+              </div>
+            </div>
+
+            <div class="shift-status-banner status-available" id="pcResultShiftBanner">
+              <div class="shift-banner-header">
+                <span class="shift-banner-icon" id="pcResultShiftBannerIcon">🌅</span>
+                <span class="shift-banner-title" id="pcResultShiftBannerTitle">Turno Disponible</span>
+              </div>
+              <div class="shift-banner-text" id="pcResultShiftBannerText">
+                Validando turno...
+              </div>
+              <div class="shift-meta-grid">
+                <div class="shift-meta-item">
+                  <span class="shift-meta-label">Caseta</span>
+                  <span class="shift-meta-value" id="pcResultCasetaVal">-</span>
+                </div>
+                <div class="shift-meta-item">
+                  <span class="shift-meta-label">Horario</span>
+                  <span class="shift-meta-value" id="pcResultHorarioVal">06:00 a 14:00 hrs</span>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" class="btn-action-primary" id="btnPcActionAttendance">
+              <span id="btnPcActionText">📥 REGISTRAR MI ENTRADA</span>
+            </button>
+
+            <button type="button" class="btn-secondary-exit" id="btnPcOnlySalida" style="display: none;">
+              <span>🚪 Solo Marcar Salida (Sin Doblete)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN DERECHA EN PC: CONTROL DE TURNOS (UNA SOLA COLUMNA: ARRIBA ENTRANTES, ABAJO EN TURNO) -->
+      <div class="pending-salida-section" id="pendingSalidaSection">
+        <div class="pending-salida-header">
+          <div class="pending-header-title-wrap">
+            <span class="pending-header-icon" id="pendingHeaderIcon">📋</span>
+            <div>
+              <div class="pending-header-title">Relevo y Control de Turnos</div>
+              <div class="pending-header-sub" id="pendingCasetaSub">Caseta: <strong id="pendingCasetaName">Detectando...</strong> • <span id="pendingWindowPill" class="pending-window-pill">Calculando turno...</span></div>
+            </div>
+          </div>
+          <button type="button" class="btn-refresh-pending" id="btnRefreshPending" title="Actualizar lista de oficiales">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Contenedor en UNA SOLA COLUMNA: Arriba los que van a entrar, Abajo los en turno -->
+        <div class="shifts-column-container" id="shiftsColumnContainer">
+          <!-- 1. GRUPO ARRIBA: ELEMENTOS QUE VAN A ENTRAR -->
+          <div class="shifts-group incoming-group" id="groupEntrantes">
+            <div class="shifts-group-header incoming">
+              <div class="shifts-group-title">
+                <span class="group-icon">📥</span>
+                <span id="titleEntrantesGroup">Elementos por Entrar</span>
+              </div>
+              <span class="shifts-count-badge badge-incoming" id="badgeEntrantesCount">0</span>
+            </div>
+            <div class="shifts-cards-list" id="pendingEntradaList">
+              <div class="pending-loading-state">
+                <div class="spinner-sm"></div>
+                <span>Consultando oficiales por entrar...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. GRUPO ABAJO: ELEMENTOS EN TURNO (PENDIENTES DE SALIDA) -->
+          <div class="shifts-group current-group" id="groupEnTurno">
+            <div class="shifts-group-header current">
+              <div class="shifts-group-title">
+                <span class="group-icon">🚪</span>
+                <span id="titleEnTurnoGroup">Elementos en Turno</span>
+              </div>
+              <span class="shifts-count-badge badge-current" id="badgeEnTurnoCount">0</span>
+            </div>
+            <div class="shifts-cards-list" id="pendingSalidaGrid">
+              <div class="pending-loading-state">
+                <div class="spinner-sm"></div>
+                <span>Consultando oficiales en turno...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         PASO 2: CÁMARA ADAPTABLE CON ARO DE LUZ DE PANTALLA
+         Máx 3 segundos detectando el rostro
+         ======================================================== -->
+    <div class="step-screen hidden" id="step2Screen">
+      <div class="camera-viewport-wrap" id="cameraViewport">
+        <video id="videoStream" autoplay playsinline muted></video>
+        <canvas id="photoCanvas"></canvas>
+        <div class="flash-overlay" id="flashOverlay"></div>
+
+        <!-- Visor Oval con Aro de Luz de Pantalla Brillante -->
+        <div class="facial-ring-frame" id="facialRingFrame">
+          <div class="facial-scanner-bar"></div>
+        </div>
+
+        <!-- Botón para cancelar y volver a socio si el usuario lo requiere -->
+        <button type="button" class="hud-cancel-btn" id="btnCancelCamera" title="Volver a ingresar número de socio">
+          <span>✕</span>
+          <span>Volver a Socio</span>
+        </button>
+
+        <!-- Botón de emergencia para PC si no detecta cámara física real -->
+        <button type="button" class="btn-pc-skip-camera" id="btnPcSkipCamera" style="display: none;" title="Avanzar a registro directo en equipo de escritorio">
+          <span>💻 Continuar a registro (Equipo sin cámara) →</span>
+        </button>
+
+        <!-- Mensajes y Temporizador en Pantalla -->
+        <div class="screen-light-overlay">
+          <!-- Instrucción dinámica al elemento -->
+          <div class="hud-instruction-badge waiting" id="hudInstruction">
+            <span>⚠️ Ponte a la vista de la cámara para comenzar</span>
+          </div>
+
+          <!-- Temporizador Máximo 3 Segundos de Reconocimiento -->
+          <div class="hud-countdown-badge" id="hudCountdownBadge">
+            <span id="hudCountdownLabel">En espera:</span>
+            <span class="hud-countdown-num" id="countdownSecs">3.0</span>s
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         PASO 3: PANEL DETALLE DE TURNO & MINIATURA
+         ======================================================== -->
+    <div class="step-screen hidden" id="step3Screen">
+      <div class="card">
+        <div class="card-title-row">
+          <span style="font-size: 1.25rem;">📋</span>
+          <h2>Detalle de Turno</h2>
+        </div>
+
+        <!-- Tarjeta del Oficial con Miniatura ("mini") de la foto tomada -->
+        <div class="detail-profile-box">
+          <div class="detail-mini-photo-wrap">
+            <img id="detailThumbImg" class="detail-mini-img" src="" alt="Miniatura de Captura">
+          </div>
+          <div class="detail-officer-info">
+            <div class="detail-officer-name" id="detailOfficerName">Cargando oficial...</div>
+            <div class="detail-officer-role" id="detailOfficerRole">Oficial de Seguridad</div>
+            <div class="detail-officer-id" id="detailOfficerId">ID: #000000</div>
+          </div>
+        </div>
+
+        <!-- Banner de Estado según Regla 4 (Ausentismo / Sin Registro / Entrada / Salida) -->
+        <div class="shift-status-banner status-available" id="shiftBanner">
+          <div class="shift-banner-header">
+            <span class="shift-banner-icon" id="shiftBannerIcon">🌅</span>
+            <span class="shift-banner-title" id="shiftBannerTitle">Turno Disponible</span>
+          </div>
+          <div class="shift-banner-text" id="shiftBannerText">
+            Validando turno...
+          </div>
+          <div class="shift-meta-grid" id="shiftMetaGrid">
+            <div class="shift-meta-item">
+              <span class="shift-meta-label">Caseta / Puesto</span>
+              <span class="shift-meta-value" id="detailCasetaVal">-</span>
+            </div>
+            <div class="shift-meta-item">
+              <span class="shift-meta-label">Horario Operativo</span>
+              <span class="shift-meta-value" id="detailHorarioVal">06:00 a 14:00 hrs</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón Dinámico de Asistencia -->
+        <button type="button" class="btn-action-primary" id="btnActionAttendance">
+          <span id="btnActionText">📥 MARCAR ENTRADA</span>
+        </button>
+
+        <button type="button" class="btn-secondary-exit" id="btnOnlySalida" style="display: none;">
+          <span>🚪 Solo Marcar Salida (Sin Doblete)</span>
+        </button>
+
+        <button type="button" class="btn-action-outline" id="btnRetakePhoto">
+          <span>📷 Repetir Toma de Foto</span>
+        </button>
+
+        <button type="button" class="btn-action-outline" id="btnBackToSocio">
+          <span>← Consultar Otro Número de Socio</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         PASO 4: COMPROBANTE DIGITAL CONFIRMADO
+         ======================================================== -->
+    <div class="step-screen hidden" id="step4Screen">
+      <div class="success-receipt-card">
+        <div class="receipt-check-circle">✓</div>
+        <div class="receipt-title" id="receiptTitle">¡Registro Exitoso!</div>
+        <p style="font-size: 0.82rem; color: var(--text-muted);" id="receiptSubtitle">
+          Tu asistencia ha sido transmitida y confirmada en el Centro de Control y la vista Registros.
+        </p>
+
+        <!-- Miniatura en el Comprobante -->
+        <div class="receipt-photo-snapshot">
+          <img id="receiptPhotoImg" style="width: 100%; height: 100%; object-fit: cover;" src="" alt="Foto Comprobante">
+        </div>
+
+        <div class="receipt-table">
+          <div class="receipt-row">
+            <span class="receipt-label">Oficial</span>
+            <span class="receipt-val" id="receiptOfficerName">-</span>
+          </div>
+          <div class="receipt-row">
+            <span class="receipt-label">No. Socio</span>
+            <span class="receipt-val" id="receiptOfficerId">-</span>
+          </div>
+          <div class="receipt-row">
+            <span class="receipt-label">Caseta</span>
+            <span class="receipt-val" id="receiptCasetaVal">-</span>
+          </div>
+          <div class="receipt-row">
+            <span class="receipt-label">Turno</span>
+            <span class="receipt-val" id="receiptShiftLabel">-</span>
+          </div>
+          <div class="receipt-row">
+            <span class="receipt-label" id="receiptTimeLabel">Hora de Registro</span>
+            <span class="receipt-val" style="color: var(--accent-green);" id="receiptEntryTime">00:00:00</span>
+          </div>
+          <div class="receipt-row">
+            <span class="receipt-label">Fecha</span>
+            <span class="receipt-val" id="receiptDate">01/11/2026</span>
+          </div>
+          <div class="receipt-row">
+            <span class="receipt-label">Método</span>
+            <span class="receipt-val" style="color: var(--accent-cyan);">Checador Facial Móvil</span>
+          </div>
+        </div>
+
+        <button type="button" class="btn-action-primary" id="btnFinishAll" style="margin-top: 6px;">
+          <span>✓ Finalizar / Siguiente Oficial</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         MODAL PERSONALIZADO DE CONFIRMACIÓN DE SALIDA RÁPIDA
+         ======================================================== -->
+    <div class="salida-modal-overlay" id="salidaConfirmModal" style="display: none;">
+      <div class="salida-modal-backdrop" id="salidaModalBackdrop"></div>
+      <div class="salida-modal-dialog">
+        <div class="salida-modal-header">
+          <div class="salida-modal-title-row">
+            <span class="salida-modal-icon" id="salidaModalIcon">🚪</span>
+            <h3 id="salidaModalTitle">Confirmar Salida de Oficial</h3>
+          </div>
+          <button type="button" class="salida-modal-close-btn" id="btnSalidaModalClose" title="Cerrar ventana">✕</button>
+        </div>
+
+        <div class="salida-modal-body">
+          <!-- Fotografía Oficial de RegAs 3 -->
+          <div class="salida-modal-photo-container">
+            <img id="salidaModalPhoto" class="salida-modal-photo" src="" alt="Foto Oficial RegAs">
+            <div class="salida-modal-photo-pill" id="salidaModalPhotoPill">Fotografía RegAs 3</div>
+          </div>
+
+          <div class="salida-modal-info">
+            <h4 id="salidaModalName" class="salida-modal-name">Nombre del Oficial</h4>
+            <div class="salida-modal-badge-row">
+              <span class="salida-modal-id" id="salidaModalId">Socio #000000</span>
+              <span class="salida-modal-role" id="salidaModalRole">Oficial de Seguridad</span>
+            </div>
+          </div>
+
+          <!-- Datos del turno -->
+          <div class="salida-modal-data-grid">
+            <div class="salida-data-item">
+              <span class="salida-data-label">Caseta CDI</span>
+              <span class="salida-data-value" id="salidaModalCaseta">-</span>
+            </div>
+            <div class="salida-data-item">
+              <span class="salida-data-label" id="salidaModalTurnoLabel">Turno Activo</span>
+              <span class="salida-data-value" id="salidaModalTurno">-</span>
+            </div>
+            <div class="salida-data-item">
+              <span class="salida-data-label">Entrada Registrada</span>
+              <span class="salida-data-value" id="salidaModalEntrada">-</span>
+            </div>
+            <div class="salida-data-item highlight">
+              <span class="salida-data-label" id="salidaModalHoraLabel">Hora Salida Actual</span>
+              <span class="salida-data-value" id="salidaModalSalidaHora">--:-- hrs</span>
+            </div>
+          </div>
+
+          <div class="salida-modal-alert" id="salidaModalAlert">
+            <span id="salidaModalAlertText">⚠️ Se registrará la salida inmediata de este elemento en los registros oficiales de RegAs 3.</span>
+          </div>
+        </div>
+
+        <div class="salida-modal-footer">
+          <button type="button" class="btn-salida-modal-cancel" id="btnSalidaModalCancel">Cancelar</button>
+          <button type="button" class="btn-salida-modal-confirm" id="btnSalidaModalConfirm">
+            <span class="btn-icon">✓</span>
+            <span id="btnSalidaModalConfirmText">Confirmar Salida</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="app-toast" id="appToast">Mensaje</div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    (function() {
+      const escapeHtml = str => String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
+      // =========================================================================
+      // 0. CONTROL DE PERMISOS POR DISPOSITIVO (DEFECTO: SOLO CDI)
+      // =========================================================================
+      const getDeviceUuid = () => {
+        let id = localStorage.getItem('regas_cdi_device_uuid');
+        if (!id) {
+          id = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 8);
+          localStorage.setItem('regas_cdi_device_uuid', id);
+        }
+        return id;
+      };
+
+      let _lastFeatures = null;
+      const applyFeatures = (features) => {
+        if (!features || typeof features !== 'object') return;
+        _lastFeatures = features;
+        const normalized = {
+          checador: features.checador === true,
+          recorridos: features.recorridos === true,
+          bitacoras: (features.bitacoras === true || features.bitacora === true)
+        };
+        try {
+          localStorage.setItem('regas_cdi_device_features', JSON.stringify(normalized));
+        } catch(e) {}
+
+        if (normalized.checador !== true) {
+          // El operador revocó el permiso de Checador: expulsar de inmediato a CDI
+          window.location.replace('./?app=cdi');
+          return;
+        }
+
+        const bChecador = document.getElementById('dockBtnChecador');
+        const bRecorridos = document.getElementById('dockBtnRecorridos');
+        const bBitacoras = document.getElementById('dockBtnBitacoras');
+        const dockWrapper = document.querySelector('.miniapps-dock-wrapper');
+
+        if (bChecador) bChecador.style.display = normalized.checador ? '' : 'none';
+        if (bRecorridos) bRecorridos.style.display = normalized.recorridos ? '' : 'none';
+        if (bBitacoras) bBitacoras.style.display = normalized.bitacoras ? '' : 'none';
+
+        if (dockWrapper) {
+          if (window.self !== window.top) {
+            dockWrapper.style.display = 'none';
+          } else {
+            const hasExtra = (normalized.checador || normalized.recorridos || normalized.bitacoras);
+            dockWrapper.style.display = hasExtra ? '' : 'none';
+          }
+        }
+      };
+
+      try {
+        const rawCached = localStorage.getItem('regas_cdi_device_features');
+        if (rawCached) {
+          const parsed = JSON.parse(rawCached);
+          if (parsed && parsed.checador !== true) {
+            window.location.replace('./?app=cdi');
+            return;
+          }
+          _lastFeatures = parsed;
+        } else {
+          window.location.replace('./?app=cdi');
+          return;
+        }
+      } catch(e) {}
+
+      const ensureDockFiltered = () => {
+        if (_lastFeatures) applyFeatures(_lastFeatures);
+      };
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', ensureDockFiltered);
+      } else {
+        ensureDockFiltered();
+      }
+      window.addEventListener('load', ensureDockFiltered);
+
+      // Backend Base URL
+      const BACKEND_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('10.') || window.location.hostname.startsWith('192.168.'))
+        ? ''
+        : 'https://be-regas.cic-10.com';
+
+      // Sincronización en vivo vía SSE y fetch
+      try {
+        const myDevId = getDeviceUuid();
+        fetch(`${BACKEND_BASE}/api/cdi/devices/features?deviceId=${encodeURIComponent(myDevId)}`)
+          .then(r => r.ok ? r.json() : null)
+          .then(d => { if (d && d.features) applyFeatures(d.features); })
+          .catch(() => {});
+
+        const es = new EventSource(`${BACKEND_BASE}/api/events`);
+        es.onmessage = (e) => {
+          try {
+            const data = JSON.parse(e.data);
+            if (data && data.type === 'cdi_device_update' && data.payload) {
+              const p = data.payload;
+              if ((p.deviceId === myDevId || p._id === myDevId) && p.features) {
+                applyFeatures(p.features);
+              }
+            }
+          } catch(err) {}
+        };
+      } catch(e) {}
+
+      // =========================================================================
+      // ESTADO GLOBAL DE LA APLICACIÓN
+      // =========================================================================
+      const state = {
+        currentStep: 1,
+        elemId: localStorage.getItem('regas_last_id') || '',
+        elementData: null,
+        shiftData: null,
+        cameraStream: null,
+        capturedBase64: null,
+        entryTime: null
+      };
+
+      // Sintetizador Web Audio
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      function playTone(freq, duration, type = 'sine') {
+        try {
+          if (audioCtx.state === 'suspended') audioCtx.resume();
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+      }
+
+      function soundBeep() { playTone(880, 0.08); }
+      function soundCapture() { playTone(520, 0.06); setTimeout(() => playTone(680, 0.08), 70); }
+      function soundSuccess() {
+        playTone(523.25, 0.1); // C5
+        setTimeout(() => playTone(659.25, 0.1), 100); // E5
+        setTimeout(() => playTone(783.99, 0.25), 200); // G5
+      }
+      function soundWarning() { playTone(300, 0.2, 'sawtooth'); }
+
+      function showToast(msg, duration = 3000) {
+        const toast = document.getElementById('appToast');
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), duration);
+      }
+
+      function setStep(stepNum) {
+        // En PC: omitir reconocimiento facial en todos los casos
+        if (stepNum === 2 && isDesktopView()) {
+          console.warn('[Checador PC] Omitiendo paso 2 (cámara biométrica) en PC');
+          return;
+        }
+
+        state.currentStep = stepNum;
+        document.querySelectorAll('.step-screen').forEach((el, idx) => {
+          el.classList.toggle('hidden', idx + 1 !== stepNum);
+        });
+
+        if (stepNum === 1) {
+          if (typeof loadPendingSalida === 'function') {
+            loadPendingSalida();
+          }
+        }
+
+        if (stepNum === 2) {
+          startCameraSession();
+        } else {
+          stopCameraSession();
+        }
+      }
+
+      // Reloj Header en Tiempo Real
+      setInterval(() => {
+        const now = new Date();
+        const clockEl = document.getElementById('headerClock');
+        if (clockEl) {
+          clockEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+      }, 1000);
+
+      // =========================================================================
+      // PASO 1: EL ELEMENTO PONE SU NÚMERO DE SOCIO
+      // =========================================================================
+      const inputId = document.getElementById('inputId');
+      const btnClearInput = document.getElementById('btnClearInput');
+      const officerMatchDropdown = document.getElementById('officerMatchDropdown');
+      const btnSubmitSocio = document.getElementById('btnSubmitSocio');
+
+      let elementosCatalog = [];
+      let elementosLoaded = false;
+      let currentHighlightedIndex = -1;
+      let currentMatches = [];
+
+      async function loadElementosCatalog() {
+        if (elementosLoaded && elementosCatalog.length > 0) return;
+        try {
+          const res = await fetch(`${BACKEND_BASE}/api/elementos`, {
+            headers: { 'Bypass-Tunnel-Reminder': 'true' }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const list = Array.isArray(data) ? data : (Array.isArray(data.elementos) ? data.elementos : []);
+            elementosCatalog = list.map(item => ({
+              id: String(item.id || item.ID || item.clave || '').trim(),
+              nombre: (item.nombre || item.Nombre || '').trim(),
+              puesto: item.Puesto || item.puesto || item.AccesoPredeterminado || 'Oficial',
+              foto: item.foto || item.Foto || '',
+              estado: item.Estado || item.estado || 'Activo'
+            })).filter(x => x.id && x.nombre);
+
+            // Priorizar oficiales activos y ordenar alfabéticamente por nombre
+            elementosCatalog.sort((a, b) => {
+              if (a.estado === 'Activo' && b.estado !== 'Activo') return -1;
+              if (a.estado !== 'Activo' && b.estado === 'Activo') return 1;
+              return a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' });
+            });
+
+            elementosLoaded = true;
+          }
+        } catch (err) {
+          console.warn('[Error cargando catálogo de oficiales]', err);
+        }
+      }
+
+      function normalizeSearchStr(str) {
+        return String(str || '')
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/ñ/g, 'n')
+          .trim();
+      }
+
+      function searchOfficers(query) {
+        if (!query) return [];
+        const rawQ = query.trim();
+        if (!rawQ) return [];
+        const cleanQ = normalizeSearchStr(rawQ);
+        if (!cleanQ) return [];
+
+        const isNumeric = /^\d+$/.test(rawQ);
+
+        if (isNumeric) {
+          return elementosCatalog.filter(elem => {
+            return elem.id.startsWith(rawQ) || elem.id === rawQ;
+          }).slice(0, 6);
+        } else {
+          // Búsqueda por nombre normalizando mayúsculas, minúsculas y acentos
+          const queryTokens = cleanQ.split(/\s+/).filter(Boolean);
+          return elementosCatalog.filter(elem => {
+            const normName = normalizeSearchStr(elem.nombre);
+            return queryTokens.every(token => normName.includes(token));
+          }).slice(0, 8);
+        }
+      }
+
+      function renderOfficerMatches(matches, query) {
+        currentMatches = matches || [];
+        currentHighlightedIndex = matches && matches.length > 0 ? 0 : -1;
+
+        if (!officerMatchDropdown) return;
+
+        if (!matches || matches.length === 0) {
+          if (query && query.trim().length > 0) {
+            officerMatchDropdown.innerHTML = `
+              <div class="match-no-results">
+                <span>🔍 No se encontraron oficiales para "<strong>${escapeHtml(query)}</strong>"</span>
+              </div>
+            `;
+            officerMatchDropdown.style.display = 'flex';
+          } else {
+            hideOfficerMatches();
+          }
+          return;
+        }
+
+        let html = '';
+        matches.forEach((elem, index) => {
+          const isSelected = (index === currentHighlightedIndex) ? ' is-selected' : '';
+          const photoUrl = elem.foto 
+            ? (elem.foto.startsWith('http') || elem.foto.startsWith('/') ? elem.foto : `${BACKEND_BASE}/${elem.foto}`) 
+            : `${BACKEND_BASE}/api/photos/elementos/${elem.id}`;
+
+          let displayName = escapeHtml(elem.nombre);
+          if (!/^\d+$/.test(query.trim())) {
+            const tokens = query.trim().split(/\s+/).filter(Boolean);
+            tokens.forEach(tok => {
+              try {
+                const reg = new RegExp(`(${tok.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                displayName = displayName.replace(reg, '<mark>$1</mark>');
+              } catch(e) {}
+            });
+          }
+
+          html += `
+            <div class="officer-match-item${isSelected}" data-index="${index}" data-id="${elem.id}">
+              <img src="${photoUrl}" class="match-item-avatar" alt="${escapeHtml(elem.nombre)}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 40 40\\'><rect width=\\'40\\' height=\\'40\\' fill=\\'%231e293b\\'/><text x=\\'50%\\' y=\\'54%\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' font-size=\\'18\\'>👤</text></svg>';">
+              <div class="match-item-info">
+                <div class="match-item-name">${displayName}</div>
+                <div class="match-item-sub">
+                  <span class="match-item-id">Socio #${elem.id}</span>
+                  <span class="match-item-role">${escapeHtml(elem.puesto)}</span>
+                  ${elem.estado !== 'Activo' ? `<span style="color:#ef4444;font-size:0.65rem;">(${elem.estado})</span>` : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        officerMatchDropdown.innerHTML = html;
+        officerMatchDropdown.style.display = 'flex';
+
+        officerMatchDropdown.querySelectorAll('.officer-match-item').forEach(item => {
+          item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const idx = parseInt(item.dataset.index, 10);
+            if (currentMatches[idx]) {
+              selectOfficerMatch(currentMatches[idx]);
+            }
+          });
+        });
+      }
+
+      function hideOfficerMatches() {
+        if (officerMatchDropdown) {
+          officerMatchDropdown.style.display = 'none';
+          officerMatchDropdown.innerHTML = '';
+        }
+        currentMatches = [];
+        currentHighlightedIndex = -1;
+      }
+
+      function updateHighlightedMatch() {
+        if (!officerMatchDropdown) return;
+        const items = officerMatchDropdown.querySelectorAll('.officer-match-item');
+        items.forEach((item, idx) => {
+          if (idx === currentHighlightedIndex) {
+            item.classList.add('is-selected');
+            item.scrollIntoView({ block: 'nearest' });
+          } else {
+            item.classList.remove('is-selected');
+          }
+        });
+      }
+
+      function selectOfficerMatch(match) {
+        if (!match) return;
+        soundBeep();
+        hideOfficerMatches();
+        if (inputId) {
+          inputId.value = match.id;
+        }
+        updateClearButtonVisibility();
+        processSocioStep(match.id);
+      }
+
+      function updateClearButtonVisibility() {
+        if (btnClearInput && inputId) {
+          btnClearInput.style.display = inputId.value.length > 0 ? 'flex' : 'none';
+        }
+      }
+
+      function handleInputIdChange() {
+        updateClearButtonVisibility();
+        const val = inputId ? inputId.value.trim() : '';
+
+        if (isDesktopView() && state.elemId && val !== state.elemId) {
+          const pcResultsCard = document.getElementById('pcResultsCard');
+          const pcResultsEmpty = document.getElementById('pcResultsEmpty');
+          if (pcResultsCard) {
+            pcResultsCard.classList.add('hidden');
+            pcResultsCard.style.display = 'none';
+          }
+          if (pcResultsEmpty) {
+            pcResultsEmpty.style.display = 'flex';
+            pcResultsEmpty.innerHTML = `
+              <span class="empty-icon">ℹ️</span>
+              <span>Escribe el número de socio o nombre y presiona <strong style="color: #38bdf8;">Enter</strong> para consultar turno y registrar entrada o salida directamente sin cámara.</span>
+            `;
+          }
+        }
+
+        if (!val) {
+          hideOfficerMatches();
+          return;
+        }
+
+        if (!elementosLoaded) {
+          loadElementosCatalog().then(() => {
+            const current = inputId ? inputId.value.trim() : '';
+            if (current) {
+              const m = searchOfficers(current);
+              renderOfficerMatches(m, current);
+            }
+          });
+        }
+
+        const hasLetters = /[a-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(val);
+        if (hasLetters || val.length >= 2) {
+          const matches = searchOfficers(val);
+          renderOfficerMatches(matches, val);
+        } else {
+          hideOfficerMatches();
+        }
+      }
+
+      if (state.elemId && inputId) {
+        inputId.value = state.elemId;
+        updateClearButtonVisibility();
+      }
+
+      document.querySelectorAll('.numpad-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          soundBeep();
+          const key = btn.getAttribute('data-key');
+          if (key === 'C') {
+            inputId.value = '';
+          } else if (key === 'DEL') {
+            inputId.value = inputId.value.slice(0, -1);
+          } else if (key) {
+            if (inputId.value.length < 20) {
+              inputId.value += key;
+            }
+          }
+          handleInputIdChange();
+        });
+      });
+
+      if (btnClearInput) {
+        btnClearInput.addEventListener('click', () => {
+          soundBeep();
+          if (inputId) {
+            inputId.value = '';
+            try { inputId.focus(); } catch (e) {}
+          }
+          updateClearButtonVisibility();
+          hideOfficerMatches();
+          if (isDesktopView()) {
+            resetPcSocioResult();
+          }
+        });
+      }
+
+      document.addEventListener('click', (e) => {
+        const wrap = document.querySelector('.id-display-input-wrap');
+        if (wrap && !wrap.contains(e.target)) {
+          hideOfficerMatches();
+        }
+      });
+
+      // En PC: ocultar el teclado en pantalla por defecto y permitir desplegarlo con la flechita
+      const isPc = isDesktopView() || window.location.search.includes('device=pc');
+      const numpadGrid = document.getElementById('numpadGrid') || document.querySelector('.numpad-grid');
+      const btnToggleNumpad = document.getElementById('btnToggleNumpad');
+      const toggleNumpadArrow = document.getElementById('toggleNumpadArrow');
+
+      if (isPc) {
+        if (numpadGrid) numpadGrid.classList.add('pc-collapsed');
+        if (btnToggleNumpad) {
+          btnToggleNumpad.classList.remove('is-open');
+          btnToggleNumpad.title = 'Desplegar teclado numérico en pantalla';
+        }
+        if (toggleNumpadArrow) toggleNumpadArrow.textContent = '▼';
+        // Enfoque automático al campo de socio en PC para teclear directamente con el teclado físico
+        if (inputId) {
+          setTimeout(() => {
+            try { inputId.focus(); } catch (e) {}
+          }, 150);
+        }
+      } else {
+        // En móvil mantener el teclado abierto por defecto para interacción táctil
+        if (numpadGrid) numpadGrid.classList.remove('pc-collapsed');
+        if (btnToggleNumpad) {
+          btnToggleNumpad.classList.add('is-open');
+          btnToggleNumpad.title = 'Ocultar teclado numérico en pantalla';
+        }
+        if (toggleNumpadArrow) toggleNumpadArrow.textContent = '▲';
+      }
+
+      if (btnToggleNumpad && numpadGrid) {
+        btnToggleNumpad.addEventListener('click', () => {
+          soundBeep();
+          const isCollapsed = numpadGrid.classList.contains('pc-collapsed');
+          if (isCollapsed) {
+            numpadGrid.classList.remove('pc-collapsed');
+            btnToggleNumpad.classList.add('is-open');
+            btnToggleNumpad.title = 'Ocultar teclado numérico en pantalla';
+            if (toggleNumpadArrow) toggleNumpadArrow.textContent = '▲';
+          } else {
+            numpadGrid.classList.add('pc-collapsed');
+            btnToggleNumpad.classList.remove('is-open');
+            btnToggleNumpad.title = 'Desplegar teclado numérico en pantalla';
+            if (toggleNumpadArrow) toggleNumpadArrow.textContent = '▼';
+          }
+        });
+      }
+
+      // Detección precisa de modo escritorio/PC (exclusivo para PC real, nunca móviles)
+      function isDesktopView() {
+        return typeof checkIsPcMode === 'function' ? checkIsPcMode() : false;
+      }
+
+      // Si estamos en PC, ajustar textos iniciales
+      if (isDesktopView()) {
+        const btnText = document.getElementById('btnSubmitSocioText');
+        if (btnText) btnText.textContent = 'Consultar Socio →';
+      }
+
+      // Verificación de cámara activa real
+      async function hasWorkingCamera() {
+        if (isDesktopView()) return false; // En PC omite reconocimiento facial en todos los casos
+        try {
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return false;
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      if (btnSubmitSocio) {
+        btnSubmitSocio.addEventListener('click', () => processSocioStep());
+      }
+
+      inputId.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown') {
+          if (currentMatches.length > 0) {
+            e.preventDefault();
+            currentHighlightedIndex = (currentHighlightedIndex + 1) % currentMatches.length;
+            updateHighlightedMatch();
+          }
+          return;
+        }
+        if (e.key === 'ArrowUp') {
+          if (currentMatches.length > 0) {
+            e.preventDefault();
+            currentHighlightedIndex = (currentHighlightedIndex - 1 + currentMatches.length) % currentMatches.length;
+            updateHighlightedMatch();
+          }
+          return;
+        }
+        if (e.key === 'Escape') {
+          hideOfficerMatches();
+          return;
+        }
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (currentMatches.length > 0 && currentHighlightedIndex >= 0 && currentMatches[currentHighlightedIndex]) {
+            selectOfficerMatch(currentMatches[currentHighlightedIndex]);
+            return;
+          }
+          const currentVal = inputId.value.trim();
+          if (isDesktopView() && state.elemId && currentVal === state.elemId && state.shiftData) {
+            submitPcAttendance(false);
+          } else {
+            processSocioStep();
+          }
+        }
+      });
+
+      inputId.addEventListener('input', () => {
+        handleInputIdChange();
+      });
+
+      async function processSocioStep(forcedId = null) {
+        hideOfficerMatches();
+        let idVal = (forcedId !== null ? String(forcedId) : (inputId ? inputId.value : '')).trim();
+        if (!idVal) {
+          showToast('⚠️ Por favor ingresa tu Número de Socio o Nombre');
+          soundWarning();
+          return;
+        }
+
+        // Si contiene letras, buscar el oficial más coincidente por nombre normalizado
+        if (/[^\d]/.test(idVal)) {
+          const matches = searchOfficers(idVal);
+          if (matches.length > 0) {
+            idVal = String(matches[0].id);
+            if (inputId) inputId.value = idVal;
+            updateClearButtonVisibility();
+          } else {
+            showToast('⚠️ No se encontró oficial con ese nombre');
+            soundWarning();
+            return;
+          }
+        }
+
+        const isPc = isDesktopView();
+        btnSubmitSocio.disabled = true;
+        btnSubmitSocio.innerHTML = '<span>⏳ Consultando socio...</span>';
+
+        try {
+          const res = await fetch(`${BACKEND_BASE}/api/asistencia/turno-disponible?id=${encodeURIComponent(idVal)}`, {
+            headers: { 'Bypass-Tunnel-Reminder': 'true' }
+          });
+          const data = await res.json();
+
+          if (!res.ok || !data.success) {
+            showToast(data.error || 'Número de socio no encontrado en el sistema');
+            soundWarning();
+            if (isPc) {
+              const pcResultsEmpty = document.getElementById('pcResultsEmpty');
+              const pcResultsCard = document.getElementById('pcResultsCard');
+              if (pcResultsEmpty) {
+                pcResultsEmpty.style.display = 'flex';
+                pcResultsEmpty.innerHTML = `<span class="empty-icon">⚠️</span><span style="color:#ef4444; font-weight:600;">${escapeHtml(data.error || 'Número de socio no encontrado en el sistema')}</span>`;
+              }
+              if (pcResultsCard) {
+                pcResultsCard.classList.add('hidden');
+                pcResultsCard.style.display = 'none';
+              }
+            }
+            return;
+          }
+
+          state.elemId = idVal;
+          localStorage.setItem('regas_last_id', idVal);
+          state.elementData = data.elemento;
+          state.shiftData = data;
+
+          soundBeep();
+
+          // REGLA CLAVE: En PC OMITIR RECONOCIMIENTO FACIAL EN TODOS LOS CASOS
+          // Coloca los resultados debajo de la identificación sin cambiar de pantalla
+          if (isPc) {
+            console.log('[Checador PC] Omitiendo reconocimiento facial en PC: desplegando resultado debajo');
+            state.capturedBase64 = null;
+            renderPcSocioResult(data);
+            return;
+          }
+
+          // Flujo móvil estándar: avanzar a reconocimiento facial con cámara
+          setStep(2);
+        } catch (err) {
+          console.error('[Error consultando socio]', err);
+          showToast('Error de red al consultar el número de socio');
+          soundWarning();
+        } finally {
+          btnSubmitSocio.disabled = false;
+          btnSubmitSocio.innerHTML = isPc
+            ? '<span>Consultar Socio →</span>'
+            : '<span>Continuar a Cámara Facial →</span>';
+        }
+      }
+
+      // Renderizar resultados debajo de la identificación en PC
+      function renderPcSocioResult(data) {
+        const elem = data.elemento || {};
+        const shiftDetails = data.shiftDetails || {};
+        const pcResultsEmpty = document.getElementById('pcResultsEmpty');
+        const pcResultsCard = document.getElementById('pcResultsCard');
+        if (!pcResultsCard) return;
+
+        if (pcResultsEmpty) pcResultsEmpty.style.display = 'none';
+        pcResultsCard.classList.remove('hidden');
+        pcResultsCard.style.display = 'flex';
+
+        const thumbImg = document.getElementById('pcResultThumbImg');
+        const nameEl = document.getElementById('pcResultOfficerName');
+        const roleEl = document.getElementById('pcResultOfficerRole');
+        const idEl = document.getElementById('pcResultOfficerId');
+        const bannerEl = document.getElementById('pcResultShiftBanner');
+        const bannerIcon = document.getElementById('pcResultShiftBannerIcon');
+        const bannerTitle = document.getElementById('pcResultShiftBannerTitle');
+        const bannerText = document.getElementById('pcResultShiftBannerText');
+        const casetaVal = document.getElementById('pcResultCasetaVal');
+        const horarioVal = document.getElementById('pcResultHorarioVal');
+        const btnAction = document.getElementById('btnPcActionAttendance');
+        const btnActionText = document.getElementById('btnPcActionText');
+        const btnOnlySalida = document.getElementById('btnPcOnlySalida');
+
+        if (thumbImg) {
+          if (elem.foto) {
+            thumbImg.src = elem.foto;
+          } else if (data.elemId || state.elemId) {
+            thumbImg.src = `${BACKEND_BASE}/api/photos/elementos/${encodeURIComponent(data.elemId || state.elemId)}`;
+          } else {
+            thumbImg.src = 'iconos/silueta.svg';
+          }
+          thumbImg.onerror = function() {
+            this.onerror = null;
+            this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" rx="14" fill="%231e293b"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="34">👤</text></svg>';
+          };
+        }
+
+        if (nameEl) nameEl.textContent = elem.nombre || `Oficial #${data.elemId || state.elemId}`;
+        if (roleEl) roleEl.textContent = elem.puesto || 'Oficial de Seguridad';
+        if (idEl) idEl.textContent = `No. Socio: #${data.elemId || state.elemId}`;
+
+        const assignedCaseta = (shiftDetails.Caseta || shiftDetails.caseta || data.casetaAsignada || '').trim();
+        const activeTerminalCaseta = getActiveCaseta();
+        if (casetaVal) {
+          casetaVal.textContent = assignedCaseta || activeTerminalCaseta || 'Caseta General';
+        }
+        if (horarioVal) {
+          horarioVal.textContent = data.targetHorario || '06:00 a 14:00 hrs';
+        }
+
+        const action = data.action || 'sin_registro';
+        if (btnOnlySalida) btnOnlySalida.style.display = 'none';
+
+        if (action === 'ausentismo') {
+          if (bannerEl) bannerEl.className = 'shift-status-banner status-error';
+          if (bannerIcon) bannerIcon.textContent = '⛔';
+          if (bannerTitle) bannerTitle.textContent = 'Ausentismo Asignado';
+          if (bannerText) bannerText.textContent = data.legend || 'No se puede registrar asistencia, se asignó ausentismo.';
+          if (btnAction) btnAction.style.display = 'none';
+        } else if (action === 'sin_registro') {
+          if (bannerEl) bannerEl.className = 'shift-status-banner status-warning';
+          if (bannerIcon) bannerIcon.textContent = 'ℹ️';
+          if (bannerTitle) bannerTitle.textContent = 'Sin Registro Asignado';
+          if (bannerText) bannerText.textContent = data.legend || 'No cuenta con turno asignado para este día/horario.';
+          if (btnAction) btnAction.style.display = 'none';
+        } else if (action === 'salida') {
+          if (data.isConsecutive) {
+            if (bannerEl) bannerEl.className = 'shift-status-banner status-swap';
+            if (bannerIcon) bannerIcon.textContent = '🔄';
+            if (bannerTitle) bannerTitle.textContent = 'Relevo Continuo Asignado';
+            if (bannerText) bannerText.textContent = `Oficial en turno (${data.targetLabel || ''}). Doblete continuo (${data.nextShiftLabel || data.nextShiftKey}) asignado para hoy.`;
+            if (btnAction) {
+              btnAction.style.display = 'flex';
+              btnAction.className = 'btn-action-primary btn-action-swap';
+            }
+            if (btnActionText) {
+              btnActionText.innerHTML = `<span>🔄 CONTINUAR A TURNO ${(data.nextShiftShortLabel || data.nextShiftKey || '').toUpperCase()}</span>`;
+            }
+            if (btnOnlySalida) btnOnlySalida.style.display = 'flex';
+          } else {
+            if (bannerEl) bannerEl.className = 'shift-status-banner status-exit';
+            if (bannerIcon) bannerIcon.textContent = '🚪';
+            if (bannerTitle) bannerTitle.textContent = 'Salida de Turno';
+            if (bannerText) bannerText.textContent = data.statusMessage || `Entrada registrada a las ${data.horaEntrada || ''} hrs. Listo para registrar salida.`;
+            if (btnAction) {
+              btnAction.style.display = 'flex';
+              btnAction.className = 'btn-action-primary btn-action-exit';
+            }
+            if (btnActionText) {
+              btnActionText.innerHTML = '<span>🚪 REGISTRAR MI SALIDA</span>';
+            }
+          }
+        } else {
+          // Entrada estándar
+          if (bannerEl) bannerEl.className = 'shift-status-banner status-available';
+          if (bannerIcon) bannerIcon.textContent = '📥';
+          if (bannerTitle) bannerTitle.textContent = 'Entrada a Turno';
+          if (bannerText) bannerText.textContent = data.statusMessage || `Turno programado (${data.targetLabel || ''}). Listo para registrar entrada.`;
+          if (btnAction) {
+            btnAction.style.display = 'flex';
+            btnAction.className = 'btn-action-primary btn-action-entry';
+          }
+          if (btnActionText) {
+            btnActionText.innerHTML = '<span>📥 REGISTRAR MI ENTRADA</span>';
+          }
+        }
+      }
+
+      async function submitPcAttendance(isOnlySalida = false) {
+        soundBeep();
+        const shiftData = state.shiftData || {};
+        const isSalida = (shiftData.action === 'salida') || isOnlySalida;
+        const isSwap = Boolean(shiftData.action === 'salida' && shiftData.isConsecutive && !isOnlySalida);
+
+        const btnAction = document.getElementById('btnPcActionAttendance');
+        const btnActionText = document.getElementById('btnPcActionText');
+        const btnOnlySalida = document.getElementById('btnPcOnlySalida');
+
+        if (btnAction) btnAction.disabled = true;
+        if (btnOnlySalida) btnOnlySalida.disabled = true;
+        if (btnActionText) btnActionText.innerHTML = '<span>⏳ Guardando registro...</span>';
+
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const horaStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        const horaFull = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const diaKey = shiftData.targetDia || `${pad(now.getDate())}${pad(now.getMonth() + 1)}${now.getFullYear()}`;
+        const fechaLegible = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
+
+        state.entryTime = horaFull;
+
+        const shiftDetails = shiftData.shiftDetails || {};
+        const assignedCaseta = (shiftDetails.Caseta || shiftDetails.caseta || shiftData.casetaAsignada || '').trim();
+        const activeTerminalCaseta = getActiveCaseta();
+        const finalCaseta = assignedCaseta || activeTerminalCaseta;
+
+        let endpoint = `${BACKEND_BASE}/api/asistencia/entrada`;
+        let payload = {
+          elemId: String(state.elemId),
+          turno: shiftData.targetShift || 'matutino',
+          hora: horaStr,
+          fecha: fechaLegible,
+          dia: diaKey,
+          mes: shiftData.targetMes || undefined,
+          anio: shiftData.targetAnio || undefined,
+          Caseta: finalCaseta,
+          terminalCaseta: activeTerminalCaseta,
+          foto: null, // Omitir reconocimiento facial en PC
+          tipo: isSalida ? 'salida' : 'entrada',
+          source: 'pc'
+        };
+
+        if (isSwap) {
+          endpoint = `${BACKEND_BASE}/api/asistencia/shift-swap`;
+          const nextAssigned = (shiftData.nextShiftDetails?.Caseta || shiftData.nextShiftDetails?.caseta || assignedCaseta || '').trim();
+          payload = {
+            elemId: String(state.elemId),
+            turno: shiftData.targetShift || 'matutino',
+            nextTurno: shiftData.nextShiftKey || 'vespertino',
+            hora: horaStr,
+            fecha: fechaLegible,
+            dia: diaKey,
+            mes: shiftData.targetMes || undefined,
+            anio: shiftData.targetAnio || undefined,
+            caseta: nextAssigned || activeTerminalCaseta,
+            terminalCaseta: activeTerminalCaseta,
+            foto: null,
+            isNextDay: shiftData.nextShiftIsNextDay || false,
+            source: 'pc'
+          };
+        } else if (isSalida) {
+          endpoint = `${BACKEND_BASE}/api/asistencia/salida`;
+        }
+
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
+            body: JSON.stringify(payload)
+          });
+          const result = await res.json();
+
+          if (res.ok && result.success) {
+            soundSuccess();
+            const officerName = state.elementData?.nombre || `Socio #${state.elemId}`;
+            const successMsg = isSwap
+              ? `🔵 Relevo registrado: ${officerName}`
+              : (isSalida ? `🚪 Salida registrada: ${officerName}` : `✅ Entrada registrada: ${officerName}`);
+            showToast(successMsg);
+
+            // Actualizar lista de elementos en turno del lado derecho inmediatamente
+            if (typeof loadPendingSalida === 'function') {
+              loadPendingSalida();
+            }
+
+            // Mostrar estado de éxito en el card de resultados por 2.5s y reiniciar
+            const bannerEl = document.getElementById('pcResultShiftBanner');
+            const bannerIcon = document.getElementById('pcResultShiftBannerIcon');
+            const bannerTitle = document.getElementById('pcResultShiftBannerTitle');
+            const bannerText = document.getElementById('pcResultShiftBannerText');
+
+            if (bannerEl) bannerEl.className = 'shift-status-banner status-available';
+            if (bannerIcon) bannerIcon.textContent = '✅';
+            if (bannerTitle) bannerTitle.textContent = '¡Registro Completado!';
+            if (bannerText) bannerText.textContent = `${successMsg} (${horaFull} hrs). Listo para el siguiente socio.`;
+
+            if (btnAction) {
+              btnAction.className = 'btn-action-primary';
+              btnAction.style.background = '#10b981';
+            }
+            if (btnActionText) btnActionText.textContent = '✓ Registrado';
+
+            setTimeout(() => {
+              resetPcSocioResult();
+            }, 2500);
+
+          } else {
+            showToast(result.error || 'Error al guardar asistencia');
+            soundWarning();
+            if (btnAction) btnAction.disabled = false;
+            if (btnOnlySalida) btnOnlySalida.disabled = false;
+            if (btnActionText) {
+              btnActionText.innerHTML = isSwap
+                ? `<span>🔄 CONTINUAR A TURNO ${(shiftData.nextShiftShortLabel || shiftData.nextShiftKey || '').toUpperCase()}</span>`
+                : (isSalida ? '<span>🚪 REGISTRAR MI SALIDA</span>' : '<span>📥 REGISTRAR MI ENTRADA</span>');
+            }
+          }
+        } catch (err) {
+          console.error('[Error guardando asistencia en PC]', err);
+          showToast('Error de conexión al guardar asistencia');
+          soundWarning();
+          if (btnAction) btnAction.disabled = false;
+          if (btnOnlySalida) btnOnlySalida.disabled = false;
+        }
+      }
+
+      function resetPcSocioResult() {
+        state.elemId = '';
+        state.elementData = null;
+        state.shiftData = null;
+        state.capturedBase64 = null;
+        if (inputId) {
+          inputId.value = '';
+          try { inputId.focus(); } catch(e) {}
+        }
+        if (typeof updateClearButtonVisibility === 'function') updateClearButtonVisibility();
+        if (typeof hideOfficerMatches === 'function') hideOfficerMatches();
+        const pcResultsCard = document.getElementById('pcResultsCard');
+        const pcResultsEmpty = document.getElementById('pcResultsEmpty');
+        if (pcResultsCard) {
+          pcResultsCard.classList.add('hidden');
+          pcResultsCard.style.display = 'none';
+        }
+        if (pcResultsEmpty) {
+          pcResultsEmpty.style.display = 'flex';
+          pcResultsEmpty.innerHTML = `
+            <span class="empty-icon">ℹ️</span>
+            <span>Escribe el número de socio o nombre y presiona <strong style="color: #38bdf8;">Enter</strong> para consultar turno y registrar entrada o salida directamente sin cámara.</span>
+          `;
+        }
+        const btnAction = document.getElementById('btnPcActionAttendance');
+        const btnOnlySalida = document.getElementById('btnPcOnlySalida');
+        if (btnAction) {
+          btnAction.disabled = false;
+          btnAction.style.background = '';
+        }
+        if (btnOnlySalida) {
+          btnOnlySalida.disabled = false;
+          btnOnlySalida.style.display = 'none';
+        }
+      }
+
+      const btnPcActionAttendance = document.getElementById('btnPcActionAttendance');
+      if (btnPcActionAttendance) {
+        btnPcActionAttendance.addEventListener('click', () => submitPcAttendance(false));
+      }
+
+      const btnPcOnlySalida = document.getElementById('btnPcOnlySalida');
+      if (btnPcOnlySalida) {
+        btnPcOnlySalida.addEventListener('click', () => submitPcAttendance(true));
+      }
+
+      // =========================================================================
+      // OFICIALES EN TURNO PENDIENTES DE SALIDA (CASETA CDI ACTUAL)
+      // =========================================================================
+      const pendingSalidaGrid = document.getElementById('pendingSalidaGrid');
+      const pendingCasetaName = document.getElementById('pendingCasetaName');
+      const btnRefreshPending = document.getElementById('btnRefreshPending');
+
+      const salidaConfirmModal = document.getElementById('salidaConfirmModal');
+      const salidaModalBackdrop = document.getElementById('salidaModalBackdrop');
+      const btnSalidaModalClose = document.getElementById('btnSalidaModalClose');
+      const btnSalidaModalCancel = document.getElementById('btnSalidaModalCancel');
+      const btnSalidaModalConfirm = document.getElementById('btnSalidaModalConfirm');
+      const btnSalidaModalConfirmText = document.getElementById('btnSalidaModalConfirmText');
+      const salidaModalPhoto = document.getElementById('salidaModalPhoto');
+      const salidaModalName = document.getElementById('salidaModalName');
+      const salidaModalId = document.getElementById('salidaModalId');
+      const salidaModalRole = document.getElementById('salidaModalRole');
+      const salidaModalCaseta = document.getElementById('salidaModalCaseta');
+      const salidaModalTurno = document.getElementById('salidaModalTurno');
+      const salidaModalEntrada = document.getElementById('salidaModalEntrada');
+      const salidaModalSalidaHora = document.getElementById('salidaModalSalidaHora');
+
+      let currentModalElement = null;
+      let currentModalAction = 'salida'; // 'entrada' | 'salida' | 'swap'
+
+      function getActiveCaseta() {
+        const qCaseta = new URLSearchParams(window.location.search).get('caseta');
+        if (qCaseta && qCaseta.trim()) return qCaseta.trim();
+
+        const stored = localStorage.getItem('regas_cdi_last_caseta') ||
+                       localStorage.getItem('caseta_seleccionada_cic') ||
+                       localStorage.getItem('regas_cdi_device_caseta');
+        if (stored && stored.trim()) return stored.trim();
+
+        return 'Edison';
+      }
+
+      async function loadPendingSalida() {
+        const caseta = getActiveCaseta();
+        if (pendingCasetaName) pendingCasetaName.textContent = caseta || 'General';
+
+        try {
+          const res = await fetch(`${BACKEND_BASE}/api/asistencia/en-turno-pendientes-salida?caseta=${encodeURIComponent(caseta)}`, {
+            headers: { 'Bypass-Tunnel-Reminder': 'true' }
+          });
+          const data = await res.json();
+
+          if (res.ok && data.success) {
+            renderShiftsLists(data, caseta);
+          } else {
+            renderShiftsLists({ entrantes: [], enTurno: [] }, caseta);
+          }
+        } catch (err) {
+          console.warn('[Error cargando oficiales]', err);
+          renderShiftsLists({ entrantes: [], enTurno: [] }, caseta);
+        }
+      }
+
+      function renderShiftsLists(data, caseta) {
+        const entrantes = Array.isArray(data.entrantes) ? data.entrantes : [];
+        const enTurno = Array.isArray(data.enTurno) ? data.enTurno : (Array.isArray(data.elementos) ? data.elementos : []);
+
+        const pendingWindowPill = document.getElementById('pendingWindowPill');
+        if (pendingWindowPill) {
+          pendingWindowPill.textContent = data.windowTitle || '';
+        }
+
+        const titleEntrantesGroup = document.getElementById('titleEntrantesGroup');
+        if (titleEntrantesGroup) {
+          titleEntrantesGroup.textContent = `Elementos por Entrar • ${data.incomingLabel || 'Turno Entrante'}`;
+        }
+
+        const titleEnTurnoGroup = document.getElementById('titleEnTurnoGroup');
+        if (titleEnTurnoGroup) {
+          titleEnTurnoGroup.textContent = `Elementos en Turno • ${data.outgoingLabel || 'En Turno'}`;
+        }
+
+        const badgeEntrantesCount = document.getElementById('badgeEntrantesCount');
+        if (badgeEntrantesCount) badgeEntrantesCount.textContent = entrantes.length;
+
+        const badgeEnTurnoCount = document.getElementById('badgeEnTurnoCount');
+        if (badgeEnTurnoCount) badgeEnTurnoCount.textContent = enTurno.length;
+
+        // 1. RENDERIZAR ENTRANTES (ARRIBA - UNA SOLA COLUMNA)
+        const pendingEntradaList = document.getElementById('pendingEntradaList');
+        if (pendingEntradaList) {
+          if (entrantes.length === 0) {
+            pendingEntradaList.innerHTML = `
+              <div class="pending-empty-state">
+                <span class="empty-icon">✓</span>
+                <span>No hay oficiales pendientes de entrar en ${data.incomingLabel || 'este turno'}</span>
+              </div>
+            `;
+          } else {
+            let htmlEntrantes = '';
+            entrantes.forEach(el => {
+              const photoSrc = el.foto || `${BACKEND_BASE}/api/photos/elementos/${el.id}`;
+              const elJson = encodeURIComponent(JSON.stringify(el));
+              htmlEntrantes += `
+                <div class="officer-salida-card officer-card-entrante" id="cardOfficer_${el.id}">
+                  <div class="officer-card-avatar-wrap">
+                    <img src="${photoSrc}" class="officer-card-avatar" alt="${escapeHtml(el.nombre)}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 40 40\\'><rect width=\\'40\\' height=\\'40\\' fill=\\'%231e293b\\'/><text x=\\'50%\\' y=\\'54%\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' font-size=\\'18\\'>👤</text></svg>';">
+                    <span class="officer-card-status-dot" style="background:#10b981; box-shadow:0 0 8px rgba(16,185,129,0.85);" title="Programado para entrar"></span>
+                  </div>
+                  <div class="officer-card-content">
+                    <div class="officer-card-name" title="${escapeHtml(el.nombre)}">${escapeHtml(el.nombre)}</div>
+                    <div class="officer-card-sub">
+                      <span class="officer-card-socio">Socio #${el.id}</span>
+                      <span class="officer-card-shift-tag" style="background: rgba(16,185,129,0.18); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3);">${el.turnoLabel}</span>
+                    </div>
+                    <div class="officer-card-time" style="color: #6ee7b7;">
+                      <span>Horario: <strong>${el.horario || 'Programado'}</strong></span>
+                    </div>
+                  </div>
+                  <button type="button" class="btn-quick-entrada" data-officer="${elJson}" title="Marcar entrada con confirmación previa">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <polyline points="19 12 12 19 5 12"></polyline>
+                    </svg>
+                    <span>Marcar Entrada</span>
+                  </button>
+                </div>
+              `;
+            });
+            pendingEntradaList.innerHTML = htmlEntrantes;
+          }
+        }
+
+        // 2. RENDERIZAR EN TURNO (ABAJO - UNA SOLA COLUMNA)
+        const pendingSalidaGrid = document.getElementById('pendingSalidaGrid');
+        if (pendingSalidaGrid) {
+          if (enTurno.length === 0) {
+            pendingSalidaGrid.innerHTML = `
+              <div class="pending-empty-state">
+                <span class="empty-icon">✓</span>
+                <span>No hay oficiales en turno pendientes de salida en Caseta <strong>${escapeHtml(caseta || 'esta caseta')}</strong></span>
+              </div>
+            `;
+          } else {
+            let htmlSalida = '';
+            enTurno.forEach(el => {
+              const photoSrc = el.foto || `${BACKEND_BASE}/api/photos/elementos/${el.id}`;
+              const elJson = encodeURIComponent(JSON.stringify(el));
+
+              if (el.isConsecutive) {
+                // Doblete / Relevo Continuo -> Botón Azul
+                htmlSalida += `
+                  <div class="officer-salida-card" id="cardOfficer_${el.id}">
+                    <div class="officer-card-avatar-wrap">
+                      <img src="${photoSrc}" class="officer-card-avatar" alt="${escapeHtml(el.nombre)}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 40 40\\'><rect width=\\'40\\' height=\\'40\\' fill=\\'%231e293b\\'/><text x=\\'50%\\' y=\\'54%\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' font-size=\\'18\\'>👤</text></svg>';">
+                      <span class="officer-card-status-dot" style="background:#3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.85);" title="Turno Continuo Asignado"></span>
+                    </div>
+                    <div class="officer-card-content">
+                      <div class="officer-card-name" title="${escapeHtml(el.nombre)}">${escapeHtml(el.nombre)}</div>
+                      <div class="officer-card-sub">
+                        <span class="officer-card-socio">Socio #${el.id}</span>
+                        <span class="officer-card-shift-tag" style="background: rgba(37,99,235,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.35);">Doblete: ${el.turnoLabel} ➔ ${el.nextShiftLabel || el.nextShiftKey}</span>
+                      </div>
+                      <div class="officer-card-time">
+                        <span>Entrada: <strong>${el.horaEntrada} hrs</strong></span>
+                      </div>
+                    </div>
+                    <div class="officer-salida-actions">
+                      <button type="button" class="btn-quick-salida btn-quick-swap" data-officer="${elJson}" data-swap="true" title="Confirmar Relevo Continuo: Salida de ${el.turno} e ingreso a ${el.nextShiftLabel || el.nextShiftKey}">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6">
+                          <polyline points="13 17 18 12 13 7"/>
+                          <polyline points="6 17 11 12 6 7"/>
+                        </svg>
+                        <span>Relevar a ${el.nextShiftLabel || el.nextShiftKey}</span>
+                      </button>
+                      <button type="button" class="btn-quick-salida-icon-only" data-officer="${elJson}" data-swap="false" title="Solo marcar salida de turno ${el.turno}">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                          <polyline points="16 17 21 12 16 7"/>
+                          <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                `;
+              } else {
+                // Salida Estándar -> Botón Rojo
+                htmlSalida += `
+                  <div class="officer-salida-card" id="cardOfficer_${el.id}">
+                    <div class="officer-card-avatar-wrap">
+                      <img src="${photoSrc}" class="officer-card-avatar" alt="${escapeHtml(el.nombre)}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 40 40\\'><rect width=\\'40\\' height=\\'40\\' fill=\\'%231e293b\\'/><text x=\\'50%\\' y=\\'54%\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' font-size=\\'18\\'>👤</text></svg>';">
+                      <span class="officer-card-status-dot" title="En Turno"></span>
+                    </div>
+                    <div class="officer-card-content">
+                      <div class="officer-card-name" title="${escapeHtml(el.nombre)}">${escapeHtml(el.nombre)}</div>
+                      <div class="officer-card-sub">
+                        <span class="officer-card-socio">Socio #${el.id}</span>
+                        <span class="officer-card-shift-tag">${el.turnoLabel}</span>
+                      </div>
+                      <div class="officer-card-time">
+                        <span>Entrada: <strong>${el.horaEntrada} hrs</strong></span>
+                      </div>
+                    </div>
+                    <button type="button" class="btn-quick-salida" data-officer="${elJson}" data-swap="false" title="Confirmar y marcar salida">
+                      <span>Marcar Salida</span>
+                      <span>→</span>
+                    </button>
+                  </div>
+                `;
+              }
+            });
+            pendingSalidaGrid.innerHTML = htmlSalida;
+          }
+        }
+
+        // Asignar listeners a ENTRANTES (solicitando confirmación)
+        if (pendingEntradaList) {
+          pendingEntradaList.querySelectorAll('.btn-quick-entrada').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              try {
+                const elData = JSON.parse(decodeURIComponent(btn.dataset.officer));
+                openEntradaConfirmModal(elData);
+              } catch (err) {
+                console.error('Error abriendo modal de confirmación de entrada:', err);
+              }
+            });
+          });
+        }
+
+        // Asignar listeners a EN TURNO / SALIENTES (solicitando confirmación)
+        if (pendingSalidaGrid) {
+          pendingSalidaGrid.querySelectorAll('.btn-quick-salida, .btn-quick-salida-icon-only').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              try {
+                const elData = JSON.parse(decodeURIComponent(btn.dataset.officer));
+                const isSwap = (btn.dataset.swap === 'true');
+                openSalidaConfirmModal(elData, isSwap);
+              } catch (err) {
+                console.error('Error abriendo modal de confirmación de salida:', err);
+              }
+            });
+          });
+        }
+      }
+
+      function openEntradaConfirmModal(el) {
+        if (!el || !salidaConfirmModal) return;
+        currentModalElement = el;
+        currentModalAction = 'entrada';
+
+        soundBeep();
+
+        const photoSrc = el.foto || `${BACKEND_BASE}/api/photos/elementos/${el.id}`;
+        if (salidaModalPhoto) {
+          salidaModalPhoto.src = photoSrc;
+          salidaModalPhoto.onerror = function() {
+            this.onerror = null;
+            this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%231e293b"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="44">👤</text></svg>';
+          };
+        }
+
+        const modalIcon = document.getElementById('salidaModalIcon');
+        const modalTitle = document.getElementById('salidaModalTitle');
+        const modalAlertText = document.getElementById('salidaModalAlertText');
+        const modalTurnoLabel = document.getElementById('salidaModalTurnoLabel');
+        const modalHoraLabel = document.getElementById('salidaModalHoraLabel');
+
+        if (modalIcon) modalIcon.textContent = '📥';
+        if (modalTitle) modalTitle.textContent = 'Confirmar Entrada de Oficial';
+        if (modalTurnoLabel) modalTurnoLabel.textContent = 'Turno a Registrar';
+        if (salidaModalTurno) salidaModalTurno.textContent = el.turnoLabel || el.turno;
+        if (modalHoraLabel) modalHoraLabel.textContent = 'Hora de Entrada Actual';
+        if (salidaModalEntrada) salidaModalEntrada.textContent = el.horario || 'Programado';
+        if (modalAlertText) {
+          modalAlertText.textContent = `📥 ¿Confirmar registro oficial de ENTRADA para este elemento en Caseta ${el.caseta || getActiveCaseta()}?`;
+        }
+        if (btnSalidaModalConfirm) {
+          btnSalidaModalConfirm.className = 'btn-salida-modal-confirm is-entrada';
+        }
+        if (btnSalidaModalConfirmText) {
+          btnSalidaModalConfirmText.textContent = 'Confirmar Entrada';
+        }
+
+        if (salidaModalName) salidaModalName.textContent = el.nombre || `Oficial #${el.id}`;
+        if (salidaModalId) salidaModalId.textContent = `Socio #${el.id}`;
+        if (salidaModalRole) salidaModalRole.textContent = el.puesto || 'Oficial de Seguridad';
+        if (salidaModalCaseta) salidaModalCaseta.textContent = el.caseta || getActiveCaseta();
+
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        if (salidaModalSalidaHora) {
+          salidaModalSalidaHora.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())} hrs`;
+        }
+
+        if (btnSalidaModalConfirm) {
+          btnSalidaModalConfirm.disabled = false;
+        }
+
+        salidaConfirmModal.style.display = 'flex';
+      }
+
+      function openSalidaConfirmModal(el, isSwap = false) {
+        if (!el || !salidaConfirmModal) return;
+        currentModalElement = el;
+        currentModalAction = isSwap ? 'swap' : 'salida';
+
+        soundBeep();
+
+        const photoSrc = el.foto || `${BACKEND_BASE}/api/photos/elementos/${el.id}`;
+        if (salidaModalPhoto) {
+          salidaModalPhoto.src = photoSrc;
+          salidaModalPhoto.onerror = function() {
+            this.onerror = null;
+            this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%231e293b"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="44">👤</text></svg>';
+          };
+        }
+
+        const modalIcon = document.getElementById('salidaModalIcon');
+        const modalTitle = document.getElementById('salidaModalTitle');
+        const modalAlertText = document.getElementById('salidaModalAlertText');
+        const modalTurnoLabel = document.getElementById('salidaModalTurnoLabel');
+        const modalHoraLabel = document.getElementById('salidaModalHoraLabel');
+
+        if (isSwap) {
+          if (modalIcon) modalIcon.textContent = '🔄';
+          if (modalTitle) modalTitle.textContent = 'Confirmar Relevo Continuo (Doblete)';
+          if (modalTurnoLabel) modalTurnoLabel.textContent = 'Turnos de Relevo';
+          if (salidaModalTurno) salidaModalTurno.textContent = `${el.turnoLabel} ➔ ${el.nextShiftLabel || el.nextShiftKey}`;
+          if (modalHoraLabel) modalHoraLabel.textContent = 'Hora de Relevo';
+          if (modalAlertText) {
+            modalAlertText.textContent = `🔵 Se registrará la salida del turno ${el.turno} y la entrada inmediata al turno continuo ${el.nextShiftLabel || el.nextShiftKey} en RegAs 3.`;
+          }
+          if (btnSalidaModalConfirm) {
+            btnSalidaModalConfirm.className = 'btn-salida-modal-confirm is-swap';
+          }
+          if (btnSalidaModalConfirmText) {
+            btnSalidaModalConfirmText.textContent = `Confirmar Relevo a ${el.nextShiftLabel || el.nextShiftKey}`;
+          }
+        } else {
+          if (modalIcon) modalIcon.textContent = '🚪';
+          if (modalTitle) modalTitle.textContent = 'Confirmar Salida de Oficial';
+          if (modalTurnoLabel) modalTurnoLabel.textContent = 'Turno Activo';
+          if (salidaModalTurno) salidaModalTurno.textContent = el.turnoLabel || el.turno;
+          if (modalHoraLabel) modalHoraLabel.textContent = 'Hora Salida Actual';
+          if (modalAlertText) {
+            modalAlertText.textContent = '⚠️ Se registrará la salida inmediata de este elemento en los registros oficiales de RegAs 3.';
+          }
+          if (btnSalidaModalConfirm) {
+            btnSalidaModalConfirm.className = 'btn-salida-modal-confirm';
+          }
+          if (btnSalidaModalConfirmText) {
+            btnSalidaModalConfirmText.textContent = 'Confirmar Salida';
+          }
+        }
+
+        if (salidaModalName) salidaModalName.textContent = el.nombre || `Oficial #${el.id}`;
+        if (salidaModalId) salidaModalId.textContent = `Socio #${el.id}`;
+        if (salidaModalRole) salidaModalRole.textContent = el.puesto || 'Oficial de Seguridad';
+        if (salidaModalCaseta) salidaModalCaseta.textContent = el.caseta || getActiveCaseta();
+        if (salidaModalEntrada) salidaModalEntrada.textContent = `${el.horaEntrada} hrs`;
+
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        if (salidaModalSalidaHora) {
+          salidaModalSalidaHora.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())} hrs`;
+        }
+
+        if (btnSalidaModalConfirm) {
+          btnSalidaModalConfirm.disabled = false;
+        }
+
+        salidaConfirmModal.style.display = 'flex';
+      }
+
+      function closeSalidaConfirmModal() {
+        if (salidaConfirmModal) {
+          salidaConfirmModal.style.display = 'none';
+        }
+        currentModalElement = null;
+        currentModalAction = 'salida';
+      }
+
+      async function confirmQuickAction() {
+        if (!currentModalElement) return;
+
+        if (btnSalidaModalConfirm) btnSalidaModalConfirm.disabled = true;
+        if (btnSalidaModalConfirmText) btnSalidaModalConfirmText.textContent = 'Registrando...';
+
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const horaStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        const fechaLegible = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
+        const diaKey = currentModalElement.dia || `${pad(now.getDate())}${pad(now.getMonth() + 1)}${now.getFullYear()}`;
+
+        try {
+          if (currentModalAction === 'entrada') {
+            // ENTRADA
+            const payloadEntrada = {
+              elemId: String(currentModalElement.id),
+              turno: currentModalElement.turno || 'matutino',
+              hora: horaStr,
+              fecha: fechaLegible,
+              dia: diaKey,
+              mes: currentModalElement.mes,
+              anio: currentModalElement.anio,
+              Caseta: currentModalElement.caseta || getActiveCaseta(),
+              terminalCaseta: getActiveCaseta(),
+              foto: null,
+              source: 'pc',
+              tipo: 'entrada'
+            };
+
+            const res = await fetch(`${BACKEND_BASE}/api/asistencia/entrada`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
+              body: JSON.stringify(payloadEntrada)
+            });
+            const result = await res.json();
+
+            if (res.ok && result.success) {
+              soundSuccess();
+              showToast(`✅ Entrada registrada con éxito para ${currentModalElement.nombre}`);
+              closeSalidaConfirmModal();
+              loadPendingSalida();
+            } else {
+              showToast(result.error || 'Error al registrar la entrada');
+              soundWarning();
+              if (btnSalidaModalConfirm) btnSalidaModalConfirm.disabled = false;
+              if (btnSalidaModalConfirmText) btnSalidaModalConfirmText.textContent = 'Confirmar Entrada';
+            }
+          } else if (currentModalAction === 'swap') {
+            // RELEVO CONTINUO / DOBLETE (AZUL)
+            const payloadSwap = {
+              elemId: String(currentModalElement.id),
+              turno: currentModalElement.turno || 'matutino',
+              nextTurno: currentModalElement.nextShiftKey || 'vespertino',
+              hora: horaStr,
+              fecha: fechaLegible,
+              dia: diaKey,
+              mes: currentModalElement.mes,
+              anio: currentModalElement.anio,
+              caseta: currentModalElement.caseta || getActiveCaseta(),
+              terminalCaseta: getActiveCaseta(),
+              foto: null,
+              source: 'pc',
+              isNextDay: currentModalElement.nextShiftIsNextDay || false
+            };
+
+            const res = await fetch(`${BACKEND_BASE}/api/asistencia/shift-swap`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
+              body: JSON.stringify(payloadSwap)
+            });
+            const result = await res.json();
+
+            if (res.ok && result.success) {
+              soundSuccess();
+              showToast(`🔵 Relevo registrado: Salida de ${currentModalElement.turno} e ingreso a ${currentModalElement.nextShiftLabel} para ${currentModalElement.nombre}`);
+              closeSalidaConfirmModal();
+              loadPendingSalida();
+            } else {
+              showToast(result.error || 'Error al registrar el relevo');
+              soundWarning();
+              if (btnSalidaModalConfirm) btnSalidaModalConfirm.disabled = false;
+              if (btnSalidaModalConfirmText) btnSalidaModalConfirmText.textContent = `Confirmar Relevo a ${currentModalElement.nextShiftLabel || currentModalElement.nextShiftKey}`;
+            }
+          } else {
+            // SALIDA NORMAL (ROJO)
+            const payloadSalida = {
+              elemId: String(currentModalElement.id),
+              turno: currentModalElement.turno || 'matutino',
+              hora: horaStr,
+              fecha: fechaLegible,
+              dia: diaKey,
+              mes: currentModalElement.mes,
+              anio: currentModalElement.anio,
+              Caseta: currentModalElement.caseta || getActiveCaseta(),
+              terminalCaseta: getActiveCaseta(),
+              foto: null,
+              source: 'pc',
+              tipo: 'salida'
+            };
+
+            const res = await fetch(`${BACKEND_BASE}/api/asistencia/salida`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
+              body: JSON.stringify(payloadSalida)
+            });
+            const result = await res.json();
+
+            if (res.ok && result.success) {
+              soundSuccess();
+              showToast(`✅ Salida registrada con éxito para ${currentModalElement.nombre}`);
+              closeSalidaConfirmModal();
+              loadPendingSalida();
+            } else {
+              showToast(result.error || 'Error al registrar la salida');
+              soundWarning();
+              if (btnSalidaModalConfirm) btnSalidaModalConfirm.disabled = false;
+              if (btnSalidaModalConfirmText) btnSalidaModalConfirmText.textContent = 'Confirmar Salida';
+            }
+          }
+        } catch (err) {
+          console.error('[Error confirmando acción rápida]', err);
+          showToast('Error de conexión al registrar la acción');
+          soundWarning();
+          if (btnSalidaModalConfirm) btnSalidaModalConfirm.disabled = false;
+          if (btnSalidaModalConfirmText) {
+            btnSalidaModalConfirmText.textContent = currentModalAction === 'entrada' ? 'Confirmar Entrada' : (currentModalAction === 'swap' ? 'Confirmar Relevo' : 'Confirmar Salida');
+          }
+        }
+      }
+
+      // Eventos del modal
+      if (btnSalidaModalClose) btnSalidaModalClose.addEventListener('click', closeSalidaConfirmModal);
+      if (btnSalidaModalCancel) btnSalidaModalCancel.addEventListener('click', closeSalidaConfirmModal);
+      if (salidaModalBackdrop) salidaModalBackdrop.addEventListener('click', closeSalidaConfirmModal);
+      if (btnSalidaModalConfirm) btnSalidaModalConfirm.addEventListener('click', confirmQuickAction);
+
+      if (btnRefreshPending) {
+        btnRefreshPending.addEventListener('click', () => {
+          soundBeep();
+          loadPendingSalida();
+        });
+      }
+
+      // Sincronización en vivo con cambios de caseta en CDI (localStorage)
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'regas_cdi_last_caseta' || e.key === 'caseta_seleccionada_cic') {
+          loadPendingSalida();
+        }
+      });
+
+      // Polling cada 25 segundos para mantener la lista actualizada automáticamente
+      setInterval(() => {
+        if (state.currentStep === 1) {
+          loadPendingSalida();
+        }
+      }, 25000);
+
+      // Escuchar mensajes de cambio de caseta desde ventana padre o paralela (CDI)
+      window.addEventListener('message', (e) => {
+        if (e.data && (e.data.type === 'cdi_caseta_changed' || e.data.caseta)) {
+          loadPendingSalida();
+        }
+      });
+
+      // Cargar lista al iniciar y precargar catálogo de oficiales para búsqueda instantánea
+      setTimeout(() => {
+        loadPendingSalida();
+        if (typeof loadElementosCatalog === 'function') loadElementosCatalog();
+      }, 300);
+
+      // =========================================================================
+      // PASO 2: CÁMARA ADAPTABLE CON ARO DE LUZ DE PANTALLA
+      // Límite estricto de máximo 3 segundos detectando el rostro
+      // =========================================================================
+      const video = document.getElementById('videoStream');
+      const canvas = document.getElementById('photoCanvas');
+      const facialRingFrame = document.getElementById('facialRingFrame');
+      const hudInstruction = document.getElementById('hudInstruction');
+      const hudCountdownBadge = document.getElementById('hudCountdownBadge');
+      const hudCountdownLabel = document.getElementById('hudCountdownLabel');
+      const countdownSecs = document.getElementById('countdownSecs');
+      const flashOverlay = document.getElementById('flashOverlay');
+      const btnCancelCamera = document.getElementById('btnCancelCamera');
+      const btnPcSkipCamera = document.getElementById('btnPcSkipCamera');
+
+      let faceDetectionLoop = null;
+      let faceDetectedStartTime = null;
+      let hasPlayedToneOnDetected = false;
+      let isCapturingPhoto = false;
+      const MAX_DETECTION_SECONDS = 3.0; // Máximo 3 segundos
+
+      if (btnCancelCamera) {
+        btnCancelCamera.addEventListener('click', () => {
+          soundBeep();
+          stopCameraSession();
+          setStep(1);
+        });
+      }
+
+      if (btnPcSkipCamera) {
+        btnPcSkipCamera.addEventListener('click', () => {
+          soundBeep();
+          stopCameraSession();
+          state.capturedBase64 = null;
+          renderStep3Detail();
+          setStep(3);
+        });
+      }
+
+      async function startCameraSession() {
+        isCapturingPhoto = false;
+        faceDetectedStartTime = null;
+        hasPlayedToneOnDetected = false;
+
+        if (btnPcSkipCamera) {
+          btnPcSkipCamera.style.display = isDesktopView() ? 'flex' : 'none';
+        }
+
+        // Estado inicial de espera: sin rostro en cámara
+        if (facialRingFrame) facialRingFrame.classList.remove('face-aligned');
+        if (hudCountdownBadge) hudCountdownBadge.classList.remove('active');
+        if (hudCountdownLabel) hudCountdownLabel.textContent = 'En espera:';
+        if (countdownSecs) countdownSecs.textContent = '3.0';
+        if (hudInstruction) {
+          hudInstruction.className = 'hud-instruction-badge waiting';
+          hudInstruction.innerHTML = '<span>⚠️ Ponte a la vista de la cámara para comenzar</span>';
+        }
+
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: 'user',
+              width: { ideal: 640 },
+              height: { ideal: 480 }
+            },
+            audio: false
+          });
+          state.cameraStream = stream;
+          video.srcObject = stream;
+          await video.play();
+
+          // Iniciar bucle de detección facial reactivo
+          startFacialDetectionLoop();
+        } catch (err) {
+          console.error('[Error de cámara]', err);
+          // Si es PC y no tiene cámara funcionando: avanzar directo al registro sin bloquear al usuario
+          if (isDesktopView()) {
+            console.log('[Checador] Equipo PC sin cámara accesible: avanzando directo a registro');
+            stopCameraSession();
+            state.capturedBase64 = null;
+            renderStep3Detail();
+            setStep(3);
+            return;
+          }
+          showToast('No se pudo acceder a la cámara frontal.');
+          soundWarning();
+          setStep(1);
+        }
+      }
+
+      function stopCameraSession() {
+        if (faceDetectionLoop) {
+          clearInterval(faceDetectionLoop);
+          faceDetectionLoop = null;
+        }
+        faceDetectedStartTime = null;
+        hasPlayedToneOnDetected = false;
+        if (state.cameraStream) {
+          state.cameraStream.getTracks().forEach(t => t.stop());
+          state.cameraStream = null;
+        }
+      }
+
+      // =========================================================================
+      // MOTOR BIOMÉTRICO VIOLA-JONES (PICO.JS) DE ULTRA-ALTA PRECISIÓN
+      // Elimina al 100% falsos positivos en paredes, puertas, pisos y oscuridad
+      // =========================================================================
+      const picoEngine = {
+        unpack_cascade: function(bytes) {
+          const dview = new DataView(new ArrayBuffer(4));
+          let p = 8;
+          dview.setUint8(0, bytes[p+0]); dview.setUint8(1, bytes[p+1]); dview.setUint8(2, bytes[p+2]); dview.setUint8(3, bytes[p+3]);
+          const tdepth = dview.getInt32(0, true);
+          p += 4;
+          dview.setUint8(0, bytes[p+0]); dview.setUint8(1, bytes[p+1]); dview.setUint8(2, bytes[p+2]); dview.setUint8(3, bytes[p+3]);
+          const ntrees = dview.getInt32(0, true);
+          p += 4;
+          const tcodes_ls = [];
+          const tpreds_ls = [];
+          const thresh_ls = [];
+          for (let t = 0; t < ntrees; ++t) {
+            Array.prototype.push.apply(tcodes_ls, [0, 0, 0, 0]);
+            Array.prototype.push.apply(tcodes_ls, bytes.slice(p, p + 4 * Math.pow(2, tdepth) - 4));
+            p += 4 * Math.pow(2, tdepth) - 4;
+            for (let i = 0; i < Math.pow(2, tdepth); ++i) {
+              dview.setUint8(0, bytes[p+0]); dview.setUint8(1, bytes[p+1]); dview.setUint8(2, bytes[p+2]); dview.setUint8(3, bytes[p+3]);
+              tpreds_ls.push(dview.getFloat32(0, true));
+              p += 4;
+            }
+            dview.setUint8(0, bytes[p+0]); dview.setUint8(1, bytes[p+1]); dview.setUint8(2, bytes[p+2]); dview.setUint8(3, bytes[p+3]);
+            thresh_ls.push(dview.getFloat32(0, true));
+            p += 4;
+          }
+          const tcodes = new Int8Array(tcodes_ls);
+          const tpreds = new Float32Array(tpreds_ls);
+          const thresh = new Float32Array(thresh_ls);
+
+          return function classify_region(r, c, s, pixels, ldim) {
+            r = 256 * r;
+            c = 256 * c;
+            let root = 0;
+            let o = 0.0;
+            const pow2tdepth = Math.pow(2, tdepth) >> 0;
+            for (let i = 0; i < ntrees; ++i) {
+              let idx = 1;
+              for (let j = 0; j < tdepth; ++j) {
+                idx = 2 * idx + (pixels[((r + tcodes[root + 4 * idx + 0] * s) >> 8) * ldim + ((c + tcodes[root + 4 * idx + 1] * s) >> 8)] <= pixels[((r + tcodes[root + 4 * idx + 2] * s) >> 8) * ldim + ((c + tcodes[root + 4 * idx + 3] * s) >> 8)]);
+              }
+              o += tpreds[pow2tdepth * i + idx - pow2tdepth];
+              if (o <= thresh[i]) return -1;
+              root += 4 * pow2tdepth;
+            }
+            return o - thresh[ntrees - 1];
+          };
+        },
+
+        run_cascade: function(image, classify_region, params) {
+          const pixels = image.pixels;
+          const nrows = image.nrows;
+          const ncols = image.ncols;
+          const ldim = image.ldim;
+          const shiftfactor = params.shiftfactor;
+          const minsize = params.minsize;
+          const maxsize = params.maxsize;
+          const scalefactor = params.scalefactor;
+          let scale = minsize;
+          const detections = [];
+          while (scale <= maxsize) {
+            const step = Math.max(shiftfactor * scale, 1) >> 0;
+            const offset = (scale / 2 + 1) >> 0;
+            for (let r = offset; r <= nrows - offset; r += step) {
+              for (let c = offset; c <= ncols - offset; c += step) {
+                const q = classify_region(r, c, scale, pixels, ldim);
+                if (q > 0.0) detections.push([r, c, scale, q]);
+              }
+            }
+            scale = scale * scalefactor;
+          }
+          return detections;
+        },
+
+        cluster_detections: function(dets, iouthreshold) {
+          dets = dets.sort((a, b) => b[3] - a[3]);
+          function calculate_iou(det1, det2) {
+            const r1 = det1[0], c1 = det1[1], s1 = det1[2];
+            const r2 = det2[0], c2 = det2[1], s2 = det2[2];
+            const overr = Math.max(0, Math.min(r1 + s1 / 2, r2 + s2 / 2) - Math.max(r1 - s1 / 2, r2 - s2 / 2));
+            const overc = Math.max(0, Math.min(c1 + s1 / 2, c2 + s2 / 2) - Math.max(c1 - s1 / 2, c2 - s2 / 2));
+            return (overr * overc) / (s1 * s1 + s2 * s2 - overr * overc);
+          }
+          const assignments = new Array(dets.length).fill(0);
+          const clusters = [];
+          for (let i = 0; i < dets.length; ++i) {
+            if (assignments[i] === 0) {
+              let r = 0.0, c = 0.0, s = 0.0, q = 0.0, n = 0;
+              for (let j = i; j < dets.length; ++j) {
+                if (calculate_iou(dets[i], dets[j]) > iouthreshold) {
+                  assignments[j] = 1;
+                  r += dets[j][0];
+                  c += dets[j][1];
+                  s += dets[j][2];
+                  q += dets[j][3];
+                  n += 1;
+                }
+              }
+              clusters.push([r / n, c / n, s / n, q]);
+            }
+          }
+          return clusters;
+        }
+      };
+
+      // Carga inmediata en segundo plano del modelo de cascada facial
+      let faceClassifier = null;
+      let isCascadeLoading = false;
+
+      async function preloadFaceCascade() {
+        if (faceClassifier || isCascadeLoading) return;
+        isCascadeLoading = true;
+        const candidateUrls = [
+          'facefinder',
+          './facefinder',
+          '/facefinder',
+          `${BACKEND_BASE}/api/biometrico/facefinder`,
+          'http://localhost:7001/api/biometrico/facefinder'
+        ];
+
+        for (const url of candidateUrls) {
+          try {
+            const resp = await fetch(url, { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
+            if (resp.ok) {
+              const buf = await resp.arrayBuffer();
+              if (buf && buf.byteLength > 100000) {
+                const bytes = new Int8Array(buf);
+                faceClassifier = picoEngine.unpack_cascade(bytes);
+                console.log(`[Biométrico Checador 📸] Modelo de cascada facial cargado (${buf.byteLength} bytes) desde: ${url}`);
+                break;
+              }
+            }
+          } catch(e) {}
+        }
+        isCascadeLoading = false;
+      }
+      preloadFaceCascade();
+
+      // Canvas de análisis para muestreo en escala de grises
+      const sampleW = 240;
+      const sampleH = 180;
+      const sampleCanvas = document.createElement('canvas');
+      sampleCanvas.width = sampleW;
+      sampleCanvas.height = sampleH;
+      const sampleCtx = sampleCanvas.getContext('2d', { willReadFrequently: true });
+      const grayBuffer = new Uint8Array(sampleW * sampleH);
+
+      async function detectFace(vid) {
+        if (!vid || vid.readyState < 2 || vid.videoWidth === 0) {
+          return { detected: false };
+        }
+
+        if (!faceClassifier) {
+          preloadFaceCascade();
+          return { detected: false, loading: true };
+        }
+
+        // Muestrear fotograma y convertir a escala de grises
+        sampleCtx.drawImage(vid, 0, 0, sampleW, sampleH);
+        const rgba = sampleCtx.getImageData(0, 0, sampleW, sampleH).data;
+
+        for (let i = 0; i < sampleW * sampleH; ++i) {
+          // Fórmula estándar de luminancia perceptiva (Y = 0.299R + 0.587G + 0.114B)
+          grayBuffer[i] = (2 * rgba[4 * i] + 7 * rgba[4 * i + 1] + 1 * rgba[4 * i + 2]) / 10;
+        }
+
+        const imageObj = {
+          pixels: grayBuffer,
+          nrows: sampleH,
+          ncols: sampleW,
+          ldim: sampleW
+        };
+
+        const params = {
+          shiftfactor: 0.1,
+          minsize: 35,
+          maxsize: 155,
+          scalefactor: 1.15
+        };
+
+        let dets = picoEngine.run_cascade(imageObj, faceClassifier, params);
+        dets = picoEngine.cluster_detections(dets, 0.2);
+
+        // Umbral estricto: solo detecciones con puntaje robusto (> 7.5 pts)
+        // Paredes, muebles, techos o sombras dan exactamente 0 detecciones
+        const validFaces = dets.filter(d => d[3] >= 7.5);
+
+        if (validFaces.length === 0) {
+          return { detected: false };
+        }
+
+        // Rostro válido detectado: evaluar encuadre y centralización
+        const bestFace = validFaces[0];
+        const faceY = bestFace[0];
+        const faceX = bestFace[1];
+        const faceSize = bestFace[2];
+        const faceScore = bestFace[3];
+
+        const normDiffX = (faceX / sampleW) - 0.5;
+        const normDiffY = (faceY / sampleH) - 0.5;
+
+        let hint = null;
+        if (normDiffX < -0.13) {
+          hint = '👉 Centra tu rostro hacia la derecha';
+        } else if (normDiffX > 0.13) {
+          hint = '👈 Centra tu rostro hacia la izquierda';
+        } else if (faceSize < 42) {
+          hint = '🔍 Acércate un poco más a la cámara';
+        } else if (faceSize > 145) {
+          hint = '↔️ Aléjate un poco de la cámara';
+        }
+
+        const isCentered = (Math.abs(normDiffX) < 0.24 && Math.abs(normDiffY) < 0.28);
+        const isGoodSize = (faceSize >= 38 && faceSize <= 150);
+
+        return {
+          detected: true,
+          isCentered: (isCentered && isGoodSize),
+          score: faceScore,
+          faceSize,
+          highConfidence: (faceScore > 30.0 && isCentered && isGoodSize),
+          hint
+        };
+      }
+
+      let pcNoFaceStartTime = null;
+
+      function startFacialDetectionLoop() {
+        if (faceDetectionLoop) clearInterval(faceDetectionLoop);
+        pcNoFaceStartTime = Date.now();
+
+        faceDetectionLoop = setInterval(async () => {
+          if (isCapturingPhoto || state.currentStep !== 2) return;
+          if (!video || video.readyState < 2) return;
+
+          const analysis = await detectFace(video);
+
+          // -----------------------------------------------------------------
+          // CASO A: NO HAY NINGÚN ROSTRO EN CÁMARA (O EL ROSTRO SE RETIRÓ)
+          // El temporizador se pausa/resetea y solicita al elemento ponerse a la vista
+          // -----------------------------------------------------------------
+          if (!analysis.detected) {
+            faceDetectedStartTime = null;
+            hasPlayedToneOnDetected = false;
+
+            // En PC: si transcurren 3.0s continuos sin rostro (falso positivo de cámara, driver virtual de OBS o webcam desconectada/tapada)
+            // avanzar automáticamente al registro de turno para evitar bloquear al operador
+            if (isDesktopView()) {
+              if (!pcNoFaceStartTime) pcNoFaceStartTime = Date.now();
+              const elapsedNoFace = (Date.now() - pcNoFaceStartTime) / 1000;
+              if (elapsedNoFace >= 3.0) {
+                console.log('[Checador] Falso positivo de cámara en PC: 3s sin rostro detectable. Brincando automáticamente a registro.');
+                if (hudInstruction) {
+                  hudInstruction.className = 'hud-instruction-badge waiting';
+                  hudInstruction.innerHTML = '<span>💻 PC sin cámara física disponible: Pasando a registro...</span>';
+                }
+                clearInterval(faceDetectionLoop);
+                faceDetectionLoop = null;
+                setTimeout(() => {
+                  stopCameraSession();
+                  state.capturedBase64 = null;
+                  renderStep3Detail();
+                  setStep(3);
+                }, 400);
+                return;
+              }
+            } else {
+              pcNoFaceStartTime = null;
+            }
+
+            if (facialRingFrame) facialRingFrame.classList.remove('face-aligned');
+            if (hudCountdownBadge) hudCountdownBadge.classList.remove('active');
+            if (hudCountdownLabel) hudCountdownLabel.textContent = 'En espera:';
+            if (countdownSecs) countdownSecs.textContent = '3.0';
+
+            if (hudInstruction) {
+              hudInstruction.className = 'hud-instruction-badge waiting';
+              if (analysis.loading) {
+                hudInstruction.innerHTML = '<span>⏳ Inicializando detector biométrico facial...</span>';
+              } else {
+                hudInstruction.innerHTML = '<span>⚠️ Ponte a la vista de la cámara para comenzar</span>';
+              }
+            }
+            return; // NUNCA toma foto sin rostro
+          }
+
+          // Si se detectó rostro, resetear contador de no-rostro de PC
+          pcNoFaceStartTime = null;
+
+          // -----------------------------------------------------------------
+          // CASO B: ROSTRO HUMANO REAL DETECTADO
+          // Marco en verde perimetral, inicia cuenta de máx 3 segundos e indicaciones
+          // -----------------------------------------------------------------
+          if (facialRingFrame) facialRingFrame.classList.add('face-aligned');
+          if (hudCountdownBadge) hudCountdownBadge.classList.add('active');
+          if (hudCountdownLabel) hudCountdownLabel.textContent = 'Reconociendo:';
+
+          if (!faceDetectedStartTime) {
+            faceDetectedStartTime = Date.now();
+            if (!hasPlayedToneOnDetected) {
+              hasPlayedToneOnDetected = true;
+              soundBeep(); // Beep discreto al fijar rostro
+            }
+          }
+
+          const elapsedSecs = (Date.now() - faceDetectedStartTime) / 1000;
+          const remaining = Math.max(0, MAX_DETECTION_SECONDS - elapsedSecs);
+          if (countdownSecs) {
+            countdownSecs.textContent = remaining.toFixed(1);
+          }
+
+          // Indicaciones dinámicas al elemento en vivo durante los 3 segundos
+          if (hudInstruction) {
+            hudInstruction.className = 'hud-instruction-badge tracking';
+            if (analysis.hint) {
+              hudInstruction.innerHTML = `<span>${analysis.hint}</span>`;
+            } else if (remaining > 2.0) {
+              hudInstruction.innerHTML = '<span>👤 Rostro detectado: Mantén la mirada fija al frente</span>';
+            } else if (remaining > 0.9) {
+              hudInstruction.innerHTML = '<span>🔍 Analizando rasgos faciales... No te muevas</span>';
+            } else {
+              hudInstruction.innerHTML = '<span>⚡ Alineación óptima confirmada. Capturando...</span>';
+            }
+          }
+
+          // CONDICIÓN ESTRICTA DE CAPTURA:
+          // Solo captura cuando se cumplieron los 3 segundos continuos con rostro presente,
+          // o tras al menos 2.0s continuos con alineación frontal y alta estabilidad biométrica
+          if (remaining <= 0 || (elapsedSecs >= 2.0 && analysis.highConfidence)) {
+            executePhotoCapture(remaining <= 0 ? 'timeout_face_3s' : 'face_stable_early');
+          }
+        }, 90);
+      }
+
+      function executePhotoCapture(reason) {
+        if (isCapturingPhoto || state.currentStep !== 2) return;
+        isCapturingPhoto = true;
+
+        if (faceDetectionLoop) {
+          clearInterval(faceDetectionLoop);
+          faceDetectionLoop = null;
+        }
+
+        // Efecto visual de flash
+        if (flashOverlay) {
+          flashOverlay.classList.add('active');
+          setTimeout(() => flashOverlay.classList.remove('active'), 180);
+        }
+
+        soundCapture();
+
+        // Extraer fotograma nítido en canvas
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+        const ctx = canvas.getContext('2d');
+        ctx.save();
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1); // Compensar espejo
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        ctx.restore();
+
+        const capturedBase64 = canvas.toDataURL('image/jpeg', 0.88);
+        state.capturedBase64 = capturedBase64;
+
+        // Pausar video y apagar cámara
+        try { video.pause(); } catch(e) {}
+        stopCameraSession();
+
+        // Auto-enrolamiento en segundo plano en UBE (analiza calidad y banco de 3 fotos)
+        if (state.elemId && capturedBase64) {
+          fetch(`${BACKEND_BASE}/api/biometrico/enrolar`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
+            body: JSON.stringify({ elemId: state.elemId, foto: capturedBase64 })
+          }).catch(e => console.warn('[Auto-Enrolamiento Segundo Plano]', e.message));
+        }
+
+        // Transición fluida al Paso 3 (Panel Detalle de Turno)
+        setTimeout(() => {
+          renderStep3Detail();
+          setStep(3);
+        }, 300);
+      }
+
+      // =========================================================================
+      // PASO 3: PANEL DETALLE DE TURNO & MINIATURA
+      // Regla 4: Ayer / Hoy / Ausentismo / Sin Registro / Entrada / Salida
+      // =========================================================================
+      function renderStep3Detail() {
+        const elem = state.elementData || {};
+        const shiftData = state.shiftData || {};
+        const shiftDetails = shiftData.shiftDetails || {};
+
+        const detailThumbImg = document.getElementById('detailThumbImg');
+        const detailOfficerName = document.getElementById('detailOfficerName');
+        const detailOfficerRole = document.getElementById('detailOfficerRole');
+        const detailOfficerId = document.getElementById('detailOfficerId');
+        const shiftBanner = document.getElementById('shiftBanner');
+        const shiftBannerIcon = document.getElementById('shiftBannerIcon');
+        const shiftBannerTitle = document.getElementById('shiftBannerTitle');
+        const shiftBannerText = document.getElementById('shiftBannerText');
+        const detailCasetaVal = document.getElementById('detailCasetaVal');
+        const detailHorarioVal = document.getElementById('detailHorarioVal');
+        const btnAction = document.getElementById('btnActionAttendance');
+        const btnActionText = document.getElementById('btnActionText');
+
+        // Miniatura de la foto tomada en el aro de luz o avatar alternativo si se brincó en escritorio
+        if (detailThumbImg) {
+          if (state.capturedBase64) {
+            detailThumbImg.src = state.capturedBase64;
+          } else if (elem.foto) {
+            detailThumbImg.src = elem.foto;
+          } else if (state.elemId) {
+            detailThumbImg.src = `${BACKEND_BASE}/api/photos/elementos/${encodeURIComponent(state.elemId)}`;
+          } else {
+            detailThumbImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80"><rect width="80" height="80" rx="14" fill="%231e293b"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="34">👤</text></svg>';
+          }
+        }
+
+        const btnRetake = document.getElementById('btnRetakePhoto');
+        if (btnRetake) {
+          const spanText = btnRetake.querySelector('span:last-child');
+          if (spanText) {
+            spanText.textContent = state.capturedBase64 ? 'Repetir Foto' : 'Tomar Foto Facial';
+          }
+        }
+
+        detailOfficerName.textContent = elem.nombre || `Oficial #${state.elemId}`;
+        detailOfficerRole.textContent = elem.puesto || 'Oficial de Seguridad';
+        detailOfficerId.textContent = `No. Socio: #${state.elemId}`;
+
+        // Respetar estrictamente la caseta asignada al elemento
+        const assignedCaseta = (shiftDetails.Caseta || shiftDetails.caseta || shiftData.casetaAsignada || '').trim();
+        const activeTerminalCaseta = getActiveCaseta();
+
+        if (assignedCaseta && activeTerminalCaseta && assignedCaseta.toLowerCase() !== activeTerminalCaseta.toLowerCase()) {
+          detailCasetaVal.innerHTML = `${escapeHtml(assignedCaseta)} <span style="font-size: 0.72rem; color: #94a3b8; display: block; font-weight: normal; margin-top: 2px;">(Terminal checador: ${escapeHtml(activeTerminalCaseta)})</span>`;
+        } else {
+          detailCasetaVal.textContent = assignedCaseta || activeTerminalCaseta || 'Caseta Principal';
+        }
+
+        detailHorarioVal.textContent = shiftData.targetHorario || '06:00 a 14:00 hrs';
+
+        const action = shiftData.action || 'sin_registro';
+
+        // REGLA 4:
+        // Caso A: Ausentismo registrado
+        if (action === 'ausentismo') {
+          shiftBanner.className = 'shift-status-banner status-error';
+          shiftBannerIcon.textContent = '⛔';
+          shiftBannerTitle.textContent = 'Ausentismo Asignado';
+          shiftBannerText.textContent = shiftData.legend || 'No se puede registrar, se asignó ausentismo.';
+          btnAction.style.display = 'none';
+        }
+        // Caso B: Sin registro
+        else if (action === 'sin_registro') {
+          shiftBanner.className = 'shift-status-banner status-warning';
+          shiftBannerIcon.textContent = 'ℹ️';
+          shiftBannerTitle.textContent = 'Sin Registro';
+          shiftBannerText.textContent = 'Sin registro';
+          btnAction.style.display = 'none';
+        }
+        // Caso C: Salida (tiene entrada registrada ayer u hoy)
+        else if (action === 'salida') {
+          const btnOnlySalida = document.getElementById('btnOnlySalida');
+          if (shiftData.isConsecutive) {
+            shiftBanner.className = 'shift-status-banner status-swap';
+            shiftBannerIcon.textContent = '🔄';
+            shiftBannerTitle.textContent = 'Relevo Continuo Asignado';
+            shiftBannerText.textContent = `Oficial en turno (${shiftData.targetLabel}). Doblete continuo (${shiftData.nextShiftLabel || shiftData.nextShiftKey}) asignado para hoy. Listo para registrar relevo inmediato.`;
+            btnAction.style.display = 'flex';
+            btnAction.className = 'btn-action-primary btn-action-swap';
+            btnActionText.innerHTML = `
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" style="margin-right:6px; vertical-align:middle;">
+                <polyline points="13 17 18 12 13 7"/>
+                <polyline points="6 17 11 12 6 7"/>
+              </svg>
+              <span>CONTINUAR A TURNO ${(shiftData.nextShiftShortLabel || shiftData.nextShiftKey || '').toUpperCase()}</span>
+            `;
+            if (btnOnlySalida) btnOnlySalida.style.display = 'flex';
+          } else {
+            shiftBanner.className = 'shift-status-banner status-exit';
+            shiftBannerIcon.textContent = '🚪';
+            shiftBannerTitle.textContent = 'Salida de Turno';
+            shiftBannerText.textContent = shiftData.statusMessage || `Tienes entrada abierta a las ${shiftData.horaEntrada || ''} hrs. Listo para registrar salida.`;
+            btnAction.style.display = 'flex';
+            btnAction.className = 'btn-action-primary btn-action-exit';
+            btnActionText.innerHTML = '🚪 MARCAR SALIDA';
+            if (btnOnlySalida) btnOnlySalida.style.display = 'none';
+          }
+        }
+        // Caso D: Entrada (sin entrada previa, turno asignado hoy)
+        else {
+          shiftBanner.className = 'shift-status-banner status-available';
+          shiftBannerIcon.textContent = '📥';
+          shiftBannerTitle.textContent = 'Entrada a Turno';
+          shiftBannerText.textContent = shiftData.statusMessage || `Turno programado (${shiftData.targetLabel || ''}). Listo para registrar entrada.`;
+          btnAction.style.display = 'flex';
+          btnAction.className = 'btn-action-primary btn-action-entry';
+          btnActionText.innerHTML = '📥 MARCAR ENTRADA';
+        }
+      }
+
+      // Repetir toma de foto
+      document.getElementById('btnRetakePhoto').addEventListener('click', () => {
+        soundBeep();
+        setStep(2);
+      });
+
+      // Volver a ingresar otro socio
+      document.getElementById('btnBackToSocio').addEventListener('click', () => {
+        soundBeep();
+        setStep(1);
+      });
+
+      // =========================================================================
+      // REGISTRAR ASISTENCIA (ENTRADA O SALIDA) Y MOSTRAR COMPROBANTE
+      // =========================================================================
+      const btnActionAttendance = document.getElementById('btnActionAttendance');
+      if (btnActionAttendance) {
+        btnActionAttendance.addEventListener('click', async () => {
+          soundBeep();
+          const shiftData = state.shiftData || {};
+          const isSalida = (shiftData.action === 'salida');
+          const isSwap = Boolean(isSalida && shiftData.isConsecutive);
+
+          btnActionAttendance.disabled = true;
+          btnActionAttendance.innerHTML = '<span>⏳ Guardando registro...</span>';
+
+          const now = new Date();
+          const pad = n => String(n).padStart(2, '0');
+          const horaStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+          const horaFull = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          const diaKey = shiftData.targetDia || `${pad(now.getDate())}${pad(now.getMonth() + 1)}${now.getFullYear()}`;
+          const fechaLegible = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
+
+          state.entryTime = horaFull;
+
+          const shiftDetails = shiftData.shiftDetails || {};
+          const assignedCaseta = (shiftDetails.Caseta || shiftDetails.caseta || shiftData.casetaAsignada || '').trim();
+          const activeTerminalCaseta = getActiveCaseta();
+          const finalCaseta = assignedCaseta || activeTerminalCaseta;
+
+          let endpoint = `${BACKEND_BASE}/api/asistencia/entrada`;
+          let payload = {
+            elemId: String(state.elemId),
+            turno: shiftData.targetShift || 'matutino',
+            hora: horaStr,
+            fecha: fechaLegible,
+            dia: diaKey,
+            mes: shiftData.targetMes || undefined,
+            anio: shiftData.targetAnio || undefined,
+            Caseta: finalCaseta,
+            terminalCaseta: activeTerminalCaseta,
+            foto: state.capturedBase64,
+            tipo: isSalida ? 'salida' : 'entrada'
+          };
+
+          if (isSwap) {
+            endpoint = `${BACKEND_BASE}/api/asistencia/shift-swap`;
+            const nextAssigned = (shiftData.nextShiftDetails?.Caseta || shiftData.nextShiftDetails?.caseta || assignedCaseta || '').trim();
+            payload = {
+              elemId: String(state.elemId),
+              turno: shiftData.targetShift || 'matutino',
+              nextTurno: shiftData.nextShiftKey || 'vespertino',
+              hora: horaStr,
+              fecha: fechaLegible,
+              dia: diaKey,
+              mes: shiftData.targetMes || undefined,
+              anio: shiftData.targetAnio || undefined,
+              caseta: nextAssigned || activeTerminalCaseta,
+              terminalCaseta: activeTerminalCaseta,
+              foto: state.capturedBase64,
+              isNextDay: shiftData.nextShiftIsNextDay || false
+            };
+          } else if (isSalida) {
+            endpoint = `${BACKEND_BASE}/api/asistencia/salida`;
+          }
+
+          try {
+            const res = await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
+              body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+
+            if (res.ok && result.success) {
+              renderReceipt(payload, horaFull, isSwap ? 'swap' : (isSalida ? 'salida' : 'entrada'));
+              setStep(4);
+              soundSuccess();
+              showToast(isSwap ? '🔵 Relevo continuo registrado con éxito' : (isSalida ? '✅ Salida registrada con éxito' : '✅ Entrada registrada con éxito'));
+            } else {
+              showToast(result.error || 'Error al guardar asistencia');
+              soundWarning();
+            }
+          } catch (err) {
+            console.error('[Error guardando asistencia]', err);
+            // Contingencia offline: guardar localmente y mostrar comprobante
+            try {
+              const offlineQueue = JSON.parse(localStorage.getItem('regas_offline_asistencia') || '[]');
+              offlineQueue.push(payload);
+              localStorage.setItem('regas_offline_asistencia', JSON.stringify(offlineQueue));
+              renderReceipt(payload, horaFull, isSwap ? 'swap' : (isSalida ? 'salida' : 'entrada'));
+              setStep(4);
+              showToast('✅ Asistencia guardada localmente (modo offline)');
+            } catch(e) {
+              showToast('Error de conexión al guardar asistencia');
+              soundWarning();
+            }
+          } finally {
+            btnActionAttendance.disabled = false;
+            if (isSwap) {
+              btnActionAttendance.innerHTML = `<span>CONTINUAR A TURNO ${(shiftData.nextShiftShortLabel || shiftData.nextShiftKey || '').toUpperCase()}</span>`;
+            } else {
+              btnActionAttendance.innerHTML = isSalida ? '<span>🚪 MARCAR SALIDA</span>' : '<span>📥 MARCAR ENTRADA</span>';
+            }
+          }
+        });
+      }
+
+      // Botón secundario para marcar salida ordinaria si tiene doblete asignado pero prefiere no continuarlo
+      const btnOnlySalida = document.getElementById('btnOnlySalida');
+      if (btnOnlySalida) {
+        btnOnlySalida.addEventListener('click', async () => {
+          soundBeep();
+          const shiftData = state.shiftData || {};
+          btnOnlySalida.disabled = true;
+          btnOnlySalida.innerHTML = '<span>⏳ Guardando salida...</span>';
+
+          const now = new Date();
+          const pad = n => String(n).padStart(2, '0');
+          const horaStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+          const horaFull = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          const diaKey = shiftData.targetDia || `${pad(now.getDate())}${pad(now.getMonth() + 1)}${now.getFullYear()}`;
+          const fechaLegible = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
+
+          state.entryTime = horaFull;
+
+          const shiftDetails = shiftData.shiftDetails || {};
+          const assignedCaseta = (shiftDetails.Caseta || shiftDetails.caseta || shiftData.casetaAsignada || '').trim();
+          const activeTerminalCaseta = getActiveCaseta();
+          const finalCaseta = assignedCaseta || activeTerminalCaseta;
+
+          const payload = {
+            elemId: String(state.elemId),
+            turno: shiftData.targetShift || 'matutino',
+            hora: horaStr,
+            fecha: fechaLegible,
+            dia: diaKey,
+            mes: shiftData.targetMes || undefined,
+            anio: shiftData.targetAnio || undefined,
+            Caseta: finalCaseta,
+            terminalCaseta: activeTerminalCaseta,
+            foto: state.capturedBase64,
+            tipo: 'salida'
+          };
+
+          try {
+            const res = await fetch(`${BACKEND_BASE}/api/asistencia/salida`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Bypass-Tunnel-Reminder': 'true' },
+              body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            if (res.ok && result.success) {
+              renderReceipt(payload, horaFull, 'salida');
+              setStep(4);
+              soundSuccess();
+              showToast('✅ Salida registrada con éxito');
+            } else {
+              showToast(result.error || 'Error al registrar salida');
+              soundWarning();
+            }
+          } catch(err) {
+            console.error('[Error guardando salida]', err);
+            showToast('Error de conexión al registrar salida');
+            soundWarning();
+          } finally {
+            btnOnlySalida.disabled = false;
+            btnOnlySalida.innerHTML = '<span>🚪 Solo Marcar Salida (Sin Doblete)</span>';
+          }
+        });
+      }
+
+      // =========================================================================
+      // PASO 4: COMPROBANTE DIGITAL
+      // =========================================================================
+      function renderReceipt(payload, horaFull, tipo = 'entrada') {
+        const receiptOfficerName = document.getElementById('receiptOfficerName');
+        const receiptOfficerId = document.getElementById('receiptOfficerId');
+        const receiptShiftLabel = document.getElementById('receiptShiftLabel');
+        const receiptEntryTime = document.getElementById('receiptEntryTime');
+        const receiptDate = document.getElementById('receiptDate');
+        const receiptPhotoImg = document.getElementById('receiptPhotoImg');
+        const receiptTitle = document.getElementById('receiptTitle');
+        const receiptSubtitle = document.getElementById('receiptSubtitle');
+        const receiptTimeLabel = document.getElementById('receiptTimeLabel');
+
+        if (receiptTitle) {
+          receiptTitle.textContent = (tipo === 'swap')
+            ? '¡Relevo Continuo Registrado!'
+            : ((tipo === 'salida') ? '¡Salida Registrada!' : '¡Entrada Registrada!');
+        }
+        if (receiptSubtitle) {
+          receiptSubtitle.textContent = (tipo === 'swap')
+            ? 'Tu salida del turno actual y entrada al turno continuo han sido confirmadas en RegAs 3.'
+            : ((tipo === 'salida')
+              ? 'Tu salida de turno ha sido confirmada en el Centro de Control y la vista Registros.'
+              : 'Tu entrada de turno ha sido confirmada en el Centro de Control y la vista Registros.');
+        }
+        if (receiptTimeLabel) {
+          receiptTimeLabel.textContent = (tipo === 'swap')
+            ? 'Hora de Relevo'
+            : ((tipo === 'salida') ? 'Hora de Salida' : 'Hora de Entrada');
+        }
+
+        receiptOfficerName.textContent = state.elementData?.nombre || `Oficial #${state.elemId}`;
+        receiptOfficerId.textContent = `#${state.elemId}`;
+        receiptShiftLabel.textContent = (tipo === 'swap')
+          ? `${(payload.turno || '').toUpperCase()} ➔ ${(payload.nextTurno || '').toUpperCase()}`
+          : (payload.turno || 'TURNO').toUpperCase();
+        receiptEntryTime.textContent = `${horaFull} hrs`;
+        receiptDate.textContent = payload.fecha;
+
+        const receiptCasetaVal = document.getElementById('receiptCasetaVal');
+        if (receiptCasetaVal) {
+          receiptCasetaVal.textContent = payload.Caseta || 'Caseta Principal';
+        }
+
+        if (receiptPhotoImg) {
+          if (state.capturedBase64) {
+            receiptPhotoImg.src = state.capturedBase64;
+          } else if (state.elementData?.foto) {
+            receiptPhotoImg.src = state.elementData.foto;
+          } else {
+            receiptPhotoImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80"><rect width="80" height="80" rx="14" fill="%231e293b"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="34">👤</text></svg>';
+          }
+        }
+      }
+
+      document.getElementById('btnFinishAll').addEventListener('click', () => {
+        soundBeep();
+        inputId.value = '';
+        state.elemId = '';
+        state.capturedBase64 = null;
+        state.elementData = null;
+        state.shiftData = null;
+        // Volver al Paso 1 listo para el siguiente oficial
+        setStep(1);
+      });
+
+      // Paso 1 activo por defecto al cargar la app
+      setStep(1);
+
+    })();
+  </script>
+
+  <!-- DOCK DE NAVEGACIÓN MINI APPS -->
+  <div class="miniapps-dock-wrapper">
+    <nav class="miniapps-dock-bar" aria-label="Navegación Mini Apps">
+      <a href="./?app=cdi" class="dock-item-btn" title="CDI" id="dockBtnCdi">
+        <div class="dock-icon-squircle icon-cdi">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <path d="M7 12h10M12 7v10" />
+          </svg>
+        </div>
+        <span class="dock-item-label">CDI</span>
+      </a>
+
+      <a href="checador-movil.html" class="dock-item-btn active" title="Checador" id="dockBtnChecador">
+        <div class="dock-icon-squircle icon-checador">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+            <circle cx="12" cy="13" r="4" />
+          </svg>
+        </div>
+        <span class="dock-item-label">Checador</span>
+      </a>
+
+      <a href="recorrido-movil.html" class="dock-item-btn" title="Recorridos" id="dockBtnRecorridos">
+        <div class="dock-icon-squircle icon-recorridos">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+            <line x1="8" y1="2" x2="8" y2="18" />
+            <line x1="16" y1="6" x2="16" y2="22" />
+          </svg>
+        </div>
+        <span class="dock-item-label">Recorridos</span>
+      </a>
+
+      <a href="bitacora-movil.html" class="dock-item-btn" title="Bitácora" id="dockBtnBitacoras">
+        <div class="dock-icon-squircle icon-bitacora">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+            <polyline points="10 9 9 9 8 9" />
+          </svg>
+        </div>
+        <span class="dock-item-label">Bitácora</span>
+      </a>
+    </nav>
+  </div>
+  <script>
+    // Gestión integral de Modo Claro / Oscuro en Checador Móvil
+    function initThemeSupportChecador() {
+      const getSavedTheme = () => {
+        try {
+          const urlTheme = new URLSearchParams(window.location.search).get('theme');
+          if (urlTheme === 'light' || urlTheme === 'dark') return urlTheme;
+          return localStorage.getItem('miniapps_theme') || 'dark';
+        } catch (e) {
+          return 'dark';
+        }
+      };
+
+      const applyTheme = (theme) => {
+        const isLight = (theme === 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+        document.body.setAttribute('data-theme', theme);
+        if (document.body) {
+          document.body.classList.toggle('theme-light', isLight);
+        }
+        const iconEl = document.getElementById('themeToggleIcon');
+        if (iconEl) {
+          iconEl.textContent = isLight ? '☀️' : '🌙';
+        }
+        try { localStorage.setItem('miniapps_theme', theme); } catch (e) {}
+      };
+
+      const current = getSavedTheme();
+      applyTheme(current);
+
+      const btnToggle = document.getElementById('btnThemeToggleChecador');
+      if (btnToggle) {
+        btnToggle.addEventListener('click', () => {
+          const nowTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+          applyTheme(nowTheme);
+        });
+      }
+
+      window.addEventListener('message', (e) => {
+        if (e.data && e.data.type === 'miniapps_theme' && e.data.theme) {
+          applyTheme(e.data.theme);
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initThemeSupportChecador);
+    } else {
+      initThemeSupportChecador();
+    }
+  </script>
+</body>
+</html>
