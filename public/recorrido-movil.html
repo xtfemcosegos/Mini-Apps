@@ -62,6 +62,224 @@
       --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
+    /* MODO CLARO REFINED / ALTO CONTRASTE */
+    :root[data-theme="light"], [data-theme="light"], body.theme-light {
+      --bg-dark: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-surface: #f1f5f9;
+      --bg-input: #ffffff;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #0284c7;
+      --accent-green: #059669;
+      --accent-emerald: #047857;
+      --accent-amber: #d97706;
+      --accent-red: #dc2626;
+      --accent-purple: #7c3aed;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      --border-color: #e2e8f0;
+      --border-active: #3b82f6;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+    }
+
+    [data-theme="light"] .mobile-header {
+      background: rgba(255, 255, 255, 0.95);
+      border-bottom-color: #e2e8f0;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    }
+
+    [data-theme="light"] .brand-app-name {
+      background: linear-gradient(to right, #0f172a, #334155);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    [data-theme="light"] .app-card {
+      background: #ffffff;
+      border-color: #e2e8f0;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+
+    [data-theme="light"] .card-header-title {
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .form-label {
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .form-control {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .form-control:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    [data-theme="light"] .socio-input-field {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .socio-input-field:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    [data-theme="light"] .type-card-btn {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .type-card-btn.selected {
+      border-color: #0284c7;
+      background: #f0f9ff;
+      box-shadow: 0 0 15px rgba(2, 132, 199, 0.15);
+    }
+
+    [data-theme="light"] .type-card-badge {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    [data-theme="light"] .btn-toggle-opt {
+      background: #f8fafc;
+      color: #334155;
+      border-color: #cbd5e1;
+    }
+
+    [data-theme="light"] .btn-toggle-opt.active {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #0369a1;
+    }
+
+    [data-theme="light"] .current-checkpoint-card {
+      border-color: #0284c7 !important;
+      background: #ffffff !important;
+      box-shadow: 0 4px 16px rgba(2, 132, 199, 0.12) !important;
+    }
+
+    [data-theme="light"] .hud-banner {
+      background: rgba(5, 150, 105, 0.08);
+      border-color: rgba(5, 150, 105, 0.25);
+    }
+
+    [data-theme="light"] .hud-metric-pill {
+      background: #ffffff;
+      border-color: #e2e8f0;
+    }
+
+    [data-theme="light"] .hud-metric-val {
+      color: #0284c7;
+    }
+
+    [data-theme="light"] .finish-question-card {
+      background: #ffffff;
+      border-color: #e2e8f0;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+    }
+
+    [data-theme="light"] .finish-question-title {
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .touch-opt-btn {
+      background: #f8fafc;
+      color: #334155;
+      border-color: #cbd5e1;
+    }
+
+    [data-theme="light"] .touch-opt-btn.opt-yes.active {
+      background: #059669;
+      color: #ffffff;
+      border-color: #047857;
+    }
+
+    [data-theme="light"] .touch-opt-btn.opt-no.active {
+      background: #dc2626;
+      color: #ffffff;
+      border-color: #b91c1c;
+    }
+
+    [data-theme="light"] .touch-opt-btn.opt-na.active {
+      background: #475569;
+      color: #ffffff;
+      border-color: #334155;
+    }
+
+    [data-theme="light"] .officer-selected-card {
+      background: #f0f9ff;
+      border-color: #bae6fd;
+    }
+
+    [data-theme="light"] .officer-selected-name {
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .socio-results-dropdown {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+    }
+
+    [data-theme="light"] .socio-result-name {
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .socio-result-item:hover,
+    [data-theme="light"] .socio-result-item:active {
+      background: #eff6ff;
+    }
+
+    [data-theme="light"] .map-info-bar {
+      background: #ffffff;
+      border-color: #e2e8f0;
+      color: #475569;
+    }
+
+    [data-theme="light"] .map-info-bar b {
+      color: #0284c7;
+    }
+
+    .btn-theme-toggle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .btn-theme-toggle:hover {
+      border-color: var(--primary);
+      transform: scale(1.05);
+    }
+
+    .btn-theme-toggle:active {
+      transform: scale(0.92);
+    }
+
+    [data-theme="light"] .btn-theme-toggle {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -1054,6 +1272,128 @@
       color: #7dd3fc;
       border: 1px solid rgba(56, 189, 248, 0.35);
     }
+  
+    /* ESTILOS DE FORMS OFICIALES MS FORMS (INICIO EN CASETA, CHECADOR Y CIERRE) */
+    .btn-group-toggle {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .btn-toggle-opt {
+      flex: 1;
+      padding: 7px 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border-radius: 8px;
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+    .btn-toggle-opt.active {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #38bdf8;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+    }
+    .current-checkpoint-card {
+      border: 1.5px solid rgba(56, 189, 248, 0.4) !important;
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
+    }
+    .finish-question-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.85rem;
+      margin-bottom: 0.75rem;
+    }
+    .finish-question-title {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-bottom: 3px;
+      line-height: 1.35;
+    }
+    .finish-question-subtitle {
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .finish-options-row {
+      display: flex;
+      gap: 8px;
+    }
+    .touch-opt-btn {
+      flex: 1;
+      padding: 8px 6px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      background: var(--bg-card);
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+    .touch-opt-btn.opt-yes.active {
+      background: #059669;
+      color: #ffffff;
+      border-color: #10b981;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+    }
+    .touch-opt-btn.opt-no.active {
+      background: #dc2626;
+      color: #ffffff;
+      border-color: #ef4444;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
+    }
+    .touch-opt-btn.opt-na.active {
+      background: #475569;
+      color: #f1f5f9;
+      border-color: #94a3b8;
+    }
+    .modal-report-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      backdrop-filter: blur(5px);
+    }
+    .modal-report-overlay.hidden {
+      display: none !important;
+    }
+    .checkpoint-item-pill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 8px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 6px;
+      font-size: 0.72rem;
+      color: #a7f3d0;
+    }
+    .incident-item-pill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 8px;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 6px;
+      font-size: 0.74rem;
+      color: #fde68a;
+      margin-top: 4px;
+    }
+
   </style>
 </head>
 <body>
@@ -1069,19 +1409,22 @@
     <div class="header-status-pills">
       <span class="status-pill online" id="pillConnection">🟢 En Línea</span>
       <span class="status-pill gps-search" id="pillGps">📍 GPS Buscando</span>
+      <button type="button" id="btnThemeToggleRecorrido" class="btn-theme-toggle" title="Alternar tema Claro / Oscuro" aria-label="Cambiar tema">
+        <span id="themeToggleIconRecorrido">🌙</span>
+      </button>
     </div>
   </header>
 
-  <main class="mobile-container">
+    <main class="mobile-container">
 
-    <!-- PASO 1: INICIO DE RECORRIDO (SELECCIÓN DE OFICIAL Y TIPO) -->
+    <!-- PASO 1: INICIO DE RECORRIDO (SELECCIÓN DE OFICIAL, CASETA Y VERIFICACIÓN INICIAL) -->
     <section class="view-step active" id="stepStartRecorrido">
       <div class="app-card">
         <h2 class="card-header-title">
           <span>🚶 Iniciar Recorrido Operativo</span>
         </h2>
         <p class="card-header-desc">
-          Selecciona tu perfil de oficial y la modalidad de patrullaje a realizar. La aplicación transmitirá tu posición en tiempo real al Centro de Control.
+          Selecciona tu perfil de oficial y la modalidad. Las preguntas iniciales se verifican en caseta antes de salir a recorrer.
         </p>
 
         <!-- Búsqueda de Oficial por No. de Socio -->
@@ -1089,7 +1432,6 @@
           <label class="form-label" for="inputGuardSocio">👮 Número de Socio del Oficial:</label>
           <div class="form-subtitle">Ingresa tu número de socio para identificarte en el recorrido</div>
 
-          <!-- Campo de búsqueda -->
           <div class="socio-input-wrap" id="socioInputWrap">
             <input 
               type="tel" 
@@ -1108,13 +1450,9 @@
             </button>
           </div>
 
-          <!-- Coincidencias al escribir -->
           <div class="socio-results-dropdown" id="socioResultsDropdown"></div>
-
-          <!-- Mensaje de retroalimentación / error -->
           <div class="socio-feedback-msg" id="socioFeedbackMsg"></div>
 
-          <!-- Chip de último socio usado en este dispositivo -->
           <div class="recent-socio-chip" id="recentSocioChip">
             <span>Último usado:</span>
             <button type="button" class="recent-socio-btn" id="btnUseRecentSocio"></button>
@@ -1139,37 +1477,81 @@
           </div>
         </div>
 
+        <!-- Selector de Tipo de Recorrido basado en Microsoft Forms -->
+        <label class="form-label" style="margin-top: 0.85rem;">Modalidad de Recorrido Oficial:</label>
+        <div class="type-card-grid">
+          <div class="type-card-btn selected" id="btnTypeSeguridad" data-type="recorrido_seguridad_elementos">
+            <div class="type-card-icon">👮</div>
+            <div class="type-card-title">Seguridad (Elementos)</div>
+            <div class="type-card-badge">Oficinas y General</div>
+          </div>
+          <div class="type-card-btn" id="btnTypePerimetral" data-type="recorrido_perimetral">
+            <div class="type-card-icon">🛡️</div>
+            <div class="type-card-title">Perimetral (Casetas)</div>
+            <div class="type-card-badge">Exclusivo Casetas</div>
+          </div>
+        </div>
+
         <!-- Caseta / Sector Origen -->
-        <div class="form-group">
-          <label class="form-label" for="selectGuardCaseta">Caseta / Sector de Origen:</label>
+        <div class="form-group" style="margin-top: 0.85rem;">
+          <label class="form-label" for="selectGuardCaseta">Caseta / Sector:</label>
           <select id="selectGuardCaseta" class="form-control">
-            <option value="Edison">Caseta Edison</option>
-            <option value="Impulso">Caseta Impulso</option>
-            <option value="Michelena">Caseta Michelena</option>
-            <option value="Carranza">Caseta Carranza</option>
-            <option value="Simón Bolívar">Simón Bolívar</option>
-            <option value="Recepción Edison">Recepción Edison</option>
-            <option value="Centro de Control">Centro de Control OS</option>
+            <option value="Edison">Edison (casedi@oxxo.com)</option>
+            <option value="Michelena">Michelena (caseta.michelena@oxxo.com)</option>
+            <option value="Simón Bolívar">Simón Bolívar (xtfemco.recsim@oxxo.com)</option>
+            <option value="Carranza">Carranza (caseta.carranza@oxxo.com)</option>
+            <option value="Impulso">Impulso</option>
+            <option value="U.N">U.N</option>
           </select>
         </div>
 
-        <!-- Selector de Tipo de Recorrido -->
-        <label class="form-label">Tipo de Recorrido a Ejecutar:</label>
-        <div class="type-card-grid">
-          <div class="type-card-btn selected" id="btnTypePerimetral" data-type="recorrido_perimetral">
-            <div class="type-card-icon">🛡️</div>
-            <div class="type-card-title">Perimetral</div>
-            <div class="type-card-badge">Accesos y Bardas</div>
+        <!-- Turno -->
+        <div class="form-group">
+          <label class="form-label" for="selectGuardTurno">Turno:</label>
+          <select id="selectGuardTurno" class="form-control">
+            <option value="Día">Día</option>
+            <option value="Tarde">Tarde</option>
+            <option value="Noche" id="optTurnoNoche">Noche</option>
+          </select>
+        </div>
+
+        <!-- PREGUNTAS AL INICIAR EN CASETA (Formulario Oficial de Elementos) -->
+        <div id="boxPreguntasInicioCaseta" class="start-questions-box" style="margin-top: 1rem; padding: 0.85rem; background: var(--bg-surface); border-radius: 10px; border: 1px solid var(--border-color);">
+          <div style="font-size: 0.82rem; font-weight: 700; color: #38bdf8; margin-bottom: 0.65rem; display: flex; align-items: center; gap: 6px;">
+            <span>📋</span>
+            <span>Verificación Inicial en Caseta (Pre-recorrido)</span>
           </div>
-          <div class="type-card-btn" id="btnTypeInterior" data-type="recorrido_interior">
-            <div class="type-card-icon">🏢</div>
-            <div class="type-card-title">Interior</div>
-            <div class="type-card-badge">Racks e Instalaciones</div>
+
+          <!-- Tipo de Recorrido (Oficinas / Contratistas) -->
+          <div class="form-group" style="margin-bottom: 0.75rem;">
+            <label class="form-label" style="font-size: 0.78rem;">Tipo de Recorrido:</label>
+            <div class="btn-group-toggle" id="toggleTipoRecorrido">
+              <button type="button" class="btn-toggle-opt active" data-val="Oficinas">Oficinas</button>
+              <button type="button" class="btn-toggle-opt" data-val="Contratistas">Contratistas</button>
+            </div>
+          </div>
+
+          <!-- ¿La PC de caseta esta encendida y mostrando cámaras de CCTV? -->
+          <div class="form-group" style="margin-bottom: 0.75rem;">
+            <label class="form-label" style="font-size: 0.78rem;">¿La PC de caseta está encendida y mostrando cámaras de CCTV?</label>
+            <div class="btn-group-toggle" id="togglePcCctv">
+              <button type="button" class="btn-toggle-opt active" data-val="Sí">Sí</button>
+              <button type="button" class="btn-toggle-opt" data-val="No">No</button>
+            </div>
+          </div>
+
+          <!-- ¿La llave de apertura de elevadores se encuentra a la vista y disponible? -->
+          <div class="form-group" style="margin-bottom: 0.25rem;">
+            <label class="form-label" style="font-size: 0.78rem;">¿La llave de apertura de elevadores se encuentra a la vista y disponible?</label>
+            <div class="btn-group-toggle" id="toggleLlaveElevador">
+              <button type="button" class="btn-toggle-opt active" data-val="Sí">Sí</button>
+              <button type="button" class="btn-toggle-opt" data-val="No">No</button>
+            </div>
           </div>
         </div>
 
         <!-- Botón de Inicio -->
-        <button type="button" class="btn-action btn-primary-action" id="btnStartPatrol">
+        <button type="button" class="btn-action btn-primary-action" id="btnStartPatrol" style="margin-top: 1rem;">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
             <polygon points="5 3 19 12 5 21 5 3"/>
           </svg>
@@ -1178,7 +1560,7 @@
       </div>
     </section>
 
-    <!-- PASO 2: RECORRIDO ACTIVO (MONITOREO GPS EN VIVO Y FORMULARIO DINÁMICO) -->
+    <!-- PASO 2: RECORRIDO ACTIVO (SOLO MAPA, CHECADOR DE PUNTO ACTUAL Y REPORTE DE INCIDENCIA) -->
     <section class="view-step" id="stepActiveRecorrido">
       
       <!-- HUD DE ESTADO EN VIVO -->
@@ -1224,8 +1606,8 @@
         <span id="bgNotifStatusBadge" style="font-size: 0.68rem; background: rgba(16, 185, 129, 0.25); color: #a7f3d0; padding: 1px 6px; border-radius: 10px; font-weight: 700;">Notif Activa</span>
       </div>
 
-      <!-- MINI MAPA LEAFLET EN VIVO CON SEGUIMIENTO GPS -->
-      <div class="mini-map-container" id="miniMapContainer">
+      <!-- MAPA LEAFLET EN VIVO -->
+      <div class="mini-map-container" id="miniMapContainer" style="height: 380px;">
         <div id="mobileMiniMap"></div>
 
         <!-- Barra superior del mapa con estado de seguimiento -->
@@ -1262,40 +1644,118 @@
         <span>Velocidad: <b id="lblGpsLiveSpeed">0 km/h</b></span>
       </div>
 
-      <!-- BOTÓN REGISTRAR CHECKPOINT RÁPIDO -->
-      <button type="button" class="btn-action btn-outline-action" id="btnQuickCheckpoint" style="margin-bottom: 1rem; border-color: #38bdf8; color: #38bdf8;">
-        📍 Registrar Checkpoint / Punto Actual
-      </button>
+      <!-- CHECADOR DE PUNTO ACTUAL -->
+      <div class="app-card current-checkpoint-card" id="cardCurrentCheckpoint" style="margin-top: 0.85rem; padding: 0.95rem; border: 1.5px solid rgba(56, 189, 248, 0.4); background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.45rem;">
+          <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; color: #38bdf8; display: flex; align-items: center; gap: 5px;">
+            <span>📍</span>
+            <span>Checador de Punto Actual</span>
+          </span>
+          <span id="lblCheckpointProgress" style="font-size: 0.72rem; font-weight: 700; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 8px; border-radius: 10px;">
+            Punto 1 de 6
+          </span>
+        </div>
 
-      <!-- FORMULARIO DINÁMICO SEGÚN EL ESQUEMA CONFIGURADO -->
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem;">
+          <div id="checkpointIconBig" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(56, 189, 248, 0.15); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; border: 1px solid rgba(56, 189, 248, 0.3);">
+            🚪
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <div id="checkpointCurrentName" style="font-size: 0.95rem; font-weight: 800; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              Caseta de Seguridad y Acceso
+            </div>
+            <div id="checkpointCurrentDesc" style="font-size: 0.74rem; color: var(--text-muted);">
+              Punto de inicio y verificación perimetral
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón para checar el punto actual -->
+        <button type="button" class="btn-action btn-primary-action" id="btnQuickCheckpoint" style="padding: 0.85rem; font-size: 0.92rem; font-weight: 800; border-radius: 10px; background: #0284c7; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);">
+          <span>✓</span>
+          <span id="btnQuickCheckpointLabel">REGISTRAR LLEGADA A ESTE PUNTO</span>
+        </button>
+
+        <!-- Historial de puntos verificados en este recorrido -->
+        <div id="checkpointTimeline" style="margin-top: 0.75rem; display: flex; flex-direction: column; gap: 4px; font-size: 0.72rem; color: var(--text-muted);"></div>
+
+        <!-- Incidencias reportadas en ruta -->
+        <div id="incidentsTimeline" style="margin-top: 0.45rem; display: flex; flex-direction: column; gap: 4px;"></div>
+      </div>
+
+      <!-- ACCIONES OPERATIVAS: REPORTE DE INCIDENCIA EN RUTA Y CONCLUIR -->
+      <div style="display: flex; flex-direction: column; gap: 0.65rem; margin-top: 0.9rem;">
+        
+        <!-- Botón para realizar reportes durante el recorrido -->
+        <button type="button" class="btn-action" id="btnOpenReportModal" style="background: rgba(245, 158, 11, 0.15); border: 1.5px solid #f59e0b; color: #fbbf24; font-weight: 800; font-size: 0.88rem; padding: 0.75rem;">
+          <span style="font-size: 1.1rem;">⚠️</span>
+          <span>REALIZAR REPORTE / INCIDENCIA EN RUTA</span>
+        </button>
+
+        <!-- Botón para Concluir Recorrido -->
+        <button type="button" class="btn-action btn-success-action" id="btnGoToFinishEvaluation" style="padding: 0.85rem; font-size: 0.92rem; font-weight: 800;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <span>CONCLUIR RECORRIDO (EVALUACIÓN FINAL)</span>
+        </button>
+
+        <button type="button" class="btn-action btn-outline-action" id="btnCancelPatrol" style="font-size: 0.78rem; padding: 0.5rem; opacity: 0.8;">
+          Cancelar / Descartar Recorrido
+        </button>
+      </div>
+
+    </section>
+
+    <!-- PASO 2.5: EVALUACIÓN AL CONCLUIR EL RECORRIDO (PREGUNTAS DE FIN DE RECORRIDO) -->
+    <section class="view-step" id="stepFinishRecorrido">
       <div class="app-card">
-        <h3 class="card-header-title">
-          <span>📋 Formulario de Verificación del Recorrido</span>
-        </h3>
+        <h2 class="card-header-title">
+          <span>📋 Evaluación de Fin de Recorrido</span>
+        </h2>
         <p class="card-header-desc">
-          Diligencia los puntos de control e incidencias conforme avanzas en tu ruta de seguridad.
+          Responde la inspección correspondiente a las áreas recorridas para transmitir el informe final al Centro de Control.
         </p>
 
-        <form id="formRecorridoMobile" style="display: flex; flex-direction: column; gap: 0.85rem;">
-          <div id="dynamicRecorridoFields">
-            <!-- Renderizado dinámico desde el esquema de recorridos -->
+        <!-- Resumen de Métricas Registradas Automáticas -->
+        <div class="finish-metrics-box" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 10px; padding: 0.75rem; margin-bottom: 1rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 0.78rem;">
+          <div>
+            <div style="color: var(--text-muted);">Horario Recorrido:</div>
+            <div id="finishSummaryHorario" style="font-weight: 700; color: #f8fafc;">--:-- a --:--</div>
+          </div>
+          <div>
+            <div style="color: var(--text-muted);">Tiempo Total:</div>
+            <div id="finishSummaryTiempo" style="font-weight: 700; color: #34d399;">0 min</div>
+          </div>
+          <div>
+            <div style="color: var(--text-muted);">Distancia GPS:</div>
+            <div id="finishSummaryDistancia" style="font-weight: 700; color: #38bdf8;">0 m</div>
+          </div>
+          <div>
+            <div style="color: var(--text-muted);">Puntos Verificados:</div>
+            <div id="finishSummaryPuntos" style="font-weight: 700; color: #a78bfa;">0</div>
+          </div>
+        </div>
+
+        <!-- Formulario con las preguntas de fin de recorrido -->
+        <form id="formFinishQuestions" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <div id="containerFinishQuestionsList">
+            <!-- Renderizado dinámico de las preguntas oficiales de cierre -->
           </div>
 
-          <!-- BOTONES DE ACCIÓN FINAL -->
           <div style="display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1rem;">
-            <button type="submit" class="btn-action btn-success-action" id="btnFinishPatrol">
+            <button type="submit" class="btn-action btn-success-action" id="btnSubmitFinalRecorrido" style="padding: 0.9rem; font-weight: 800; font-size: 0.95rem;">
               <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
-              <span>CONCLUIR RECORRIDO Y TRANSMITIR</span>
+              <span>TRANSMITIR INFORME Y FINALIZAR</span>
             </button>
-            <button type="button" class="btn-action btn-outline-action" id="btnCancelPatrol" style="font-size: 0.82rem; padding: 0.6rem;">
-              Cancelar / Descartar Recorrido
+            <button type="button" class="btn-action btn-outline-action" id="btnBackToActivePatrol" style="font-size: 0.8rem; padding: 0.6rem;">
+              ← Volver al Mapa en Curso
             </button>
           </div>
         </form>
       </div>
-
     </section>
 
     <!-- PASO 3: CONFIRMACIÓN Y FOLIO -->
@@ -1316,6 +1776,56 @@
     </section>
 
   </main>
+
+  <!-- MODAL: REPORTAR INCIDENCIA EN RUTA -->
+  <div id="modalReporteIncidencia" class="modal-report-overlay hidden">
+    <div class="app-card" style="width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; border: 1.5px solid #f59e0b; background: #0f172a;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+        <h3 style="font-size: 1rem; font-weight: 800; color: #fbbf24; display: flex; align-items: center; gap: 6px; margin: 0;">
+          <span>⚠️</span>
+          <span>Reportar Incidencia en Ruta</span>
+        </h3>
+        <button type="button" id="btnCloseReportModal" style="background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; padding: 4px;">✕</button>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0.75rem;">
+        <label class="form-label">Tipo de Hallazgo / Anomalía:</label>
+        <select id="modalReportTipo" class="form-control">
+          <option value="Laptop desatendida / sin resguardo">💻 Laptop desatendida / sin resguardo</option>
+          <option value="Persona sin gafete / visitante solitario">👤 Persona sin gafete / visitante solitario</option>
+          <option value="Puerta o portón abierto indebidamente">🚪 Puerta o portón abierto indebidamente</option>
+          <option value="Vehículo mal estacionado / sin marbete">🚗 Vehículo mal estacionado / sin marbete</option>
+          <option value="Luminaria fundida o zona oscura">💡 Luminaria fundida o zona oscura</option>
+          <option value="Condición insegura en Site / Climas">⚡ Condición insegura en Site / Climas</option>
+          <option value="Contratista fuera de área asignada">🛠️ Contratista fuera de área asignada</option>
+          <option value="Daño o grafiti en perímetro">🧱 Daño o grafiti en perímetro</option>
+          <option value="Persona o vehículo sospechoso">🚨 Persona o vehículo sospechoso</option>
+          <option value="Otro hallazgo relevante">📝 Otro hallazgo relevante</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0.75rem;">
+        <label class="form-label">Descripción de la Novedad:</label>
+        <textarea id="modalReportDesc" class="form-control" rows="3" placeholder="Describe brevemente lo observado y su ubicación..."></textarea>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <input type="checkbox" id="modalReportCCO" checked style="width: 18px; height: 18px; accent-color: #f59e0b;">
+          <span>Reportar de inmediato a Centro de Control (CCO)</span>
+        </label>
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <button type="button" class="btn-action" id="btnSaveReportModal" style="flex: 1; background: #d97706; color: white; font-weight: 800;">
+          ✓ Guardar y Enviar Incidencia
+        </button>
+        <button type="button" class="btn-action btn-outline-action" id="btnCancelReportModal" style="flex: 0 0 90px;">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
 
   <div class="toast-msg" id="mobileToast">Mensaje</div>
 
@@ -1444,11 +1954,80 @@
         };
       } catch(errSse) {}
 
+            // ESQUEMAS OFICIALES BASADOS 100% EN MICROSOFT FORMS
+      const OFFICIAL_FORMS = {
+        recorrido_seguridad_elementos: {
+          id: 'recorrido_seguridad_elementos',
+          title: 'Recorrido de Seguridad (Elementos)',
+          subtitle: 'PROTECCIÓN OSÍ - Identificación de riesgos, condiciones inseguras y daños a las instalaciones',
+          casetas: [
+            { id: 'Edison', label: 'Edison (casedi@oxxo.com)' },
+            { id: 'Michelena', label: 'Michelena (caseta.michelena@oxxo.com)' },
+            { id: 'Simón Bolívar', label: 'Simón Bolívar (xtfemco.recsim@oxxo.com)' },
+            { id: 'Carranza', label: 'Carranza (caseta.carranza@oxxo.com)' },
+            { id: 'Impulso', label: 'Impulso' }
+          ],
+          turnos: ['Día', 'Tarde', 'Noche'],
+          checkpoints: [
+            { id: 'cp1', name: 'Caseta de Seguridad y Acceso', icon: '🚪', desc: 'Validar PC con CCTV encendida y llaves de elevador disponibles' },
+            { id: 'cp2', name: 'Oficinas Planta Baja y Pasillos', icon: '🏢', desc: 'Validar visitantes acompañados y empleados con gafete a la vista' },
+            { id: 'cp3', name: 'Mesas y Salas de Juntas', icon: '💻', desc: 'Revisar laptops abandonadas o sin resguardo en salas y mesitas' },
+            { id: 'cp4', name: 'Sites de TI y Cuartos de Clima', icon: '⚡', desc: 'Revisar acceso cerrado, clima encendido y validar alarma' },
+            { id: 'cp5', name: 'Estacionamientos y Cajones', icon: '🚗', desc: 'Validar marbetes adecuados y posición de salida de vehículos' },
+            { id: 'cp6', name: 'Perímetro Exterior y Mallas', icon: '🛡️', desc: 'Revisar bardas sin daño ni grafiti, puertas y luminarias' }
+          ],
+          finishQuestions: [
+            { key: 'oficinas_visitantes', label: '¿Las oficinas están libres de visitantes solitarios?', subtitle: 'Toda visita debe estar acompañada por un empleado.', options: ['Si', 'No', 'N/A'] },
+            { key: 'empleados_gafete', label: '¿Todos los empleados portan su gafete a la vista?', subtitle: 'Dentro de las instalaciones todos deben portar su gafete a la vista.', options: ['Si', 'No', 'N/A'] },
+            { key: 'mesas_salas_laptops', label: '¿Las mesas y salas de juntas están libres sin laptop abandonadas o sin resguardo?', subtitle: 'Revisar mesitas de puntos de reunión.', options: ['Si', 'No', 'N/A'] },
+            { key: 'contratistas_area', label: '¿Los contratistas en caso de haber, se encuentran dentro de su área de trabajo asignada?', subtitle: 'Solo deben circular en su área de trabajo y rutas asignadas.', options: ['Si', 'No', 'N/A'] },
+            { key: 'contratistas_incendio', label: '¿Los trabajos de los contratistas son confiables de no activar el sistema de incendio?', subtitle: 'No obstruir sensores, no provocar polvo en interior o humo.', options: ['Si', 'No', 'N/A'] },
+            { key: 'estacionamiento_marbetes', label: '¿Los cajones de estacionamiento están ocupados por vehículos con marbetes adecuados?', options: ['Si', 'No', 'N/A'] },
+            { key: 'vehiculos_salida', label: '¿Todos los vehículos están estacionados en posición de salida?', options: ['Si', 'No', 'N/A'] },
+            { key: 'puertas_portones', label: '¿Las puertas y portones están cerrados adecuadamente?', options: ['Si', 'No'] },
+            { key: 'luminarias_funcionando', label: '¿Las luminarias se encuentran funcionando?', options: ['Si', 'No'] },
+            { key: 'instalaciones_sin_danos', label: '¿Las instalaciones están libres de algún daño o grafiti en perímetros?', subtitle: 'Revisar detalladamente todo el contorno y validar puertas y ventanas.', options: ['Si', 'No'] },
+            { key: 'perimetro_sin_sospechosos', label: '¿El perímetro está libre de personas o vehículos sospechosos?', subtitle: 'Turno nocturno se visualizará por medio de CCTV.', options: ['Si', 'No', 'N/A'] },
+            { key: 'site_en_orden', label: '¿Los Site se encuentran en orden?', subtitle: 'Revisar acceso, visualizar clima encendido y verificar alarma.', options: ['Si', 'No'] },
+            { key: 'reporto_cco', label: '¿Se reportó a CCO alguna incidencia?', options: ['Si', 'No'] },
+            { key: 'hallazgos_relevantes', label: '¿Hallazgos relevantes?', options: ['Si', 'No'] },
+            { key: 'registro_hallazgos', label: 'Registra los hallazgos relevantes encontrados', subtitle: 'Ejemplo: Iluminaciones dañadas, fallas generales, etc.', type: 'textarea' }
+          ]
+        },
+        recorrido_perimetral: {
+          id: 'recorrido_perimetral',
+          title: 'Recorrido Perimetral (Casetas)',
+          subtitle: 'Registro exclusivo para casetas de control de acceso',
+          casetas: [
+            { id: 'Edison', label: 'Edison' },
+            { id: 'Michelena', label: 'Michelena' },
+            { id: 'Impulso', label: 'Impulso' },
+            { id: 'Carranza', label: 'Carranza' },
+            { id: 'U.N', label: 'U.N' }
+          ],
+          turnos: ['Día', 'Tarde'],
+          checkpoints: [
+            { id: 'cp1', name: 'Caseta de Origen y Barreras', icon: '🛡️', desc: 'Revisión de plumas vehiculares y equipo' },
+            { id: 'cp2', name: 'Perímetro Norte y Vallas', icon: '🧱', desc: 'Validación de concertina y malla ciclónica exterior' },
+            { id: 'cp3', name: 'Puertas de Emergencia y Esclusas', icon: '🚪', desc: 'Verificación de pasadores y libre tránsito' },
+            { id: 'cp4', name: 'Portón de Proveedores y Carga', icon: '🚚', desc: 'Supervisión de acceso vehicular pesado' },
+            { id: 'cp5', name: 'Perímetro Sur y Reflectores', icon: '💡', desc: 'Revisión de luminarias y zona de estacionamiento' }
+          ],
+          finishQuestions: [
+            { key: 'puertas_portones', label: '¿Puertas y portones perimetrales cerrados adecuadamente?', options: ['Si', 'No'] },
+            { key: 'perimetro_sin_sospechosos', label: '¿Perímetro libre de personas o vehículos sospechosos?', options: ['Si', 'No', 'N/A'] },
+            { key: 'luminarias_funcionando', label: '¿Luminarias perimetrales funcionando?', options: ['Si', 'No'] },
+            { key: 'reporto_cco', label: '¿Se reportó a CCO alguna incidencia?', options: ['Si', 'No'] },
+            { key: 'hallazgos_relevantes', label: '¿Hallazgos relevantes?', options: ['Si', 'No'] },
+            { key: 'registro_hallazgos', label: 'Registra los hallazgos relevantes encontrados', subtitle: 'Observaciones generales del perímetro de caseta', type: 'textarea' }
+          ]
+        }
+      };
+
       // ESTADO DE LA APLICACIÓN MÓVIL
       const state = {
         activeRecorridoId: null,
-        schemaId: 'recorrido_perimetral',
-        schemas: {},
+        schemaId: 'recorrido_seguridad_elementos',
         elementos: [],
         currentGuard: null,
         isTracking: false,
@@ -1458,10 +2037,19 @@
         pingIntervalId: null,
         timerIntervalId: null,
         startTime: null,
+        endTime: null,
         secondsElapsed: 0,
         currentPos: null,
         routePath: [],
         checkpoints: [],
+        incidencias: [],
+        currentCheckpointIdx: 0,
+        startAnswers: {
+          tipoRecorrido: 'Oficinas',
+          pcCctv: 'Sí',
+          llaveElevador: 'Sí'
+        },
+        finishAnswers: {},
         map: null,
         guardMarker: null,
         accuracyCircle: null,
@@ -1471,23 +2059,18 @@
         checkpointMarkers: [],
         wakeLockSentinel: null,
         silentAudioEl: null,
-        audioCtx: null,
-        audioOscillator: null,
         heartbeatWorker: null,
         lastNotifUpdateSeconds: 0,
         activeNotification: null,
-        isMapExpanded: false,
-        signatureCanvas: null,
-        signatureCtx: null,
-        isDrawingSig: false,
-        signatureData: null,
-        photoData: {}
+        isMapExpanded: false
       };
 
       // ELEMENTOS DOM
       const stepStart = document.getElementById('stepStartRecorrido');
       const stepActive = document.getElementById('stepActiveRecorrido');
+      const stepFinish = document.getElementById('stepFinishRecorrido');
       const stepSuccess = document.getElementById('stepSuccessRecorrido');
+
       const inputGuardSocio = document.getElementById('inputGuardSocio');
       const btnBuscarSocio = document.getElementById('btnBuscarSocio');
       const socioInputWrap = document.getElementById('socioInputWrap');
@@ -1497,20 +2080,47 @@
       const btnUseRecentSocio = document.getElementById('btnUseRecentSocio');
       const cardSelectedOfficer = document.getElementById('cardSelectedOfficer');
       const officerAvatarWrap = document.getElementById('officerAvatarWrap');
+      const officerAvatarEmoji = document.getElementById('officerAvatarEmoji');
       const officerSelectedName = document.getElementById('officerSelectedName');
       const officerSelectedSocio = document.getElementById('officerSelectedSocio');
       const officerSelectedPuesto = document.getElementById('officerSelectedPuesto');
       const btnClearOfficer = document.getElementById('btnClearOfficer');
+
+      const btnTypeSeguridad = document.getElementById('btnTypeSeguridad');
+      const btnTypePerimetral = document.getElementById('btnTypePerimetral');
       const selectCaseta = document.getElementById('selectGuardCaseta');
-      const btnPerimetral = document.getElementById('btnTypePerimetral');
-      const btnInterior = document.getElementById('btnTypeInterior');
+      const selectTurno = document.getElementById('selectGuardTurno');
+      const optTurnoNoche = document.getElementById('optTurnoNoche');
+      const boxPreguntasInicioCaseta = document.getElementById('boxPreguntasInicioCaseta');
+
       const btnStart = document.getElementById('btnStartPatrol');
-      const btnFinish = document.getElementById('btnFinishPatrol');
       const btnCancel = document.getElementById('btnCancelPatrol');
       const btnQuickCheck = document.getElementById('btnQuickCheckpoint');
+      const btnQuickCheckpointLabel = document.getElementById('btnQuickCheckpointLabel');
+      const lblCheckpointProgress = document.getElementById('lblCheckpointProgress');
+      const checkpointIconBig = document.getElementById('checkpointIconBig');
+      const checkpointCurrentName = document.getElementById('checkpointCurrentName');
+      const checkpointCurrentDesc = document.getElementById('checkpointCurrentDesc');
+      const checkpointTimeline = document.getElementById('checkpointTimeline');
+      const incidentsTimeline = document.getElementById('incidentsTimeline');
+
+      const btnOpenReportModal = document.getElementById('btnOpenReportModal');
+      const btnGoToFinishEvaluation = document.getElementById('btnGoToFinishEvaluation');
       const btnPanic = document.getElementById('btnPanicAlert');
       const btnNewPatrol = document.getElementById('btnNewPatrolStart');
-      const dynamicFieldsContainer = document.getElementById('dynamicRecorridoFields');
+
+      const modalReporteIncidencia = document.getElementById('modalReporteIncidencia');
+      const btnCloseReportModal = document.getElementById('btnCloseReportModal');
+      const btnCancelReportModal = document.getElementById('btnCancelReportModal');
+      const btnSaveReportModal = document.getElementById('btnSaveReportModal');
+      const modalReportTipo = document.getElementById('modalReportTipo');
+      const modalReportDesc = document.getElementById('modalReportDesc');
+      const modalReportCCO = document.getElementById('modalReportCCO');
+
+      const formFinishQuestions = document.getElementById('formFinishQuestions');
+      const containerFinishQuestionsList = document.getElementById('containerFinishQuestionsList');
+      const btnBackToActivePatrol = document.getElementById('btnBackToActivePatrol');
+
       const hudTimer = document.getElementById('hudTimer');
       const hudDistancia = document.getElementById('hudDistancia');
       const hudPuntos = document.getElementById('hudPuntos');
@@ -1518,8 +2128,6 @@
       const pillGps = document.getElementById('pillGps');
       const pillConnection = document.getElementById('pillConnection');
       const activePatrolTitle = document.getElementById('activePatrolTitle');
-      const bgTrackingBanner = document.getElementById('bgTrackingBanner');
-      const bgNotifStatusBadge = document.getElementById('bgNotifStatusBadge');
 
       // INICIALIZACIÓN
       async function init() {
@@ -1527,22 +2135,20 @@
         initServiceWorker();
         initVisibilityHandler();
         setupTypeSelectors();
+        setupStartQuestionToggles();
         setupButtons();
-        await loadSchemas();
         await loadElementos();
         initGeolocationWatch();
       }
 
-      // ============================================================
-      // SERVICIOS EN SEGUNDO PLANO Y NOTIFICACIÓN PERSISTENTE
-      // ============================================================
+      // SERVICIOS EN SEGUNDO PLANO Y PERSISTENCIA
       const SILENT_WAV_BASE64 = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==';
 
       function initServiceWorker() {
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register('./sw.js', { scope: './' })
             .then(reg => {
-              console.log('[Mobile SW] Registrado correctamente:', reg.scope);
+              console.log('[Mobile SW] Registrado:', reg.scope);
             })
             .catch(err => {
               console.warn('[Mobile SW] Error registrando SW:', err);
@@ -1587,7 +2193,6 @@
       }
 
       function startBackgroundAudioLoop() {
-        // 1. Audio HTML5 en loop
         try {
           if (!state.silentAudioEl) {
             state.silentAudioEl = new Audio(SILENT_WAV_BASE64);
@@ -1595,36 +2200,8 @@
             state.silentAudioEl.volume = 0.001;
           }
           const p = state.silentAudioEl.play();
-          if (p !== undefined) {
-            p.catch(e => console.log('[Silent Audio]', e.message));
-          }
-        } catch(e) {
-          console.warn('[Silent Audio Error]', e);
-        }
-
-        // 2. Web Audio Oscillator fallback
-        try {
-          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-          if (AudioContextClass) {
-            if (!state.audioCtx) {
-              state.audioCtx = new AudioContextClass();
-            }
-            if (state.audioCtx.state === 'suspended') {
-              state.audioCtx.resume();
-            }
-            if (!state.audioOscillator) {
-              const osc = state.audioCtx.createOscillator();
-              const gain = state.audioCtx.createGain();
-              gain.gain.value = 0.0001;
-              osc.connect(gain);
-              gain.connect(state.audioCtx.destination);
-              osc.start(0);
-              state.audioOscillator = osc;
-            }
-          }
-        } catch (e) {
-          console.warn('[WebAudio KeepAlive]', e);
-        }
+          if (p !== undefined) p.catch(() => {});
+        } catch(e) {}
       }
 
       function stopBackgroundAudioLoop() {
@@ -1634,44 +2211,35 @@
             state.silentAudioEl.currentTime = 0;
           } catch(e) {}
         }
-        if (state.audioOscillator) {
-          try { state.audioOscillator.stop(); } catch(e) {}
-          state.audioOscillator = null;
-        }
-        if (state.audioCtx) {
-          try { state.audioCtx.close(); } catch(e) {}
-          state.audioCtx = null;
-        }
       }
 
       function startWorkerHeartbeat() {
-        if (state.heartbeatWorker) return;
-        try {
-          const workerCode = `
-            let timer = null;
-            self.onmessage = function(e) {
-              if (e.data === 'start') {
-                if (timer) clearInterval(timer);
-                timer = setInterval(function() {
-                  self.postMessage('tick');
-                }, 3500);
-              } else if (e.data === 'stop') {
-                if (timer) clearInterval(timer);
-                timer = null;
+        if (window.Worker) {
+          try {
+            const blob = new Blob([`
+              let t = null;
+              self.onmessage = function(e) {
+                if (e.data === 'start') {
+                  if (t) clearInterval(t);
+                  t = setInterval(() => { self.postMessage('tick'); }, 5000);
+                } else if (e.data === 'stop') {
+                  if (t) clearInterval(t);
+                  t = null;
+                }
+              };
+            `], { type: 'application/javascript' });
+            state.heartbeatWorker = new Worker(URL.createObjectURL(blob));
+            state.heartbeatWorker.onmessage = function(e) {
+              if (e.data === 'tick' && state.isTracking) {
+                if (document.visibilityState === 'hidden') {
+                  requestHighAccuracyPosition();
+                }
               }
             };
-          `;
-          const blob = new Blob([workerCode], { type: 'application/javascript' });
-          const workerUrl = URL.createObjectURL(blob);
-          state.heartbeatWorker = new Worker(workerUrl);
-          state.heartbeatWorker.onmessage = function(e) {
-            if (e.data === 'tick' && state.isTracking) {
-              requestHighAccuracyPosition();
-            }
-          };
-          state.heartbeatWorker.postMessage('start');
-        } catch (e) {
-          console.warn('[Worker Heartbeat Error]', e);
+            state.heartbeatWorker.postMessage('start');
+          } catch(e) {
+            console.warn('[Worker Heartbeat]', e);
+          }
         }
       }
 
@@ -1685,96 +2253,52 @@
         }
       }
 
-      async function showPersistentNotification(title, body) {
+      async function showPersistentNotification() {
         if (!('Notification' in window) || Notification.permission !== 'granted') return;
-        const notifTitle = title || '🛡️ RegAs 3 - Recorrido Activo';
-        const notifOptions = {
-          body: body || 'Transmitiendo ubicación GPS en tiempo real...',
-          icon: './iconos/icon-192.png',
-          badge: './iconos/icon-192.png',
-          tag: 'regas-patrol-ongoing',
-          renotify: false,
-          requireInteraction: true,
-          silent: true,
-          ongoing: true,
-          data: { url: './recorrido-movil.html' }
-        };
-
-        // Enviar a Service Worker si está listo
         try {
-          if ('serviceWorker' in navigator) {
+          const guardName = state.currentGuard ? (state.currentGuard.nombre || state.currentGuard.Nombre || 'Oficial') : 'Oficial';
+          const formCfg = OFFICIAL_FORMS[state.schemaId] || {};
+          const title = `🛰️ ${formCfg.title} en curso`;
+          const options = {
+            body: `${guardName} • Transmitiendo ubicación al Centro de Control`,
+            icon: 'iconos/icon-192.png',
+            badge: 'iconos/icon-192.png',
+            tag: 'recorrido-tracking',
+            renotify: false,
+            silent: true,
+            requireInteraction: true
+          };
+
+          if (navigator.serviceWorker && navigator.serviceWorker.ready) {
             const reg = await navigator.serviceWorker.ready;
-            if (reg && reg.showNotification) {
-              await reg.showNotification(notifTitle, notifOptions);
-              return;
-            }
+            await reg.showNotification(title, options);
+          } else {
+            state.activeNotification = new Notification(title, options);
           }
         } catch(e) {}
-
-        // Fallback directo con API Notification
-        try {
-          if (state.activeNotification) {
-            try { state.activeNotification.close(); } catch(e) {}
-          }
-          state.activeNotification = new Notification(notifTitle, notifOptions);
-        } catch(e) {}
-      }
-
-      function updateRoutePersistentNotification() {
-        if (!state.isTracking) return;
-        const nowSec = state.secondsElapsed;
-        if (nowSec - state.lastNotifUpdateSeconds < 8 && state.lastNotifUpdateSeconds > 0) return;
-        state.lastNotifUpdateSeconds = nowSec;
-
-        const hrs = String(Math.floor(nowSec / 3600)).padStart(2, '0');
-        const mins = String(Math.floor((nowSec % 3600) / 60)).padStart(2, '0');
-        const secs = String(nowSec % 60).padStart(2, '0');
-        const timeStr = `${hrs}:${mins}:${secs}`;
-        const distStr = formatDistance(state.totalDistanceMeters);
-        const guardName = state.currentGuard ? (state.currentGuard.nombre || state.currentGuard.Nombre || 'Oficial') : 'Oficial';
-        const acc = state.currentPos ? `±${Math.round(state.currentPos.accuracy)}m` : 'Buscando GPS';
-
-        showPersistentNotification(
-          '🛡️ Recorrido en Curso - GPS Activo',
-          `👮 ${guardName} • ⏱️ ${timeStr} • 📏 ${distStr} • 📍 ${acc} • 📌 ${state.checkpoints.length} pts`
-        );
       }
 
       function closePersistentNotification() {
         try {
-          if ('serviceWorker' in navigator) {
+          if (state.activeNotification) {
+            state.activeNotification.close();
+            state.activeNotification = null;
+          }
+          if (navigator.serviceWorker && navigator.serviceWorker.ready) {
             navigator.serviceWorker.ready.then(reg => {
-              if (reg && reg.getNotifications) {
-                reg.getNotifications({ tag: 'regas-patrol-ongoing' }).then(notifs => {
-                  notifs.forEach(n => n.close());
-                });
-              }
+              reg.getNotifications({ tag: 'recorrido-tracking' }).then(notifs => {
+                notifs.forEach(n => n.close());
+              });
             });
-            if (navigator.serviceWorker.controller) {
-              navigator.serviceWorker.controller.postMessage({ type: 'CLOSE_PERSISTENT_NOTIFICATION' });
-            }
           }
         } catch(e) {}
-        if (state.activeNotification) {
-          try { state.activeNotification.close(); } catch(e) {}
-          state.activeNotification = null;
-        }
       }
 
-      function startBackgroundKeepAlive() {
-        requestScreenWakeLock();
+      async function startBackgroundKeepAlive() {
+        await requestScreenWakeLock();
         startBackgroundAudioLoop();
         startWorkerHeartbeat();
-        const guardName = state.currentGuard ? (state.currentGuard.nombre || state.currentGuard.Nombre || 'Oficial') : 'Oficial';
-        showPersistentNotification(
-          '🛡️ Recorrido Iniciado - GPS Activo',
-          `👮 ${guardName} • Transmitiendo ubicación continua en segundo plano`
-        );
-        if (bgNotifStatusBadge) {
-          bgNotifStatusBadge.textContent = 'Notif Activa';
-          bgNotifStatusBadge.style.background = 'rgba(16, 185, 129, 0.25)';
-          bgNotifStatusBadge.style.color = '#a7f3d0';
-        }
+        await showPersistentNotification();
       }
 
       function stopBackgroundKeepAlive() {
@@ -1782,15 +2306,9 @@
         stopBackgroundAudioLoop();
         stopWorkerHeartbeat();
         closePersistentNotification();
-        if (bgNotifStatusBadge) {
-          bgNotifStatusBadge.textContent = 'Detenido';
-          bgNotifStatusBadge.style.background = 'rgba(100, 116, 139, 0.25)';
-          bgNotifStatusBadge.style.color = '#94a3b8';
-        }
       }
 
       function formatDistance(meters) {
-        if (!meters || meters < 0) return '0 m';
         if (meters < 1000) return `${Math.round(meters)} m`;
         return `${(meters / 1000).toFixed(2)} km`;
       }
@@ -1799,40 +2317,81 @@
         const toast = document.getElementById('mobileToast');
         if (!toast) return;
         toast.textContent = msg;
-        toast.style.display = 'block';
-        setTimeout(() => { toast.style.display = 'none'; }, duration);
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), duration);
       }
 
       function initNetworkMonitor() {
-        window.addEventListener('online', () => {
-          pillConnection.className = 'status-pill online';
-          pillConnection.textContent = '🟢 En Línea';
-        });
-        window.addEventListener('offline', () => {
-          pillConnection.className = 'status-pill';
-          pillConnection.style.background = 'rgba(239,68,68,0.2)';
-          pillConnection.style.color = '#ef4444';
-          pillConnection.textContent = '🔴 Desconectado';
-        });
+        const updateNet = () => {
+          if (navigator.onLine) {
+            pillConnection.textContent = '🟢 En Línea';
+            pillConnection.className = 'status-pill online';
+          } else {
+            pillConnection.textContent = '🔴 Sin Conexión';
+            pillConnection.className = 'status-pill offline';
+          }
+        };
+        window.addEventListener('online', updateNet);
+        window.addEventListener('offline', updateNet);
+        updateNet();
       }
 
+      // SELECTOR DE MODALIDAD (SEGURIDAD ELEMENTOS VS PERIMETRAL CASETAS)
       function setupTypeSelectors() {
-        btnPerimetral.addEventListener('click', () => {
-          btnPerimetral.classList.add('selected');
-          btnInterior.classList.remove('selected');
-          state.schemaId = 'recorrido_perimetral';
-        });
+        if (!btnTypeSeguridad || !btnTypePerimetral) return;
 
-        btnInterior.addEventListener('click', () => {
-          btnInterior.classList.add('selected');
-          btnPerimetral.classList.remove('selected');
-          state.schemaId = 'recorrido_interior';
-        });
+        const applySchemaSelection = (schId) => {
+          state.schemaId = schId;
+          const formCfg = OFFICIAL_FORMS[schId];
+          if (!formCfg) return;
+
+          if (schId === 'recorrido_seguridad_elementos') {
+            btnTypeSeguridad.classList.add('selected');
+            btnTypePerimetral.classList.remove('selected');
+            if (boxPreguntasInicioCaseta) boxPreguntasInicioCaseta.style.display = 'block';
+            if (optTurnoNoche) optTurnoNoche.style.display = '';
+          } else {
+            btnTypePerimetral.classList.add('selected');
+            btnTypeSeguridad.classList.remove('selected');
+            if (boxPreguntasInicioCaseta) boxPreguntasInicioCaseta.style.display = 'none';
+            if (optTurnoNoche) optTurnoNoche.style.display = 'none';
+            if (selectTurno && selectTurno.value === 'Noche') selectTurno.value = 'Día';
+          }
+
+          // Casetas dinámicas según el form
+          if (selectCaseta && formCfg.casetas) {
+            selectCaseta.innerHTML = formCfg.casetas.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+          }
+        };
+
+        btnTypeSeguridad.addEventListener('click', () => applySchemaSelection('recorrido_seguridad_elementos'));
+        btnTypePerimetral.addEventListener('click', () => applySchemaSelection('recorrido_perimetral'));
+
+        // Estado inicial
+        applySchemaSelection(state.schemaId);
       }
 
-      // Endpoint único y exclusivo del Backend (Cloudflare Worker)
-      const BACKEND_URL = 'https://be-regas.cic-10.com';
+      // MANEJADORES DE PREGUNTAS PREVIAS EN CASETA
+      function setupStartQuestionToggles() {
+        const hookToggleGroup = (containerId, key) => {
+          const container = document.getElementById(containerId);
+          if (!container) return;
+          container.querySelectorAll('.btn-toggle-opt').forEach(btn => {
+            btn.addEventListener('click', () => {
+              container.querySelectorAll('.btn-toggle-opt').forEach(b => b.classList.remove('active'));
+              btn.classList.add('active');
+              state.startAnswers[key] = btn.dataset.val;
+            });
+          });
+        };
 
+        hookToggleGroup('toggleTipoRecorrido', 'tipoRecorrido');
+        hookToggleGroup('togglePcCctv', 'pcCctv');
+        hookToggleGroup('toggleLlaveElevador', 'llaveElevador');
+      }
+
+      // API FETCH
+      const BACKEND_URL = 'https://be-regas.cic-10.com';
       async function getApiBase() {
         return BACKEND_URL;
       }
@@ -1848,19 +2407,7 @@
         return fetch(url, { ...options, headers });
       }
 
-      async function loadSchemas() {
-        try {
-          const res = await apiFetch('/api/config/recorrido_schemas');
-          if (res.ok) {
-            state.schemas = await res.json() || {};
-          }
-        } catch (e) {
-          console.warn('[Mobile] Error al cargar esquemas:', e);
-        }
-      }
-
       async function loadElementos() {
-        // Cargar inmediatamente desde caché local para disponibilidad instantánea offline
         try {
           const cached = localStorage.getItem('regas_cached_elementos');
           if (cached) {
@@ -1906,14 +2453,12 @@
         const clean = String(socioVal).trim().toLowerCase();
         if (!clean) return null;
 
-        // 1. Coincidencia exacta por id / ID
         let match = state.elementos.find(el => {
           const elId = String(el.id || el.ID || '').trim().toLowerCase();
           return elId === clean;
         });
         if (match) return match;
 
-        // 2. Coincidencia exacta por _id
         match = state.elementos.find(el => {
           const elId = String(el._id || '').trim().toLowerCase();
           return elId === clean;
@@ -1940,51 +2485,50 @@
         const puesto = el.Puesto || el.puesto || 'Oficial de Seguridad';
         const foto = el.foto || el.Foto || (socioId ? `data/fotos/elementos/${socioId}.webp` : '');
 
-        // Ocultar campo de búsqueda, feedback y dropdown
         if (socioInputWrap) socioInputWrap.style.display = 'none';
         if (socioFeedbackMsg) socioFeedbackMsg.style.display = 'none';
-        if (socioResultsDropdown) socioResultsDropdown.style.display = 'none';
         if (recentSocioChip) recentSocioChip.style.display = 'none';
+        if (socioResultsDropdown) socioResultsDropdown.style.display = 'none';
 
-        // Renderizar tarjeta de verificación
-        if (officerSelectedName) officerSelectedName.textContent = name;
-        if (officerSelectedSocio) officerSelectedSocio.textContent = `Socio #${socioId}`;
-        if (officerSelectedPuesto) officerSelectedPuesto.textContent = puesto;
+        if (cardSelectedOfficer) {
+          cardSelectedOfficer.classList.add('visible');
+          if (officerSelectedName) officerSelectedName.textContent = name;
+          if (officerSelectedSocio) officerSelectedSocio.textContent = `Socio #${socioId}`;
+          if (officerSelectedPuesto) officerSelectedPuesto.textContent = puesto;
 
-        if (officerAvatarWrap) {
-          if (foto) {
-            officerAvatarWrap.innerHTML = `<img src="${foto}" alt="${name}" onerror="this.onerror=null; this.parentElement.innerHTML='👮';">`;
-          } else {
-            officerAvatarWrap.innerHTML = `<span>👮</span>`;
+          if (officerAvatarWrap) {
+            if (foto) {
+              officerAvatarWrap.innerHTML = `<img src="${foto}" alt="${name}" onerror="this.onerror=null; this.parentElement.innerHTML='👮';">`;
+            } else {
+              officerAvatarWrap.innerHTML = '<span id="officerAvatarEmoji">👮</span>';
+            }
           }
         }
 
-        if (cardSelectedOfficer) cardSelectedOfficer.style.display = 'flex';
-
-        // Guardar como último socio utilizado
         try {
           localStorage.setItem('regas_last_socio_id', socioId);
           localStorage.setItem('regas_last_socio_name', name);
         } catch (e) {}
 
-        if (navigator.vibrate) navigator.vibrate(50);
-        showToast(`✓ Oficial ${name} identificado`);
+        showToast(`✓ Oficial seleccionado: ${name}`);
       }
 
       function clearSelectedOfficer() {
         state.currentGuard = null;
-        if (cardSelectedOfficer) cardSelectedOfficer.style.display = 'none';
+        if (cardSelectedOfficer) cardSelectedOfficer.classList.remove('visible');
         if (socioInputWrap) socioInputWrap.style.display = 'flex';
         if (inputGuardSocio) {
           inputGuardSocio.value = '';
           inputGuardSocio.focus();
         }
-        if (socioFeedbackMsg) socioFeedbackMsg.style.display = 'none';
-        if (socioResultsDropdown) socioResultsDropdown.style.display = 'none';
+        if (socioFeedbackMsg) {
+          socioFeedbackMsg.style.display = 'none';
+          socioFeedbackMsg.textContent = '';
+        }
         checkRecentSocio();
       }
 
-      function showSocioFeedback(msg, type = 'info') {
+      function showSocioFeedback(msg, type = 'error') {
         if (!socioFeedbackMsg) return;
         socioFeedbackMsg.textContent = msg;
         socioFeedbackMsg.className = `socio-feedback-msg ${type}`;
@@ -1992,10 +2536,10 @@
       }
 
       function handleSearchSocio() {
-        const val = inputGuardSocio ? (inputGuardSocio.value || '').trim() : '';
+        if (!inputGuardSocio) return;
+        const val = (inputGuardSocio.value || '').trim();
         if (!val) {
-          showSocioFeedback('Por favor ingresa un número de socio', 'info');
-          if (inputGuardSocio) inputGuardSocio.focus();
+          showSocioFeedback('Por favor ingresa un número de socio', 'error');
           return;
         }
 
@@ -2003,260 +2547,95 @@
         if (match) {
           selectOfficer(match);
         } else {
-          const candidates = filterElementosBySocio(val);
-          if (candidates.length === 1) {
-            selectOfficer(candidates[0]);
-          } else if (candidates.length > 1) {
-            renderDropdownResults(candidates);
-            showSocioFeedback(`Se encontraron ${candidates.length} coincidencias. Pulsa tu nombre:`, 'info');
-          } else {
-            showSocioFeedback(`⚠️ No se encontró ningún elemento con el No. de Socio "${val}". Verifica el número.`, 'error');
-            if (socioResultsDropdown) socioResultsDropdown.style.display = 'none';
-            if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
-          }
+          showSocioFeedback(`No se encontró ningún elemento con el socio #${val}`, 'error');
         }
       }
 
-      let socioInputDebounce = null;
+      let socioDebounceTimer = null;
       function handleSocioInputDebounced() {
-        clearTimeout(socioInputDebounce);
-        const val = inputGuardSocio ? (inputGuardSocio.value || '').trim() : '';
+        clearTimeout(socioDebounceTimer);
+        const val = (inputGuardSocio.value || '').trim();
+
+        if (socioFeedbackMsg) socioFeedbackMsg.style.display = 'none';
+
         if (!val) {
           if (socioResultsDropdown) socioResultsDropdown.style.display = 'none';
-          if (socioFeedbackMsg) socioFeedbackMsg.style.display = 'none';
           return;
         }
 
-        // Si ya coincide exactamente con un socio de 4 o más caracteres, mostrarlo para selección inmediata
-        const directMatch = findElementoBySocio(val);
-        if (directMatch && val.length >= 4) {
-          renderDropdownResults([directMatch]);
-          return;
-        }
+        socioDebounceTimer = setTimeout(() => {
+          const direct = findElementoBySocio(val);
+          if (direct) {
+            selectOfficer(direct);
+            return;
+          }
 
-        socioInputDebounce = setTimeout(() => {
-          if (val.length >= 2) {
-            const matches = filterElementosBySocio(val);
-            if (matches.length > 0) {
-              renderDropdownResults(matches);
-            } else {
-              if (socioResultsDropdown) socioResultsDropdown.style.display = 'none';
-            }
+          const matches = filterElementosBySocio(val);
+          if (matches.length > 0 && socioResultsDropdown) {
+            socioResultsDropdown.innerHTML = matches.map(el => {
+              const sid = el.id || el.ID || '';
+              const sname = el.nombre || el.Nombre || '';
+              return `
+                <div class="socio-result-item" data-socio="${sid}">
+                  <span class="socio-result-id">#${sid}</span>
+                  <span class="socio-result-name">${sname}</span>
+                </div>
+              `;
+            }).join('');
+            socioResultsDropdown.style.display = 'block';
+
+            socioResultsDropdown.querySelectorAll('.socio-result-item').forEach(item => {
+              item.addEventListener('click', () => {
+                const sid = item.dataset.socio;
+                const found = findElementoBySocio(sid);
+                if (found) selectOfficer(found);
+              });
+            });
           } else {
             if (socioResultsDropdown) socioResultsDropdown.style.display = 'none';
           }
-        }, 250);
+        }, 220);
       }
 
-      function renderDropdownResults(list) {
-        if (!socioResultsDropdown) return;
-        if (!list || list.length === 0) {
-          socioResultsDropdown.style.display = 'none';
-          return;
-        }
-
-        let html = '';
-        list.forEach(el => {
-          const sId = String(el.id || el.ID || el._id || '');
-          const sNom = el.nombre || el.Nombre || `Elemento #${sId}`;
-          const sPuesto = el.Puesto || el.puesto || 'Oficial';
-          html += `
-            <div class="socio-result-item" data-socio-id="${sId}">
-              <div>
-                <div class="socio-result-name">${sNom}</div>
-                <div class="socio-result-meta">${sPuesto}</div>
-              </div>
-              <span class="socio-result-badge">#${sId}</span>
-            </div>
-          `;
-        });
-
-        socioResultsDropdown.innerHTML = html;
-        socioResultsDropdown.style.display = 'block';
-
-        socioResultsDropdown.querySelectorAll('.socio-result-item').forEach(item => {
-          item.addEventListener('click', () => {
-            const itemId = item.dataset.socioId;
-            const match = findElementoBySocio(itemId);
-            if (match) {
-              selectOfficer(match);
-            }
-          });
-        });
-      }
-
-      // GEOLOCALIZACIÓN Y SEGUIMIENTO GPS
-      function initGeolocationWatch() {
-        if (!('geolocation' in navigator)) {
-          if (pillGps) pillGps.textContent = '❌ Sin GPS';
-          return;
-        }
-
-        // Obtener fix satelital de alta precisión de inmediato
-        requestHighAccuracyPosition();
-
-        // Iniciar observación reactiva continua de posición
-        try {
-          if (state.watchId !== null) navigator.geolocation.clearWatch(state.watchId);
-        } catch(e) {}
-
-        state.watchId = navigator.geolocation.watchPosition(
-          (pos) => handleGeolocationSuccess(pos),
-          (err) => handleGeolocationError(err),
-          { enableHighAccuracy: true, maximumAge: 1500, timeout: 12000 }
-        );
-      }
-
-      function requestHighAccuracyPosition() {
-        if (!('geolocation' in navigator)) return;
-        navigator.geolocation.getCurrentPosition(
-          (pos) => handleGeolocationSuccess(pos),
-          (err) => handleGeolocationError(err),
-          { enableHighAccuracy: true, maximumAge: 0, timeout: 8000 }
-        );
-      }
-
-      function handleGeolocationSuccess(pos) {
-        if (!pos || !pos.coords) return;
-        const { latitude, longitude, accuracy, speed, heading, altitude } = pos.coords;
-        const isFirstFix = !state.currentPos;
-
-        state.currentPos = {
-          lat: latitude,
-          lng: longitude,
-          accuracy: accuracy || 5,
-          speed: (speed !== null && !isNaN(speed) && speed >= 0) ? Math.round(speed * 3.6) : 0,
-          heading: (heading !== null && !isNaN(heading)) ? Math.round(heading) : null,
-          altitude: (altitude !== null && !isNaN(altitude)) ? Math.round(altitude) : null,
-          timestamp: new Date().toISOString()
-        };
-
-        if (pillGps) {
-          pillGps.className = 'status-pill gps-lock';
-          pillGps.textContent = `📍 GPS ±${Math.round(accuracy)}m`;
-        }
-        if (hudAccuracy) {
-          hudAccuracy.textContent = `±${Math.round(accuracy)}m`;
-        }
-        const accPill = document.getElementById('mapLiveAccPill');
-        if (accPill) accPill.textContent = `±${Math.round(accuracy)}m`;
-
-        const coordsLbl = document.getElementById('lblGpsLiveCoords');
-        if (coordsLbl) {
-          coordsLbl.textContent = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
-        }
-        const speedLbl = document.getElementById('lblGpsLiveSpeed');
-        if (speedLbl) {
-          speedLbl.textContent = `${state.currentPos.speed} km/h`;
-        }
-
-        // Actualizar campo dinámico del formulario
-        updateDynamicGpsField(latitude, longitude, accuracy);
-
-        if (state.isTracking) {
-          // Registrar en la ruta recorrida si es el primer punto o se desplazó más de 2 metros
-          const lastPoint = state.routePath.length > 0 ? state.routePath[state.routePath.length - 1] : null;
-          let shouldAdd = false;
-          let stepDist = 0;
-          if (!lastPoint) {
-            shouldAdd = true;
-          } else {
-            stepDist = getHaversineDistance(lastPoint.lat, lastPoint.lng, latitude, longitude);
-            if (stepDist >= 2.0) {
-              shouldAdd = true;
-            }
-          }
-
-          if (shouldAdd) {
-            state.routePath.push({
-              lat: latitude,
-              lng: longitude,
-              accuracy: accuracy,
-              speed: state.currentPos.speed,
-              timestamp: new Date().toISOString()
-            });
-            if (lastPoint && stepDist > 0) {
-              state.totalDistanceMeters += stepDist;
-            }
-            if (hudDistancia) {
-              hudDistancia.textContent = formatDistance(state.totalDistanceMeters);
-            }
-          }
-
-          updateMapLivePosition(latitude, longitude, accuracy);
-          updateRoutePersistentNotification();
-        } else if (state.map && isFirstFix) {
-          updateMapLivePosition(latitude, longitude, accuracy);
-        }
-      }
-
-      function handleGeolocationError(err) {
-        console.warn('[GPS Warning]', err ? err.message : 'Error GPS');
-        if (!state.currentPos && pillGps) {
-          pillGps.className = 'status-pill gps-search';
-          pillGps.textContent = '⚠️ Buscando GPS';
-        }
-      }
-
-      function getHaversineDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371000;
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                  Math.sin(dLon/2) * Math.sin(dLon/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        return R * c;
-      }
-
-      function setAutoFollow(enabled) {
-        state.autoFollowGps = Boolean(enabled);
-        const btnToggle = document.getElementById('btnToggleFollowGps');
-        const btnText = document.getElementById('btnToggleFollowGpsText');
-        const statusPill = document.getElementById('mapFollowStatusPill');
-        const statusText = document.getElementById('mapFollowStatusText');
-
-        if (state.autoFollowGps) {
-          if (btnToggle) btnToggle.className = 'btn-map-follow-toggle';
-          if (btnText) btnText.textContent = 'Seguir por GPS: ON';
-          if (statusPill) statusPill.className = 'map-status-pill';
-          if (statusText) statusText.textContent = 'Siguiendo por GPS';
-        } else {
-          if (btnToggle) btnToggle.className = 'btn-map-follow-toggle paused';
-          if (btnText) btnText.textContent = 'Seguir GPS (Pausado)';
-          if (statusPill) statusPill.className = 'map-status-pill paused';
-          if (statusText) statusText.textContent = 'Vista manual (toca centrar)';
-        }
-      }
-
-      function centerAndFollowGps() {
-        setAutoFollow(true);
-        requestHighAccuracyPosition();
-        if (state.currentPos && state.map) {
-          state.map.setView([state.currentPos.lat, state.currentPos.lng], 18, { animate: true });
-          updateMapLivePosition(state.currentPos.lat, state.currentPos.lng, state.currentPos.accuracy);
-          showToast('🎯 Centrado y siguiendo ubicación en tiempo real');
-        } else {
-          showToast('📡 Adquiriendo señal satelital GPS...');
-        }
-      }
-
-      function updateDynamicGpsField(lat, lng, accuracy) {
-        const inp = document.getElementById('dyn_gps_ubicacion');
-        const txt = document.getElementById('gpsFieldCoordsText');
-        const meta = document.getElementById('gpsFieldMetaText');
-        const valStr = `${lat.toFixed(6)}, ${lng.toFixed(6)} (±${Math.round(accuracy || 5)}m)`;
-        if (inp) inp.value = valStr;
-        if (txt) txt.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-        if (meta) meta.textContent = `🎯 Precisión GPS: ±${Math.round(accuracy || 5)}m | ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
-      }
-
+      // BOTONES Y ACCIONES GENERALES
       function setupButtons() {
-        btnStart.addEventListener('click', startPatrolSession);
-        btnCancel.addEventListener('click', cancelPatrolSession);
-        btnQuickCheck.addEventListener('click', registerQuickCheckpoint);
-        btnPanic.addEventListener('click', triggerPanicAlert);
-        btnNewPatrol.addEventListener('click', resetToStartScreen);
+        if (btnStart) btnStart.addEventListener('click', startPatrolSession);
+        if (btnCancel) btnCancel.addEventListener('click', cancelPatrolSession);
+        if (btnQuickCheck) btnQuickCheck.addEventListener('click', registerQuickCheckpoint);
+        if (btnPanic) btnPanic.addEventListener('click', triggerPanicAlert);
+        if (btnNewPatrol) btnNewPatrol.addEventListener('click', resetToStartScreen);
+
+        // Abrir modal de reporte en ruta
+        if (btnOpenReportModal) {
+          btnOpenReportModal.addEventListener('click', openIncidentReportModal);
+        }
+        if (btnCloseReportModal) {
+          btnCloseReportModal.addEventListener('click', closeIncidentReportModal);
+        }
+        if (btnCancelReportModal) {
+          btnCancelReportModal.addEventListener('click', closeIncidentReportModal);
+        }
+        if (btnSaveReportModal) {
+          btnSaveReportModal.addEventListener('click', saveIncidentReport);
+        }
+
+        // Concluir recorrido y abrir evaluación final
+        if (btnGoToFinishEvaluation) {
+          btnGoToFinishEvaluation.addEventListener('click', openFinishEvaluation);
+        }
+        if (btnBackToActivePatrol) {
+          btnBackToActivePatrol.addEventListener('click', () => {
+            stepFinish.classList.remove('active');
+            stepActive.classList.add('active');
+            window.scrollTo(0, 0);
+          });
+        }
+        if (formFinishQuestions) {
+          formFinishQuestions.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleFinalRecorridoSubmit();
+          });
+        }
 
         // Controles de mapa y seguimiento GPS
         const btnToggleFollow = document.getElementById('btnToggleFollowGps');
@@ -2264,7 +2643,7 @@
           btnToggleFollow.addEventListener('click', () => {
             if (state.autoFollowGps) {
               setAutoFollow(false);
-              showToast('⏸️ Seguimiento automático pausado. Puedes mover el mapa.');
+              showToast('⏸️ Seguimiento automático pausado.');
             } else {
               centerAndFollowGps();
             }
@@ -2286,7 +2665,7 @@
             if (state.isMapExpanded) {
               miniMapContainer.classList.add('expanded');
               btnExpand.textContent = '🗗';
-              btnExpand.title = 'Reducir tamaño del mapa';
+              btnExpand.title = 'Reducir tamaño';
             } else {
               miniMapContainer.classList.remove('expanded');
               btnExpand.textContent = '⛶';
@@ -2303,10 +2682,8 @@
           });
         }
 
-        // Búsqueda de oficial por número de socio
-        if (btnBuscarSocio) {
-          btnBuscarSocio.addEventListener('click', handleSearchSocio);
-        }
+        // Búsqueda de oficial
+        if (btnBuscarSocio) btnBuscarSocio.addEventListener('click', handleSearchSocio);
         if (inputGuardSocio) {
           inputGuardSocio.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
@@ -2316,18 +2693,15 @@
           });
           inputGuardSocio.addEventListener('input', handleSocioInputDebounced);
         }
-        if (btnClearOfficer) {
-          btnClearOfficer.addEventListener('click', clearSelectedOfficer);
-        }
+        if (btnClearOfficer) btnClearOfficer.addEventListener('click', clearSelectedOfficer);
         if (btnUseRecentSocio) {
           btnUseRecentSocio.addEventListener('click', () => {
             try {
               const recentId = localStorage.getItem('regas_last_socio_id');
               if (recentId) {
                 const match = findElementoBySocio(recentId);
-                if (match) {
-                  selectOfficer(match);
-                } else {
+                if (match) selectOfficer(match);
+                else {
                   if (inputGuardSocio) inputGuardSocio.value = recentId;
                   handleSearchSocio();
                 }
@@ -2336,64 +2710,59 @@
           });
         }
 
-        // Ocultar dropdown de sugerencias al tocar fuera
         document.addEventListener('click', (e) => {
           if (!e.target.closest('.socio-search-box')) {
             if (socioResultsDropdown) socioResultsDropdown.style.display = 'none';
           }
         });
-
-        const form = document.getElementById('formRecorridoMobile');
-        if (form) {
-          form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            finishPatrolSession();
-          });
-        }
       }
 
       // INICIAR PATRULLAJE
       async function startPatrolSession() {
-        // Si no se ha seleccionado oficial pero hay algo escrito en el input, intentar buscarlo
         if (!state.currentGuard && inputGuardSocio) {
           const val = (inputGuardSocio.value || '').trim();
           if (val) {
             const match = findElementoBySocio(val);
-            if (match) {
-              selectOfficer(match);
-            }
+            if (match) selectOfficer(match);
           }
         }
 
         if (!state.currentGuard) {
           showToast('⚠️ Ingresa tu No. de Socio para identificarte');
-          showSocioFeedback('Por favor ingresa y valida tu número de socio para comenzar', 'error');
+          showSocioFeedback('Por favor valida tu número de socio para comenzar', 'error');
           if (inputGuardSocio) inputGuardSocio.focus();
           return;
         }
 
+        const formCfg = OFFICIAL_FORMS[state.schemaId] || OFFICIAL_FORMS.recorrido_seguridad_elementos;
         const guardObj = state.currentGuard;
         state.activeRecorridoId = `rec_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
         state.startTime = new Date();
+        state.endTime = null;
         state.secondsElapsed = 0;
         state.totalDistanceMeters = 0;
         state.lastNotifUpdateSeconds = 0;
         state.checkpoints = [];
+        state.incidencias = [];
         state.checkpointMarkers = [];
+        state.currentCheckpointIdx = 0;
         state.isTracking = true;
         state.autoFollowGps = true;
         setAutoFollow(true);
-        if (hudDistancia) hudDistancia.textContent = '0 m';
 
-        // Solicitar permisos de notificación si están pendientes
+        state.startAnswers.caseta = selectCaseta ? selectCaseta.value : 'Edison';
+        state.startAnswers.turno = selectTurno ? selectTurno.value : 'Día';
+        state.startAnswers.fechaInicio = state.startTime.toISOString();
+
+        if (hudDistancia) hudDistancia.textContent = '0 m';
+        if (hudPuntos) hudPuntos.textContent = '0';
+
         if ('Notification' in window && Notification.permission === 'default') {
           try { await Notification.requestPermission(); } catch(e) {}
         }
 
-        // Iniciar servicios para persistencia en segundo plano (pantalla apagada)
         startBackgroundKeepAlive();
 
-        // Inicializar ruta con posición actual si ya existe
         if (state.currentPos) {
           state.routePath = [{
             lat: state.currentPos.lat,
@@ -2406,8 +2775,7 @@
           requestHighAccuracyPosition();
         }
 
-        const currentSchema = state.schemas[state.schemaId] || {};
-        activePatrolTitle.textContent = (currentSchema.title || 'RECORRIDO').toUpperCase();
+        activePatrolTitle.textContent = formCfg.title.toUpperCase();
 
         const activeGuardSub = document.getElementById('activeGuardSub');
         if (activeGuardSub) {
@@ -2416,18 +2784,13 @@
           activeGuardSub.textContent = `Oficial: ${guardName} (Socio: #${guardSocio})`;
         }
 
-        // Cambiar vista
         stepStart.classList.remove('active');
         stepActive.classList.add('active');
         window.scrollTo(0, 0);
 
-        // Iniciar temporizador
         startTimer();
+        updateCurrentCheckpointHud();
 
-        // Renderizar formulario dinámico del esquema
-        renderDynamicForm(state.schemaId);
-
-        // Inicializar mapa Leaflet y centrar de inmediato
         setTimeout(() => {
           initMobileMap();
           if (state.currentPos) {
@@ -2435,237 +2798,100 @@
           }
         }, 150);
 
-        // Iniciar refresco activo de alta precisión cada 4 segundos como respaldo continuo
         if (state.pollIntervalId) clearInterval(state.pollIntervalId);
-        state.pollIntervalId = setInterval(() => {
-          if (state.isTracking) {
-            requestHighAccuracyPosition();
-          }
-        }, 4000);
+        state.pollIntervalId = setInterval(requestHighAccuracyPosition, 4000);
 
-        // Iniciar pings automáticos de ubicación GPS al backend cada 5 segundos
-        startLocationPings();
-
-        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-        showToast('🚀 Recorrido iniciado. Transmitiendo GPS en vivo.');
-      }
-
-      function startTimer() {
-        if (state.timerIntervalId) clearInterval(state.timerIntervalId);
-        state.timerIntervalId = setInterval(() => {
-          state.secondsElapsed++;
-          const hrs = String(Math.floor(state.secondsElapsed / 3600)).padStart(2, '0');
-          const mins = String(Math.floor((state.secondsElapsed % 3600) / 60)).padStart(2, '0');
-          const secs = String(state.secondsElapsed % 60).padStart(2, '0');
-          if (hudTimer) hudTimer.textContent = `${hrs}:${mins}:${secs}`;
-          if (state.secondsElapsed % 10 === 0) {
-            updateRoutePersistentNotification();
-          }
-        }, 1000);
-      }
-
-      function startLocationPings() {
         if (state.pingIntervalId) clearInterval(state.pingIntervalId);
-        
-        // Primer ping inmediato
-        sendLocationPing();
-
         state.pingIntervalId = setInterval(() => {
           sendLocationPing();
-        }, 5000);
+        }, 6000);
+
+        sendLocationPing();
+        showToast('🚀 Recorrido iniciado. Transmitiendo GPS');
       }
 
-      async function sendLocationPing(checkpointData = null) {
-        if (!state.isTracking || !state.currentPos || !state.activeRecorridoId) return;
+      // CHECADOR DE PUNTO ACTUAL EN PANTALLA
+      function updateCurrentCheckpointHud() {
+        const formCfg = OFFICIAL_FORMS[state.schemaId] || OFFICIAL_FORMS.recorrido_seguridad_elementos;
+        const total = formCfg.checkpoints.length;
+        const idx = state.currentCheckpointIdx;
 
-        let batteryLevel = null;
-        try {
-          if ('getBattery' in navigator) {
-            const b = await navigator.getBattery();
-            batteryLevel = Math.round(b.level * 100);
-          }
-        } catch(e) {}
-
-        const guardObj = state.currentGuard || {};
-        const gId = String(guardObj.id || guardObj.ID || guardObj._id || '');
-        const gName = guardObj.nombre || guardObj.Nombre || 'Oficial en Recorrido';
-        const currentSchema = state.schemas[state.schemaId] || {};
-        const gPhoto = guardObj.foto || guardObj.Foto || (gId ? `data/fotos/elementos/${gId}.webp` : '');
-
-        const payload = {
-          recorridoId: state.activeRecorridoId,
-          id: state.activeRecorridoId,
-          elementoId: gId,
-          guardId: gId,
-          elementoNombre: gName,
-          guardName: gName,
-          guardPhoto: gPhoto,
-          elementoFoto: gPhoto,
-          foto: gPhoto,
-          tipoRecorrido: state.schemaId,
-          tipo: state.schemaId,
-          schemaTitle: currentSchema.title || state.schemaId,
-          lat: state.currentPos.lat,
-          lng: state.currentPos.lng,
-          accuracy: state.currentPos.accuracy,
-          speed: state.currentPos.speed,
-          heading: state.currentPos.heading,
-          altitude: state.currentPos.altitude,
-          battery: batteryLevel,
-          breadcrumbs: state.routePath.length > 500 ? state.routePath.slice(-500) : state.routePath,
-          checkpointsCount: state.checkpoints.length,
-          distancia_metros: Math.round(state.totalDistanceMeters),
-          distancia_formato: formatDistance(state.totalDistanceMeters),
-          timestamp: new Date().toISOString(),
-          checkpoint: checkpointData
-        };
-
-        try {
-          await apiFetch('/api/recorridos/location', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-        } catch (e) {
-          console.warn('[Mobile] Error enviando ping GPS:', e);
-        }
-      }
-
-      // MAPA LEAFLET EN TIEMPO REAL
-      function initMobileMap() {
-        const container = document.getElementById('mobileMiniMap');
-        if (!container || typeof L === 'undefined') return;
-
-        const defaultLat = state.currentPos ? state.currentPos.lat : 25.6866;
-        const defaultLng = state.currentPos ? state.currentPos.lng : -100.3161;
-
-        if (!state.map) {
-          state.map = L.map('mobileMiniMap', {
-            zoomControl: false,
-            attributionControl: false
-          }).setView([defaultLat, defaultLng], 18);
-
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19
-          }).addTo(state.map);
-
-          const guardObj = state.currentGuard || {};
-          const gId = String(guardObj.id || guardObj.ID || guardObj._id || '');
-          const guardPhoto = guardObj.foto || guardObj.Foto || (gId ? `data/fotos/elementos/${gId}.webp` : '');
-          const guardName = guardObj.nombre || guardObj.Nombre || 'Oficial';
-
-          const guardHtml = `
-            <div class="mobile-guard-marker">
-              <div class="mobile-guard-pulse"></div>
-              <div class="mobile-guard-icon-core">
-                ${guardPhoto ? `<img src="${guardPhoto}" class="guard-marker-photo" alt="${guardName}" onerror="this.onerror=null; this.parentElement.innerHTML='👮';">` : '👮'}
-              </div>
-            </div>
-          `;
-
-          const guardIcon = L.divIcon({
-            className: 'custom-guard-leaflet-icon',
-            html: guardHtml,
-            iconSize: [36, 36],
-            iconAnchor: [18, 18]
-          });
-
-          state.guardMarker = L.marker([defaultLat, defaultLng], { icon: guardIcon }).addTo(state.map);
-
-          // Círculo indicador de margen de precisión GPS
-          const accRadius = state.currentPos ? state.currentPos.accuracy : 15;
-          state.accuracyCircle = L.circle([defaultLat, defaultLng], {
-            radius: accRadius,
-            color: '#38bdf8',
-            fillColor: '#0284c7',
-            fillOpacity: 0.15,
-            weight: 1.5
-          }).addTo(state.map);
-
-          const initialPoints = state.routePath.length > 0
-            ? state.routePath.map(p => [p.lat, p.lng])
-            : [[defaultLat, defaultLng]];
-
-          // Resplandor exterior para contraste sobre calles
-          state.routeGlowPolyline = L.polyline(initialPoints, {
-            color: '#0369a1',
-            weight: 7,
-            opacity: 0.65,
-            lineJoin: 'round',
-            lineCap: 'round'
-          }).addTo(state.map);
-
-          // Línea luminosa continua por donde avanza el oficial
-          state.routePolyline = L.polyline(initialPoints, {
-            color: '#38bdf8',
-            weight: 4.5,
-            opacity: 0.95,
-            lineJoin: 'round',
-            lineCap: 'round'
-          }).addTo(state.map);
-
-          // Si el oficial arrastra el mapa manualmente, pausar auto-follow
-          state.map.on('dragstart', () => {
-            setAutoFollow(false);
-          });
+        if (idx < total) {
+          const pt = formCfg.checkpoints[idx];
+          if (lblCheckpointProgress) lblCheckpointProgress.textContent = `Punto ${idx + 1} de ${total}`;
+          if (checkpointIconBig) checkpointIconBig.textContent = pt.icon || '📍';
+          if (checkpointCurrentName) checkpointCurrentName.textContent = pt.name;
+          if (checkpointCurrentDesc) checkpointCurrentDesc.textContent = pt.desc || 'Registra tu llegada a este punto';
+          if (btnQuickCheckpointLabel) btnQuickCheckpointLabel.textContent = `REGISTRAR LLEGADA A ESTE PUNTO`;
+          if (btnQuickCheck) btnQuickCheck.disabled = false;
         } else {
-          state.map.invalidateSize();
-          if (state.currentPos) {
-            state.map.setView([state.currentPos.lat, state.currentPos.lng], 18);
+          if (lblCheckpointProgress) lblCheckpointProgress.textContent = `¡Todos verificados! (${total}/${total})`;
+          if (checkpointIconBig) checkpointIconBig.textContent = '🎉';
+          if (checkpointCurrentName) checkpointCurrentName.textContent = 'Rondín Completado';
+          if (checkpointCurrentDesc) checkpointCurrentDesc.textContent = 'Has verificado todos los puntos previstos. Pulsa Concluir Recorrido para evaluar.';
+          if (btnQuickCheckpointLabel) btnQuickCheckpointLabel.textContent = '✓ TODOS LOS PUNTOS REGISTRADOS';
+          if (btnQuickCheck) btnQuickCheck.disabled = true;
+        }
+
+        // Renderizar timeline de checkpoints
+        if (checkpointTimeline) {
+          if (state.checkpoints.length === 0) {
+            checkpointTimeline.innerHTML = '<div style="font-style:italic; padding: 2px 0;">Aún no has registrado puntos. Presiona el botón al llegar a cada punto.</div>';
+          } else {
+            checkpointTimeline.innerHTML = state.checkpoints.map(cp => `
+              <div class="checkpoint-item-pill">
+                <span>✓ <b>${cp.name || cp.tipo}</b></span>
+                <span>${cp.hora}</span>
+              </div>
+            `).join('');
+          }
+        }
+
+        // Renderizar timeline de incidencias en ruta
+        if (incidentsTimeline) {
+          if (state.incidencias.length > 0) {
+            incidentsTimeline.innerHTML = state.incidencias.map(inc => `
+              <div class="incident-item-pill">
+                <span>⚠️ <b>${inc.tipo}</b>: ${inc.descripcion ? inc.descripcion.substring(0, 35) + '...' : ''}</span>
+                <span>${inc.hora}</span>
+              </div>
+            `).join('');
+          } else {
+            incidentsTimeline.innerHTML = '';
           }
         }
       }
 
-      function updateMapLivePosition(lat, lng, accuracy = 5) {
-        if (!state.map) return;
-
-        if (state.guardMarker) {
-          state.guardMarker.setLatLng([lat, lng]);
-        }
-        if (state.accuracyCircle) {
-          state.accuracyCircle.setLatLng([lat, lng]);
-          state.accuracyCircle.setRadius(accuracy || 5);
-        }
-
-        // Si auto-follow está activado, centrar mapa en el oficial suavemente
-        if (state.autoFollowGps) {
-          state.map.panTo([lat, lng], { animate: true, duration: 0.5 });
-        }
-
-        if (state.routePath.length > 0) {
-          const latlngs = state.routePath.map(p => [p.lat, p.lng]);
-          if (state.routePolyline) {
-            state.routePolyline.setLatLngs(latlngs);
-          }
-          if (state.routeGlowPolyline) {
-            state.routeGlowPolyline.setLatLngs(latlngs);
-          }
-        }
-      }
-
-      // REGISTRAR CHECKPOINT RÁPIDO
+      // REGISTRAR CHECKPOINT ACTUAL
       function registerQuickCheckpoint() {
         if (!state.currentPos) {
-          showToast('Esperando señal GPS precisa...');
-          return;
+          showToast('Buscando satélites GPS...');
+          requestHighAccuracyPosition();
         }
 
+        const formCfg = OFFICIAL_FORMS[state.schemaId] || OFFICIAL_FORMS.recorrido_seguridad_elementos;
+        const currentPt = formCfg.checkpoints[state.currentCheckpointIdx] || { name: `Punto #${state.checkpoints.length + 1}` };
         const count = state.checkpoints.length + 1;
+        const now = new Date();
+
         const punto = {
           folio: `CP-${count}`,
-          hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-          lat: state.currentPos.lat,
-          lng: state.currentPos.lng,
-          accuracy: state.currentPos.accuracy,
-          tipo: 'Punto de Control',
-          timestamp: new Date().toISOString()
+          name: currentPt.name,
+          hora: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+          lat: state.currentPos ? state.currentPos.lat : null,
+          lng: state.currentPos ? state.currentPos.lng : null,
+          accuracy: state.currentPos ? state.currentPos.accuracy : null,
+          tipo: currentPt.name,
+          timestamp: now.toISOString()
         };
 
         state.checkpoints.push(punto);
+        state.currentCheckpointIdx = Math.min(state.currentCheckpointIdx + 1, formCfg.checkpoints.length);
+
         if (hudPuntos) hudPuntos.textContent = state.checkpoints.length;
 
-        // Añadir pin en mapa con folio numerado
-        if (state.map && typeof L !== 'undefined') {
+        // Añadir pin en mapa
+        if (state.map && typeof L !== 'undefined' && punto.lat && punto.lng) {
           const pinIcon = L.divIcon({
             html: `<div style="background:#059669;color:white;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid white;font-size:11px;font-weight:bold;box-shadow:0 2px 6px rgba(0,0,0,0.4);">${count}</div>`,
             iconSize: [24, 24],
@@ -2673,16 +2899,298 @@
           });
           const marker = L.marker([punto.lat, punto.lng], { icon: pinIcon })
             .addTo(state.map)
-            .bindPopup(`<b>Punto ${count}</b><br>${punto.hora}`);
+            .bindPopup(`<b>${punto.name}</b><br>${punto.hora}`);
           state.checkpointMarkers.push(marker);
         }
 
-        // Transmitir checkpoint al servidor
         sendLocationPing(punto);
         updateRoutePersistentNotification();
+        updateCurrentCheckpointHud();
 
         if (navigator.vibrate) navigator.vibrate([80, 50, 80]);
-        showToast(`📍 Checkpoint #${count} registrado`);
+        showToast(`📍 Checkpoint "${punto.name}" verificado`);
+      }
+
+      // MODAL DE REPORTE DE INCIDENCIA EN RUTA
+      function openIncidentReportModal() {
+        if (!modalReporteIncidencia) return;
+        if (modalReportDesc) modalReportDesc.value = '';
+        modalReporteIncidencia.classList.remove('hidden');
+        modalReporteIncidencia.style.display = 'flex';
+      }
+
+      function closeIncidentReportModal() {
+        if (!modalReporteIncidencia) return;
+        modalReporteIncidencia.classList.add('hidden');
+        modalReporteIncidencia.style.display = 'none';
+      }
+
+      function saveIncidentReport() {
+        const tipo = modalReportTipo ? modalReportTipo.value : 'Incidencia';
+        const desc = modalReportDesc ? modalReportDesc.value.trim() : '';
+        const reportarCCO = modalReportCCO ? modalReportCCO.checked : true;
+        const now = new Date();
+
+        const incidencia = {
+          id: `inc_${Date.now()}`,
+          tipo,
+          descripcion: desc,
+          reportarCCO,
+          hora: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          lat: state.currentPos ? state.currentPos.lat : null,
+          lng: state.currentPos ? state.currentPos.lng : null,
+          timestamp: now.toISOString()
+        };
+
+        state.incidencias.push(incidencia);
+
+        // Transmitir incidencia de inmediato al servidor en el ping
+        sendLocationPing({ incidencia });
+
+        closeIncidentReportModal();
+        updateCurrentCheckpointHud();
+
+        if (navigator.vibrate) navigator.vibrate([150, 80, 150]);
+        showToast(`⚠️ Incidencia "${tipo}" registrada y transmitida`, 4000);
+      }
+
+      // PASO 2.5: EVALUACIÓN DE FIN DE RECORRIDO (FORMULARIO POST-RECORRIDO)
+      function openFinishEvaluation() {
+        const formCfg = OFFICIAL_FORMS[state.schemaId] || OFFICIAL_FORMS.recorrido_seguridad_elementos;
+        state.endTime = new Date();
+
+        const startStr = state.startTime ? state.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--';
+        const endStr = state.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const durationMin = Math.round(state.secondsElapsed / 60);
+
+        const finishSummaryHorario = document.getElementById('finishSummaryHorario');
+        const finishSummaryTiempo = document.getElementById('finishSummaryTiempo');
+        const finishSummaryDistancia = document.getElementById('finishSummaryDistancia');
+        const finishSummaryPuntos = document.getElementById('finishSummaryPuntos');
+
+        if (finishSummaryHorario) finishSummaryHorario.textContent = `${startStr} a ${endStr}`;
+        if (finishSummaryTiempo) finishSummaryTiempo.textContent = `${durationMin} min`;
+        if (finishSummaryDistancia) finishSummaryDistancia.textContent = formatDistance(state.totalDistanceMeters);
+        if (finishSummaryPuntos) finishSummaryPuntos.textContent = `${state.checkpoints.length} de ${formCfg.checkpoints.length}`;
+
+        // Renderizar lista de preguntas oficiales
+        if (containerFinishQuestionsList) {
+          let html = '';
+          formCfg.finishQuestions.forEach((q, qIdx) => {
+            if (q.type === 'textarea') {
+              let defaultText = '';
+              if (state.incidencias.length > 0) {
+                defaultText = state.incidencias.map((inc, i) => `${i + 1}.- [${inc.tipo}] ${inc.descripcion || 'Sin descripción'} (${inc.hora})`).join('\n');
+              }
+              html += `
+                <div class="finish-question-card">
+                  <div class="finish-question-title">${q.label}</div>
+                  ${q.subtitle ? `<div class="finish-question-subtitle">${q.subtitle}</div>` : ''}
+                  <textarea id="input_finish_${q.key}" class="form-control" rows="3" placeholder="Detalla cualquier falla, desperfecto o novedad...">${defaultText}</textarea>
+                </div>
+              `;
+            } else {
+              const opts = q.options || ['Si', 'No', 'N/A'];
+              html += `
+                <div class="finish-question-card" data-qkey="${q.key}">
+                  <div class="finish-question-title">${q.label}</div>
+                  ${q.subtitle ? `<div class="finish-question-subtitle">${q.subtitle}</div>` : ''}
+                  <div class="finish-options-row">
+                    ${opts.map((opt, oIdx) => {
+                      let optClass = 'opt-na';
+                      if (opt === 'Si' || opt === 'Sí') optClass = 'opt-yes';
+                      else if (opt === 'No') optClass = 'opt-no';
+                      const isDefaultActive = (oIdx === 0);
+                      return `
+                        <button type="button" class="touch-opt-btn ${optClass} ${isDefaultActive ? 'active' : ''}" data-val="${opt}">
+                          ${opt}
+                        </button>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+              `;
+            }
+          });
+          containerFinishQuestionsList.innerHTML = html;
+
+          // Event listeners en botones de opción
+          containerFinishQuestionsList.querySelectorAll('.finish-question-card').forEach(card => {
+            const btns = card.querySelectorAll('.touch-opt-btn');
+            btns.forEach(btn => {
+              btn.addEventListener('click', () => {
+                btns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+              });
+            });
+          });
+        }
+
+        stepActive.classList.remove('active');
+        stepFinish.classList.add('active');
+        window.scrollTo(0, 0);
+      }
+
+      // TRANSMISIÓN FINAL DEL RECORRIDO CONCLUIDO
+      async function handleFinalRecorridoSubmit() {
+        const formCfg = OFFICIAL_FORMS[state.schemaId] || OFFICIAL_FORMS.recorrido_seguridad_elementos;
+        const endTime = new Date();
+        const durationMin = Math.round(state.secondsElapsed / 60);
+
+        // Detener GPS e intervalos
+        state.isTracking = false;
+        if (state.watchId !== null) {
+          try { navigator.geolocation.clearWatch(state.watchId); } catch(e) {}
+          state.watchId = null;
+        }
+        clearInterval(state.timerIntervalId);
+        clearInterval(state.pingIntervalId);
+        if (state.pollIntervalId) clearInterval(state.pollIntervalId);
+
+        stopBackgroundKeepAlive();
+
+        // Recopilar respuestas
+        const finishAnswers = {};
+        if (containerFinishQuestionsList) {
+          containerFinishQuestionsList.querySelectorAll('.finish-question-card').forEach(card => {
+            const qkey = card.dataset.qkey;
+            if (qkey) {
+              const activeBtn = card.querySelector('.touch-opt-btn.active');
+              finishAnswers[qkey] = activeBtn ? activeBtn.dataset.val : 'Si';
+            }
+          });
+          const taHallazgos = document.getElementById('input_finish_registro_hallazgos');
+          if (taHallazgos) {
+            finishAnswers['registro_hallazgos'] = taHallazgos.value.trim();
+          }
+        }
+
+        const guardObj = state.currentGuard || {};
+        const gName = guardObj.nombre || guardObj.Nombre || 'Oficial';
+        const gId = String(guardObj.id || guardObj.ID || guardObj._id || '');
+        const gPhoto = guardObj.foto || guardObj.Foto || (gId ? `data/fotos/elementos/${gId}.webp` : '');
+        const casetaVal = state.startAnswers.caseta || (selectCaseta ? selectCaseta.value : 'Edison');
+        const turnoVal = state.startAnswers.turno || (selectTurno ? selectTurno.value : 'Día');
+
+        const completeDoc = {
+          id: state.activeRecorridoId,
+          folio: `REC-${Date.now().toString().slice(-6)}`,
+          schemaId: state.schemaId,
+          tipo_recorrido: formCfg.title,
+          elementoId: gId,
+          elementoNombre: gName,
+          guardPhoto: gPhoto,
+          elementoFoto: gPhoto,
+          foto: gPhoto,
+          caseta: casetaVal,
+          turno: turnoVal,
+          fecha_recorrido: state.startTime.toISOString().split('T')[0],
+          hora_inicio_fin: `${state.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+          fecha_inicio: state.startTime.toISOString(),
+          fecha_fin: endTime.toISOString(),
+          duracion_segundos: state.secondsElapsed,
+          duracion_formato: `${durationMin} min ${state.secondsElapsed % 60} seg`,
+          distancia_metros: state.totalDistanceMeters,
+          lat: state.currentPos ? state.currentPos.lat : null,
+          lng: state.currentPos ? state.currentPos.lng : null,
+          accuracy: state.currentPos ? state.currentPos.accuracy : null,
+          checkpoints: state.checkpoints,
+          checkpointsCount: state.checkpoints.length,
+          incidencias: state.incidencias,
+          startAnswers: state.startAnswers,
+          finishAnswers: finishAnswers,
+          respuestas: { ...state.startAnswers, ...finishAnswers },
+          breadcrumbs: state.routePath,
+          estado: 'completado',
+          createdAt: new Date().toISOString()
+        };
+
+        // Guardar localmente
+        try {
+          const stored = JSON.parse(localStorage.getItem('regas_recorridos_list') || '[]');
+          stored.unshift(completeDoc);
+          localStorage.setItem('regas_recorridos_list', JSON.stringify(stored));
+        } catch (e) {}
+
+        // Transmitir al servidor
+        try {
+          await apiFetch('/api/recorridos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(completeDoc)
+          });
+        } catch (err) {
+          console.warn('[Mobile] Error transmitiendo a backend:', err);
+        }
+
+        // Mostrar pantalla de éxito
+        stepFinish.classList.remove('active');
+        stepSuccess.classList.add('active');
+        window.scrollTo(0, 0);
+
+        const successDetailsBox = document.getElementById('successDetailsBox');
+        if (successDetailsBox) {
+          successDetailsBox.innerHTML = `
+            <div><strong>Folio:</strong> <span style="color:#38bdf8; font-weight:700;">${completeDoc.folio}</span></div>
+            <div><strong>Modalidad:</strong> ${formCfg.title}</div>
+            <div><strong>Oficial:</strong> ${gName} (Socio #${gId})</div>
+            <div><strong>Caseta / Turno:</strong> ${casetaVal} • ${turnoVal}</div>
+            <div><strong>Horario:</strong> ${completeDoc.hora_inicio_fin} (${completeDoc.duracion_formato})</div>
+            <div><strong>Distancia:</strong> ${formatDistance(state.totalDistanceMeters)}</div>
+            <div><strong>Puntos de control:</strong> ${state.checkpoints.length} verificados</div>
+            ${state.incidencias.length > 0 ? `<div><strong>Incidencias en ruta:</strong> <span style="color:#fbbf24; font-weight:700;">${state.incidencias.length} reportadas</span></div>` : '<div><strong>Incidencias:</strong> Sin novedades graves</div>'}
+          `;
+        }
+
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
+        showToast('✅ ¡Recorrido transmitido con éxito!', 4000);
+      }
+
+      function cancelPatrolSession() {
+        if (!confirm('¿Estás seguro de cancelar este recorrido? Se detendrá la transmisión.')) return;
+        state.isTracking = false;
+        if (state.watchId !== null) {
+          try { navigator.geolocation.clearWatch(state.watchId); } catch(e) {}
+          state.watchId = null;
+        }
+        clearInterval(state.timerIntervalId);
+        clearInterval(state.pingIntervalId);
+        if (state.pollIntervalId) clearInterval(state.pollIntervalId);
+
+        stopBackgroundKeepAlive();
+
+        try {
+          const gId = state.currentGuard ? String(state.currentGuard.id || state.currentGuard.ID || state.currentGuard._id || '') : '';
+          apiFetch('/api/recorridos/active/cancel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ recorridoId: state.activeRecorridoId, elementoId: gId })
+          }).catch(() => {});
+        } catch (e) {}
+
+        resetToStartScreen();
+        showToast('Recorrido cancelado.');
+      }
+
+      function resetToStartScreen() {
+        stepActive.classList.remove('active');
+        if (stepFinish) stepFinish.classList.remove('active');
+        stepSuccess.classList.remove('active');
+        stepStart.classList.add('active');
+        window.scrollTo(0, 0);
+
+        state.activeRecorridoId = null;
+        state.startTime = null;
+        state.secondsElapsed = 0;
+        state.totalDistanceMeters = 0;
+        state.routePath = [];
+        state.checkpoints = [];
+        state.incidencias = [];
+        state.currentCheckpointIdx = 0;
+
+        if (hudTimer) hudTimer.textContent = '00:00:00';
+        if (hudDistancia) hudDistancia.textContent = '0 m';
+        if (hudPuntos) hudPuntos.textContent = '0';
       }
 
       // BOTÓN DE PÁNICO
@@ -2698,574 +3206,348 @@
         sendLocationPing(alertData);
       }
 
-      // RENDERIZAR FORMULARIO DINÁMICO
-      function renderDynamicForm(schemaId) {
-        const schema = state.schemas[schemaId];
-        if (!schema || !schema.fields || !dynamicFieldsContainer) return;
+      // TRANSMISIÓN GPS EN VIVO
+      function sendLocationPing(extraData = null) {
+        if (!state.isTracking || !state.currentPos || !state.activeRecorridoId) return;
 
-        let html = '';
+        const guardObj = state.currentGuard || {};
+        const gId = String(guardObj.id || guardObj.ID || guardObj._id || '');
+        const gName = guardObj.nombre || guardObj.Nombre || 'Oficial en Recorrido';
+        const formCfg = OFFICIAL_FORMS[state.schemaId] || OFFICIAL_FORMS.recorrido_seguridad_elementos;
+        const gPhoto = guardObj.foto || guardObj.Foto || (gId ? `data/fotos/elementos/${gId}.webp` : '');
+        const casetaVal = state.startAnswers.caseta || (selectCaseta ? selectCaseta.value : 'Edison');
+        const turnoVal = state.startAnswers.turno || (selectTurno ? selectTurno.value : 'Día');
 
-        schema.fields.forEach(f => {
-          // Omitir campo de selección de elemento si ya se seleccionó al inicio
-          if (f.key === 'elemento') return;
+        const payload = {
+          recorridoId: state.activeRecorridoId,
+          id: state.activeRecorridoId,
+          elementoId: gId,
+          guardId: gId,
+          elementoNombre: gName,
+          guardName: gName,
+          guardPhoto: gPhoto,
+          elementoFoto: gPhoto,
+          foto: gPhoto,
+          caseta: casetaVal,
+          turno: turnoVal,
+          tipoRecorrido: formCfg.title,
+          tipo: formCfg.title,
+          schemaId: state.schemaId,
+          lat: state.currentPos.lat,
+          lng: state.currentPos.lng,
+          accuracy: state.currentPos.accuracy,
+          speed: state.currentPos.speed || 0,
+          breadcrumbs: state.routePath.slice(-30),
+          checkpointsCount: state.checkpoints.length,
+          timestamp: new Date().toISOString(),
+          panic: extraData && extraData.tipo === 'ALERTA_AUXILIO'
+        };
 
-          const reqAttr = f.required ? 'required' : '';
-          const reqStar = f.required ? '<span style="color:#ef4444;">*</span>' : '';
-          const subtitleHtml = f.subtitle ? `<div class="form-subtitle">${f.subtitle}</div>` : '';
+        if (extraData && extraData.checkpoint) payload.checkpoint = extraData.checkpoint;
+        if (extraData && extraData.incidencia) payload.incidencia = extraData.incidencia;
 
-          if (f.type === 'matrix_checklist') {
-            const subfields = f.subfields || [];
-            const opts = f.options || ['BIEN', 'REGULAR', 'FALLA', 'N/A'];
-            
-            html += `
-              <div class="form-group" style="margin-top: 0.5rem;">
-                <label class="form-label">${f.label} ${reqStar}</label>
-                ${subtitleHtml}
-                <table class="touch-matrix-table" data-matrix-key="${f.key}">
-                  <tbody>
-                    ${subfields.map(sf => `
-                      <tr class="touch-matrix-row" data-subfield-key="${sf.key}">
-                        <td class="touch-matrix-label">${sf.label}</td>
-                        <td class="touch-matrix-options">
-                          ${opts.map(opt => {
-                            let optClass = 'active-good';
-                            if (opt === 'REGULAR' || opt === 'NO') optClass = 'active-warn';
-                            if (opt === 'FALLA' || opt === 'MAL') optClass = 'active-bad';
-                            if (opt === 'N/A') optClass = 'active-na';
-                            return `<button type="button" class="btn-touch-opt" data-opt-val="${opt}" data-opt-class="${optClass}">${opt}</button>`;
-                          }).join('')}
-                        </td>
-                      </tr>
-                    `).join('')}
-                  </tbody>
-                </table>
-              </div>
-            `;
-          } else if (f.type === 'select') {
-            const opts = f.options || [];
-            html += `
-              <div class="form-group">
-                <label class="form-label" for="dyn_${f.key}">${f.label} ${reqStar}</label>
-                ${subtitleHtml}
-                <select id="dyn_${f.key}" name="${f.key}" class="form-control" ${reqAttr}>
-                  <option value="">-- Seleccionar --</option>
-                  ${opts.map(o => `<option value="${o}">${o}</option>`).join('')}
-                </select>
-              </div>
-            `;
-          } else if (f.type === 'radio') {
-            const opts = f.options || ['Sí', 'No'];
-            html += `
-              <div class="form-group">
-                <label class="form-label">${f.label} ${reqStar}</label>
-                ${subtitleHtml}
-                <div style="display: flex; gap: 0.75rem; margin-top: 0.25rem;">
-                  ${opts.map(o => `
-                    <label style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.88rem; cursor: pointer;">
-                      <input type="radio" name="${f.key}" value="${o}" ${reqAttr}>
-                      <span>${o}</span>
-                    </label>
-                  `).join('')}
-                </div>
-              </div>
-            `;
-          } else if (f.type === 'textarea') {
-            html += `
-              <div class="form-group">
-                <label class="form-label" for="dyn_${f.key}">${f.label} ${reqStar}</label>
-                ${subtitleHtml}
-                <textarea id="dyn_${f.key}" name="${f.key}" class="form-control" placeholder="${f.placeholder || 'Escribe aquí...'}" ${reqAttr}></textarea>
-              </div>
-            `;
-          } else if (f.type === 'foto') {
-            html += `
-              <div class="form-group">
-                <label class="form-label">${f.label} ${reqStar}</label>
-                ${subtitleHtml}
-                <div class="photo-capture-box" data-photo-key="${f.key}">
-                  <input type="file" accept="image/*" capture="environment" class="photo-input" data-photo-target="${f.key}" style="display:none;">
-                  <button type="button" class="btn-action btn-outline-action btn-trigger-photo" style="font-size:0.82rem; padding: 0.5rem;">
-                    📷 Tomar Foto con Cámara
-                  </button>
-                  <img src="" class="photo-preview-img" id="preview_${f.key}">
-                </div>
-              </div>
-            `;
-          } else if (f.type === 'rating') {
-            html += `
-              <div class="form-group">
-                <label class="form-label">${f.label} ${reqStar}</label>
-                ${subtitleHtml}
-                <div class="star-rating-box" data-rating-key="${f.key}">
-                  <span class="star" data-val="1">★</span>
-                  <span class="star" data-val="2">★</span>
-                  <span class="star" data-val="3">★</span>
-                  <span class="star" data-val="4">★</span>
-                  <span class="star" data-val="5">★</span>
-                </div>
-                <input type="hidden" name="${f.key}" id="dyn_${f.key}" value="5">
-              </div>
-            `;
-          } else if (f.type === 'firma') {
-            html += `
-              <div class="form-group">
-                <label class="form-label">${f.label} ${reqStar}</label>
-                ${subtitleHtml}
-                <div class="signature-pad-container">
-                  <canvas id="signatureCanvas"></canvas>
-                  <button type="button" class="sig-clear-btn" id="btnClearSig">Borrar Firma</button>
-                </div>
-              </div>
-            `;
-          } else if (f.type === 'gps_location' || f.key === 'gps_ubicacion') {
-            const currentCoordsText = state.currentPos
-              ? `${state.currentPos.lat.toFixed(6)}, ${state.currentPos.lng.toFixed(6)}`
-              : 'Transmitiendo ubicación GPS en tiempo real...';
-            const currentAccText = state.currentPos
-              ? `🎯 Precisión GPS: ±${Math.round(state.currentPos.accuracy)}m`
-              : 'Sincronizando satélites GPS...';
-            const initVal = state.currentPos
-              ? `${state.currentPos.lat.toFixed(6)}, ${state.currentPos.lng.toFixed(6)} (±${Math.round(state.currentPos.accuracy)}m)`
-              : '';
-
-            html += `
-              <div class="form-group">
-                <label class="form-label">${f.label} ${reqStar}</label>
-                ${subtitleHtml}
-                <div class="gps-field-card" id="cardGpsLiveField">
-                  <div class="gps-field-status">
-                    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 6px #10b981;"></span>
-                    <span id="gpsFieldCoordsText">${currentCoordsText}</span>
-                  </div>
-                  <div class="gps-field-meta" id="gpsFieldMetaText">${currentAccText}</div>
-                  <input type="hidden" name="${f.key}" id="dyn_${f.key}" value="${initVal}">
-                </div>
-              </div>
-            `;
-          } else {
-            // text, number, date, time, datetime
-            const inputType = f.type === 'datetime' ? 'datetime-local' : (f.type === 'number' ? 'number' : (f.type === 'date' ? 'date' : (f.type === 'time' ? 'time' : 'text')));
-            html += `
-              <div class="form-group">
-                <label class="form-label" for="dyn_${f.key}">${f.label} ${reqStar}</label>
-                ${subtitleHtml}
-                <input type="${inputType}" id="dyn_${f.key}" name="${f.key}" class="form-control" placeholder="${f.placeholder || ''}" ${reqAttr}>
-              </div>
-            `;
-          }
-        });
-
-        dynamicFieldsContainer.innerHTML = html;
-
-        // Activar manejadores de eventos en controles táctiles
-        initDynamicFormHandlers();
+        apiFetch('/api/recorridos/location', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).catch(() => {});
       }
 
-      function initDynamicFormHandlers() {
-        // Manejador de Matriz Checklist
-        document.querySelectorAll('.touch-matrix-table').forEach(tbl => {
-          tbl.querySelectorAll('.btn-touch-opt').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-              const row = btn.closest('.touch-matrix-row');
-              const optClass = btn.dataset.optClass;
-              row.querySelectorAll('.btn-touch-opt').forEach(b => {
-                b.className = 'btn-touch-opt';
-              });
-              btn.classList.add(optClass);
-              row.dataset.selectedVal = btn.dataset.optVal;
-            });
-          });
-        });
+      function updateRoutePersistentNotification() {
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+        const total = (OFFICIAL_FORMS[state.schemaId] || {}).checkpoints ? OFFICIAL_FORMS[state.schemaId].checkpoints.length : 6;
+        const count = state.checkpoints.length;
+        const distStr = formatDistance(state.totalDistanceMeters);
+        showPersistentNotification(
+          `🛰️ Rondín en curso • ${distStr}`,
+          `Puntos: ${count}/${total} • Transmitiendo al Centro de Control`
+        );
+      }
 
-        // Manejador de Fotos
-        document.querySelectorAll('.btn-trigger-photo').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const parent = btn.closest('.photo-capture-box');
-            const input = parent.querySelector('.photo-input');
-            if (input) input.click();
-          });
-        });
+      // CRONÓMETRO
+      function startTimer() {
+        clearInterval(state.timerIntervalId);
+        state.timerIntervalId = setInterval(() => {
+          state.secondsElapsed++;
+          const hrs = String(Math.floor(state.secondsElapsed / 3600)).padStart(2, '0');
+          const mins = String(Math.floor((state.secondsElapsed % 3600) / 60)).padStart(2, '0');
+          const secs = String(state.secondsElapsed % 60).padStart(2, '0');
+          if (hudTimer) hudTimer.textContent = `${hrs}:${mins}:${secs}`;
+        }, 1000);
+      }
 
-        document.querySelectorAll('.photo-input').forEach(input => {
-          input.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const key = input.dataset.photoTarget;
-            const preview = document.getElementById(`preview_${key}`);
-            
-            // Comprimir imagen a base64
-            const base64 = await compressImage(file);
-            state.photoData[key] = base64;
-            if (preview) {
-              preview.src = base64;
-              preview.style.display = 'block';
+      // GEOLOCALIZACIÓN
+      function initGeolocationWatch() {
+        if (!('geolocation' in navigator)) return;
+
+        navigator.geolocation.getCurrentPosition(
+          pos => handleGpsPosition(pos, false),
+          err => console.warn('[GPS Init Error]', err.message),
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
+        );
+
+        state.watchId = navigator.geolocation.watchPosition(
+          pos => handleGpsPosition(pos, true),
+          err => {
+            if (pillGps) {
+              pillGps.textContent = '⚠️ GPS Débil';
+              pillGps.className = 'status-pill gps-weak';
             }
-          });
-        });
-
-        // Manejador de Rating Stars
-        document.querySelectorAll('.star-rating-box').forEach(box => {
-          const key = box.dataset.ratingKey;
-          const hiddenInput = document.getElementById(`dyn_${key}`);
-          box.querySelectorAll('.star').forEach(star => {
-            star.addEventListener('click', () => {
-              const val = parseInt(star.dataset.val, 10);
-              if (hiddenInput) hiddenInput.value = val;
-              box.querySelectorAll('.star').forEach(s => {
-                const sVal = parseInt(s.dataset.val, 10);
-                s.classList.toggle('active', sVal <= val);
-              });
-            });
-          });
-          // Default 5 stars
-          box.querySelectorAll('.star').forEach(s => s.classList.add('active'));
-        });
-
-        // Manejador de Firma Canvas
-        initSignaturePad();
+          },
+          { enableHighAccuracy: true, timeout: 12000, maximumAge: 3000 }
+        );
       }
 
-      function compressImage(file) {
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-              const canvas = document.createElement('canvas');
-              const maxDim = 800;
-              let width = img.width;
-              let height = img.height;
-
-              if (width > height) {
-                if (width > maxDim) {
-                  height = Math.round((height * maxDim) / width);
-                  width = maxDim;
-                }
-              } else {
-                if (height > maxDim) {
-                  width = Math.round((width * maxDim) / height);
-                  height = maxDim;
-                }
-              }
-
-              canvas.width = width;
-              canvas.height = height;
-              const ctx = canvas.getContext('2d');
-              ctx.drawImage(img, 0, 0, width, height);
-              resolve(canvas.toDataURL('image/jpeg', 0.7));
-            };
-            img.src = e.target.result;
-          };
-          reader.readAsDataURL(file);
-        });
+      function requestHighAccuracyPosition() {
+        if (!('geolocation' in navigator)) return;
+        navigator.geolocation.getCurrentPosition(
+          pos => handleGpsPosition(pos, true),
+          () => {},
+          { enableHighAccuracy: true, timeout: 8000, maximumAge: 2000 }
+        );
       }
 
-      function initSignaturePad() {
-        const canvas = document.getElementById('signatureCanvas');
-        if (!canvas) return;
+      function handleGpsPosition(pos, accumulate = true) {
+        const { latitude, longitude, accuracy, speed, heading } = pos.coords;
+        const nowPos = { lat: latitude, lng: longitude, accuracy, speed, heading, timestamp: new Date().toISOString() };
 
-        state.signatureCanvas = canvas;
-        const rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width || 320;
-        canvas.height = 130;
-
-        const ctx = canvas.getContext('2d');
-        state.signatureCtx = ctx;
-        ctx.strokeStyle = '#0f172a';
-        ctx.lineWidth = 2.5;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-
-        const btnClear = document.getElementById('btnClearSig');
-        if (btnClear) {
-          btnClear.addEventListener('click', () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            state.signatureData = null;
-          });
+        if (pillGps) {
+          pillGps.textContent = accuracy <= 25 ? '📍 GPS Preciso' : '📍 GPS Ok';
+          pillGps.className = 'status-pill gps-ok';
         }
 
-        const getPos = (e) => {
-          const r = canvas.getBoundingClientRect();
-          const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-          const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-          return {
-            x: clientX - r.left,
-            y: clientY - r.top
-          };
-        };
+        if (hudAccuracy) {
+          hudAccuracy.textContent = `±${Math.round(accuracy)}m`;
+        }
 
-        const startDraw = (e) => {
-          e.preventDefault();
-          state.isDrawingSig = true;
-          const pos = getPos(e);
-          ctx.beginPath();
-          ctx.moveTo(pos.x, pos.y);
-        };
+        const lblCoords = document.getElementById('lblGpsLiveCoords');
+        if (lblCoords) {
+          lblCoords.textContent = `${latitude.toFixed(5)}, ${longitude.toFixed(5)} (±${Math.round(accuracy)}m)`;
+        }
 
-        const draw = (e) => {
-          if (!state.isDrawingSig) return;
-          e.preventDefault();
-          const pos = getPos(e);
-          ctx.lineTo(pos.x, pos.y);
-          ctx.stroke();
-        };
+        const lblSpeed = document.getElementById('lblGpsLiveSpeed');
+        if (lblSpeed) {
+          const kmh = speed ? Math.round(speed * 3.6) : 0;
+          lblSpeed.textContent = `${kmh} km/h`;
+        }
 
-        const stopDraw = () => {
-          if (state.isDrawingSig) {
-            state.isDrawingSig = false;
-            state.signatureData = canvas.toDataURL('image/png');
+        const mapLiveAccPill = document.getElementById('mapLiveAccPill');
+        if (mapLiveAccPill) {
+          mapLiveAccPill.textContent = `±${Math.round(accuracy)}m`;
+        }
+
+        if (state.isTracking && accumulate && state.currentPos) {
+          const d = calculateHaversineDistance(state.currentPos.lat, state.currentPos.lng, latitude, longitude);
+          if (d >= 2 && d < 120) {
+            state.totalDistanceMeters += d;
+            if (hudDistancia) hudDistancia.textContent = formatDistance(state.totalDistanceMeters);
           }
-        };
+        }
 
-        canvas.addEventListener('mousedown', startDraw);
-        canvas.addEventListener('mousemove', draw);
-        window.addEventListener('mouseup', stopDraw);
+        state.currentPos = nowPos;
 
-        canvas.addEventListener('touchstart', startDraw, { passive: false });
-        canvas.addEventListener('touchmove', draw, { passive: false });
-        canvas.addEventListener('touchend', stopDraw);
+        if (state.isTracking) {
+          state.routePath.push(nowPos);
+          if (state.routePath.length > 300) state.routePath.shift();
+        }
+
+        updateMapLivePosition(latitude, longitude, accuracy);
       }
 
-      // FINALIZAR Y ENVIAR RECORRIDO
-      async function finishPatrolSession() {
-        if (!confirm('¿Deseas finalizar este recorrido y enviar el reporte al Centro de Control?')) {
+      function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371e3;
+        const p1 = lat1 * Math.PI / 180;
+        const p2 = lat2 * Math.PI / 180;
+        const dp = (lat2 - lat1) * Math.PI / 180;
+        const dl = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dp / 2) * Math.sin(dp / 2) + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) * Math.sin(dl / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+      }
+
+      // MAPA LEAFLET
+      function initMobileMap() {
+        const mapContainer = document.getElementById('mobileMiniMap');
+        if (!mapContainer || typeof window.L === 'undefined') return;
+
+        if (state.map) {
+          state.map.invalidateSize();
           return;
         }
 
-        // Detener inmediatamente el GPS del dispositivo y los intervalos de transmisión
-        state.isTracking = false;
-        if (state.watchId !== null) {
-          try { navigator.geolocation.clearWatch(state.watchId); } catch(e) {}
-          state.watchId = null;
-        }
-        clearInterval(state.timerIntervalId);
-        clearInterval(state.pingIntervalId);
-        if (state.pollIntervalId) clearInterval(state.pollIntervalId);
-
-        // Detener servicios de fondo y cerrar notificación persistente
-        stopBackgroundKeepAlive();
-
-        const endTime = new Date();
-        const durationMin = Math.round(state.secondsElapsed / 60);
-
-        // Recopilar respuestas del formulario dinámico
-        const formEl = document.getElementById('formRecorridoMobile');
-        const formData = new FormData(formEl);
-        const reportValues = {};
-
-        formData.forEach((val, key) => {
-          reportValues[key] = val;
+        const defaultCenter = state.currentPos ? [state.currentPos.lat, state.currentPos.lng] : [25.6866, -100.3161];
+        state.map = L.map('mobileMiniMap', {
+          center: defaultCenter,
+          zoom: 17,
+          zoomControl: false
         });
 
-        // Recopilar matrices checklist
-        document.querySelectorAll('.touch-matrix-table').forEach(tbl => {
-          const matrixKey = tbl.dataset.matrixKey;
-          const matrixObj = {};
-          tbl.querySelectorAll('.touch-matrix-row').forEach(row => {
-            const subKey = row.dataset.subfieldKey;
-            matrixObj[subKey] = row.dataset.selectedVal || 'BIEN';
-          });
-          reportValues[matrixKey] = matrixObj;
+        L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; OpenStreetMap'
+        }).addTo(state.map);
+
+        state.map.on('dragstart', () => {
+          setAutoFollow(false);
         });
-
-        // Añadir fotos y firma
-        Object.keys(state.photoData).forEach(k => {
-          reportValues[k] = state.photoData[k];
-        });
-
-        if (state.signatureData) {
-          reportValues['firma_guardia'] = state.signatureData;
-        }
-
-        const currentSchema = state.schemas[state.schemaId] || {};
-        const guardName = state.currentGuard ? (state.currentGuard.nombre || state.currentGuard.Nombre || 'Oficial') : 'Oficial';
-        const casetaVal = selectCaseta.value;
-
-        const completeDoc = {
-          id: state.activeRecorridoId,
-          folio: `REC-${Date.now().toString().slice(-6)}`,
-          schemaId: state.schemaId,
-          tipo_recorrido: currentSchema.title || state.schemaId,
-          elementoId: state.currentGuard ? (state.currentGuard.id || state.currentGuard._id) : '',
-          elementoNombre: guardName,
-          guardPhoto: state.currentGuard ? (state.currentGuard.foto || state.currentGuard.Foto || (state.currentGuard.id ? `data/fotos/elementos/${state.currentGuard.id}.webp` : '')) : '',
-          elementoFoto: state.currentGuard ? (state.currentGuard.foto || state.currentGuard.Foto || (state.currentGuard.id ? `data/fotos/elementos/${state.currentGuard.id}.webp` : '')) : '',
-          foto: state.currentGuard ? (state.currentGuard.foto || state.currentGuard.Foto || (state.currentGuard.id ? `data/fotos/elementos/${state.currentGuard.id}.webp` : '')) : '',
-          caseta: casetaVal,
-          fecha_inicio: state.startTime.toISOString(),
-          fecha_fin: endTime.toISOString(),
-          duracion_segundos: state.secondsElapsed,
-          duracion_formato: `${Math.floor(state.secondsElapsed / 60)} min ${state.secondsElapsed % 60} seg`,
-          lat: state.currentPos ? state.currentPos.lat : null,
-          lng: state.currentPos ? state.currentPos.lng : null,
-          accuracy: state.currentPos ? state.currentPos.accuracy : null,
-          puntos_control: state.checkpoints,
-          checkpoints: state.checkpoints,
-          ruta_gps: state.routePath,
-          breadcrumbs: state.routePath,
-          distancia_metros: Math.round(state.totalDistanceMeters),
-          distancia_formato: formatDistance(state.totalDistanceMeters),
-          estado: 'completado',
-          datos_formulario: reportValues,
-          ...reportValues,
-          createdAt: state.startTime,
-          updatedAt: endTime
-        };
-
-        try {
-          showToast('Transmitiendo reporte completo...');
-          const res = await apiFetch('/api/recorridos', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(completeDoc)
-          });
-
-          if (res.ok) {
-            renderSuccessScreen(completeDoc);
-          } else {
-            showToast('Error al guardar en el servidor. Guardado localmente.');
-            renderSuccessScreen(completeDoc);
-          }
-        } catch (e) {
-          console.warn('[Mobile] Error enviando reporte final:', e);
-          renderSuccessScreen(completeDoc);
-        }
       }
 
-      function renderSuccessScreen(doc) {
-        stepActive.classList.remove('active');
-        stepSuccess.classList.add('active');
-        window.scrollTo(0, 0);
+      function updateMapLivePosition(lat, lng, accuracy) {
+        if (!state.map || typeof window.L === 'undefined') return;
 
-        const detailsBox = document.getElementById('successDetailsBox');
-        if (detailsBox) {
-          detailsBox.innerHTML = `
-            <div><b>Folio:</b> ${doc.folio}</div>
-            <div><b>Tipo:</b> ${doc.tipo_recorrido}</div>
-            <div><b>Oficial:</b> ${doc.elementoNombre}</div>
-            <div><b>Duración:</b> ${doc.duracion_formato}</div>
-            <div><b>Distancia Recorrida:</b> ${doc.distancia_formato || '0 m'}</div>
-            <div><b>Puntos Marcados:</b> ${doc.puntos_control.length}</div>
-            <div><b>Puntos GPS Registrados:</b> ${doc.ruta_gps ? doc.ruta_gps.length : 0}</div>
-            <div><b>Coordenadas Finales:</b> ${doc.lat ? `${doc.lat.toFixed(5)}, ${doc.lng.toFixed(5)}` : 'N/D'}</div>
+        const guardObj = state.currentGuard || {};
+        const gId = String(guardObj.id || guardObj.ID || guardObj._id || '');
+        const gPhoto = guardObj.foto || guardObj.Foto || (gId ? `data/fotos/elementos/${gId}.webp` : '');
+        const gName = guardObj.nombre || guardObj.Nombre || 'Oficial';
+
+        if (!state.guardMarker) {
+          const markerHtml = `
+            <div class="custom-guard-marker">
+              <div class="marker-pulse-ring"></div>
+              <div class="marker-icon-core">
+                ${gPhoto ? `<img src="${gPhoto}" class="guard-marker-photo" alt="${gName}" onerror="this.onerror=null; this.parentElement.innerHTML='👮';">` : '👮'}
+              </div>
+            </div>
           `;
-        }
-
-        if (navigator.vibrate) navigator.vibrate([100, 100, 200]);
-      }
-
-      async function cancelPatrolSession() {
-        if (!confirm('¿Estás seguro de cancelar este recorrido? Se detendrá la transmisión.')) return;
-        // Detener inmediatamente el GPS del dispositivo y los intervalos de transmisión
-        state.isTracking = false;
-        if (state.watchId !== null) {
-          try { navigator.geolocation.clearWatch(state.watchId); } catch(e) {}
-          state.watchId = null;
-        }
-        clearInterval(state.timerIntervalId);
-        clearInterval(state.pingIntervalId);
-        if (state.pollIntervalId) clearInterval(state.pollIntervalId);
-
-        // Detener servicios de fondo y cerrar notificación persistente
-        stopBackgroundKeepAlive();
-
-        // Notificar al backend la cancelación inmediata para actualizar la interfaz del operador
-        try {
-          const gId = state.currentGuard ? String(state.currentGuard.id || state.currentGuard.ID || state.currentGuard._id || '') : '';
-          await apiFetch('/api/recorridos/active/cancel', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              recorridoId: state.activeRecorridoId,
-              id: state.activeRecorridoId,
-              elementoId: gId,
-              guardId: gId
-            })
+          const customIcon = L.divIcon({
+            className: 'leaflet-guard-div-icon',
+            html: markerHtml,
+            iconSize: [42, 42],
+            iconAnchor: [21, 21]
           });
-        } catch (e) {
-          console.warn('[Mobile] Error al notificar cancelación al backend:', e);
+          state.guardMarker = L.marker([lat, lng], { icon: customIcon }).addTo(state.map);
+        } else {
+          state.guardMarker.setLatLng([lat, lng]);
         }
 
-        resetToStartScreen();
-        showToast('Recorrido cancelado y transmisión detenida');
-      }
-
-      function resetToStartScreen() {
-        state.isTracking = false;
-        state.activeRecorridoId = null;
-        if (state.watchId !== null) {
-          try { navigator.geolocation.clearWatch(state.watchId); } catch(e) {}
-          state.watchId = null;
-        }
-        stepActive.classList.remove('active');
-        stepSuccess.classList.remove('active');
-        stepStart.classList.add('active');
-        window.scrollTo(0, 0);
-
-        // Limpiar marcadores y capas del recorrido anterior en el mapa
-        if (state.map && state.checkpointMarkers && state.checkpointMarkers.length > 0) {
-          state.checkpointMarkers.forEach(m => {
-            try { state.map.removeLayer(m); } catch(e) {}
-          });
-          state.checkpointMarkers = [];
+        if (!state.accuracyCircle) {
+          state.accuracyCircle = L.circle([lat, lng], {
+            radius: Math.max(8, accuracy || 15),
+            color: '#38bdf8',
+            fillColor: '#38bdf8',
+            fillOpacity: 0.12,
+            weight: 1.5
+          }).addTo(state.map);
+        } else {
+          state.accuracyCircle.setLatLng([lat, lng]);
+          state.accuracyCircle.setRadius(Math.max(8, accuracy || 15));
         }
 
-        if (state.routePolyline) {
-          try { state.routePolyline.setLatLngs([]); } catch(e) {}
-        }
-        if (state.routeGlowPolyline) {
-          try { state.routeGlowPolyline.setLatLngs([]); } catch(e) {}
+        // Trazado de ruta
+        if (state.routePath.length > 1) {
+          const latlngs = state.routePath.map(p => [p.lat, p.lng]);
+          if (!state.routePolyline) {
+            state.routeGlowPolyline = L.polyline(latlngs, {
+              color: '#38bdf8',
+              weight: 6,
+              opacity: 0.4
+            }).addTo(state.map);
+
+            state.routePolyline = L.polyline(latlngs, {
+              color: '#0284c7',
+              weight: 3.5,
+              opacity: 0.95
+            }).addTo(state.map);
+          } else {
+            state.routeGlowPolyline.setLatLngs(latlngs);
+            state.routePolyline.setLatLngs(latlngs);
+          }
         }
 
-        state.routePath = [];
-        state.checkpoints = [];
-        state.totalDistanceMeters = 0;
-        state.secondsElapsed = 0;
-        if (hudDistancia) hudDistancia.textContent = '0 m';
-        if (hudPuntos) hudPuntos.textContent = '0';
-        if (hudTimer) hudTimer.textContent = '00:00:00';
-
-        if (!state.currentGuard) {
-          checkRecentSocio();
+        if (state.autoFollowGps) {
+          state.map.panTo([lat, lng]);
         }
       }
 
-      // INICIAR AL CARGAR
-      window.addEventListener('DOMContentLoaded', init);
+      function setAutoFollow(enabled) {
+        state.autoFollowGps = enabled;
+        const pill = document.getElementById('mapFollowStatusPill');
+        const text = document.getElementById('mapFollowStatusText');
+        const btnText = document.getElementById('btnToggleFollowGpsText');
+
+        if (pill && text && btnText) {
+          if (enabled) {
+            pill.style.background = 'rgba(16, 185, 129, 0.25)';
+            pill.style.borderColor = '#10b981';
+            text.textContent = 'Siguiendo por GPS';
+            btnText.textContent = 'Seguir por GPS';
+          } else {
+            pill.style.background = 'rgba(239, 68, 68, 0.2)';
+            pill.style.borderColor = '#ef4444';
+            text.textContent = 'Seguimiento Pausado';
+            btnText.textContent = 'Reanudar Seguimiento';
+          }
+        }
+      }
+
+      function centerAndFollowGps() {
+        setAutoFollow(true);
+        if (state.currentPos && state.map) {
+          state.map.setView([state.currentPos.lat, state.currentPos.lng], 18);
+        }
+        showToast('🎯 Centrado y siguiendo ubicación');
+      }
+
+      // Iniciar app al cargar DOM
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+
     })();
+
   </script>
+  <script>
+    // Gestión integral de Modo Claro / Oscuro en Recorridos Móvil
+    function initThemeSupportRecorrido() {
+      const getSavedTheme = () => {
+        try {
+          const urlTheme = new URLSearchParams(window.location.search).get('theme');
+          if (urlTheme === 'light' || urlTheme === 'dark') return urlTheme;
+          return localStorage.getItem('miniapps_theme') || 'dark';
+        } catch (e) {
+          return 'dark';
+        }
+      };
 
-  <!-- DOCK DE NAVEGACIÓN -->
-  <div class="miniapps-dock-wrapper" id="miniappsDockWrapper" style="position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: center; padding: 6px 12px calc(env(safe-area-inset-bottom, 8px) + 6px); background: linear-gradient(180deg, rgba(9, 13, 22, 0) 0%, rgba(9, 13, 22, 0.85) 40%, rgba(9, 13, 22, 0.98) 100%); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); z-index: 1000; pointer-events: none;">
-    <nav class="miniapps-dock-bar" style="display: flex; gap: 6px; background: rgba(30, 41, 59, 0.94); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 24px; padding: 5px 8px; max-width: 400px; width: 100%; justify-content: space-around; pointer-events: auto; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);">
-      <a href="./?app=cdi" class="dock-item-btn" id="dockBtnCdi" title="CDI" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: transparent; border: none; cursor: pointer; padding: 5px 8px; border-radius: 16px; color: #94a3b8; text-decoration: none; font-size: 0.68rem; font-weight: 700; flex: 1;">
-        <div class="dock-icon-squircle icon-cdi" style="width: 35px; height: 35px; border-radius: 11px; display: flex; align-items: center; justify-content: center; color: #ffffff; background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 3px 8px rgba(0,0,0,0.2);">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 12h10M12 7v10"/></svg>
-        </div>
-        <span class="dock-item-label">CDI</span>
-      </a>
+      const applyTheme = (theme) => {
+        const isLight = (theme === 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+        document.body.setAttribute('data-theme', theme);
+        if (document.body) {
+          document.body.classList.toggle('theme-light', isLight);
+        }
+        const iconEl = document.getElementById('themeToggleIconRecorrido');
+        if (iconEl) {
+          iconEl.textContent = isLight ? '☀️' : '🌙';
+        }
+        try { localStorage.setItem('miniapps_theme', theme); } catch (e) {}
+      };
 
-      <a href="checador-movil.html" class="dock-item-btn" id="dockBtnChecador" title="Checador" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: transparent; border: none; cursor: pointer; padding: 5px 8px; border-radius: 16px; color: #94a3b8; text-decoration: none; font-size: 0.68rem; font-weight: 700; flex: 1;">
-        <div class="dock-icon-squircle icon-checador" style="width: 35px; height: 35px; border-radius: 11px; display: flex; align-items: center; justify-content: center; color: #ffffff; background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 3px 8px rgba(0,0,0,0.2);">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        </div>
-        <span class="dock-item-label">Checador</span>
-      </a>
+      const current = getSavedTheme();
+      applyTheme(current);
 
-      <a href="recorrido-movil.html" class="dock-item-btn active" id="dockBtnRecorridos" title="Recorridos" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: rgba(255,255,255,0.12); border: none; cursor: pointer; padding: 5px 8px; border-radius: 16px; color: #ffffff; text-decoration: none; font-size: 0.68rem; font-weight: 800; flex: 1;">
-        <div class="dock-icon-squircle icon-recorridos" style="width: 35px; height: 35px; border-radius: 11px; display: flex; align-items: center; justify-content: center; color: #ffffff; background: linear-gradient(135deg, #0284c7, #2563eb); box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4); transform: translateY(-2px) scale(1.05);">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-        </div>
-        <span class="dock-item-label">Recorridos</span>
-      </a>
+      const btnToggle = document.getElementById('btnThemeToggleRecorrido');
+      if (btnToggle) {
+        btnToggle.addEventListener('click', () => {
+          const nowTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+          applyTheme(nowTheme);
+        });
+      }
 
-      <a href="bitacora-movil.html" class="dock-item-btn" id="dockBtnBitacoras" title="Bitácora" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: transparent; border: none; cursor: pointer; padding: 5px 8px; border-radius: 16px; color: #94a3b8; text-decoration: none; font-size: 0.68rem; font-weight: 700; flex: 1;">
-        <div class="dock-icon-squircle icon-bitacora" style="width: 35px; height: 35px; border-radius: 11px; display: flex; align-items: center; justify-content: center; color: #ffffff; background: linear-gradient(135deg, #7c3aed, #6d28d9); box-shadow: 0 3px 8px rgba(0,0,0,0.2);">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        </div>
-        <span class="dock-item-label">Bitácora</span>
-      </a>
-    </nav>
-  </div>
+      window.addEventListener('message', (e) => {
+        if (e.data && e.data.type === 'miniapps_theme' && e.data.theme) {
+          applyTheme(e.data.theme);
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initThemeSupportRecorrido);
+    } else {
+      initThemeSupportRecorrido();
+    }
+  </script>
 </body>
 </html>

@@ -367,13 +367,29 @@
 }
 
 [data-theme="light"] .numpad-key {
-  background: #f1f5f9;
-  color: #0f172a;
-  border-color: rgba(148, 163, 184, 0.3);
+  background: #ffffff;
+  color: #0f172a !important;
+  font-weight: 800;
+  border: 1.5px solid #cbd5e1;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="light"] .numpad-key:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
 }
 
 [data-theme="light"] .numpad-key:active {
-  background: rgba(37, 99, 235, 0.15);
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #1d4ed8;
+}
+
+[data-theme="light"] .numpad-key.key-action {
+  background: #fee2e2;
+  color: #dc2626 !important;
+  border-color: #fca5a5;
+  font-weight: 800;
 }
 
 [data-theme="light"] .checador-matched-card {

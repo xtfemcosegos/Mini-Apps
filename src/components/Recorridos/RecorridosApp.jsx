@@ -2,25 +2,39 @@ import React, { useState, useEffect, useRef } from 'react';
 import './RecorridosApp.css';
 import { saveRecorrido, sendRecorridoLocationPing, sounds } from '../../services/api';
 
-const DEFAULT_POINTS = [
-  { id: 'p1', name: 'Caseta Principal / Acceso', icon: '🚪', verified: false, time: null },
-  { id: 'p2', name: 'Perímetro Norte y Vallas', icon: '🛡️', verified: false, time: null },
-  { id: 'p3', name: 'Estacionamiento de Colaboradores', icon: '🚗', verified: false, time: null },
-  { id: 'p4', name: 'Área de Bodegas y Racks', icon: '📦', verified: false, time: null },
-  { id: 'p5', name: 'Puerta de Emergencia y Subestación', icon: '⚡', verified: false, time: null }
-];
+const OFFICIAL_CHECKPOINTS = {
+  recorrido_seguridad_elementos: [
+    { id: 'p1', name: 'Caseta de Seguridad y Acceso', icon: '🚪', verified: false, time: null },
+    { id: 'p2', name: 'Oficinas Planta Baja y Pasillos', icon: '🏢', verified: false, time: null },
+    { id: 'p3', name: 'Mesas y Salas de Juntas', icon: '💻', verified: false, time: null },
+    { id: 'p4', name: 'Sites de TI y Cuartos de Clima', icon: '⚡', verified: false, time: null },
+    { id: 'p5', name: 'Estacionamientos y Cajones', icon: '🚗', verified: false, time: null },
+    { id: 'p6', name: 'Perímetro Exterior y Mallas', icon: '🛡️', verified: false, time: null }
+  ],
+  recorrido_perimetral: [
+    { id: 'p1', name: 'Caseta de Origen y Barreras', icon: '🛡️', verified: false, time: null },
+    { id: 'p2', name: 'Perímetro Norte y Vallas', icon: '🧱', verified: false, time: null },
+    { id: 'p3', name: 'Puertas de Emergencia y Esclusas', icon: '🚪', verified: false, time: null },
+    { id: 'p4', name: 'Portón de Carga y Proveedores', icon: '🚚', verified: false, time: null },
+    { id: 'p5', name: 'Perímetro Sur y Reflectores', icon: '💡', verified: false, time: null }
+  ]
+};
 
 export default function RecorridosApp({ theme, onToggleTheme }) {
+  const [selectedSchema, setSelectedSchema] = useState('recorrido_seguridad_elementos');
   const [isPatrolling, setIsPatrolling] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [distanceMeters, setDistanceMeters] = useState(0);
-  const [checkpoints, setCheckpoints] = useState(DEFAULT_POINTS);
+  const [checkpoints, setCheckpoints] = useState(() => OFFICIAL_CHECKPOINTS.recorrido_seguridad_elementos);
   const [currentCoords, setCurrentCoords] = useState(null);
-  const [selectedSchema, setSelectedSchema] = useState('recorrido_perimetral');
 
   const timerRef = useRef(null);
   const watchIdRef = useRef(null);
   const startTimeRef = useRef(null);
+
+  useEffect(() => {
+    setCheckpoints(OFFICIAL_CHECKPOINTS[selectedSchema] || OFFICIAL_CHECKPOINTS.recorrido_seguridad_elementos);
+  }, [selectedSchema]);
 
   useEffect(() => {
     return () => {
@@ -35,12 +49,10 @@ export default function RecorridosApp({ theme, onToggleTheme }) {
     setDistanceMeters(0);
     startTimeRef.current = Date.now();
 
-    // Timer cronómetro
     timerRef.current = setInterval(() => {
       setSeconds((prev) => prev + 1);
     }, 1000);
 
-    // Geolocation watch
     if (navigator.geolocation) {
       let lastPos = null;
       watchIdRef.current = navigator.geolocation.watchPosition(
@@ -49,7 +61,6 @@ export default function RecorridosApp({ theme, onToggleTheme }) {
           setCurrentCoords({ latitude, longitude, accuracy });
 
           if (lastPos) {
-            // Calcular distancia aproximada en metros (Haversine)
             const d = calculateDistance(lastPos.lat, lastPos.lng, latitude, longitude);
             if (d > 2) {
               setDistanceMeters((prev) => Math.round(prev + d));
@@ -57,7 +68,6 @@ export default function RecorridosApp({ theme, onToggleTheme }) {
           }
           lastPos = { lat: latitude, lng: longitude };
 
-          // Enviar ping a UBE
           sendRecorridoLocationPing({
             coords: { latitude, longitude, accuracy },
             timestamp: Date.now(),
@@ -180,8 +190,8 @@ export default function RecorridosApp({ theme, onToggleTheme }) {
             outline: 'none'
           }}
         >
-          <option value="recorrido_perimetral">Recorrido Perimetral Exterior</option>
-          <option value="recorrido_interior">Recorrido Interior y Andenes</option>
+          <option value="recorrido_seguridad_elementos">Recorrido de Seguridad (Elementos)</option>
+          <option value="recorrido_perimetral">Recorrido Perimetral (Casetas)</option>
         </select>
       </div>
 

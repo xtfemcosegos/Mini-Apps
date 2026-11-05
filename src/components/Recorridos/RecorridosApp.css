@@ -205,3 +205,52 @@
   font-weight: 900;
   cursor: default;
 }
+
+/* MODO CLARO REFINED / ALTO CONTRASTE */
+[data-theme="light"] .recorridos-container {
+  color: #0f172a;
+}
+
+[data-theme="light"] .recorridos-header-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+}
+
+[data-theme="light"] .recorridos-title {
+  color: #0f172a;
+}
+
+[data-theme="light"] .stat-box {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .stat-label {
+  color: #64748b;
+}
+
+[data-theme="light"] .stat-value {
+  color: #0f172a;
+}
+
+[data-theme="light"] .checkpoint-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+[data-theme="light"] .checkpoint-name {
+  color: #0f172a;
+}
+
+[data-theme="light"] .checkpoint-card.verified {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+[data-theme="light"] .btn-incident-report {
+  background: #fffbeb;
+  border-color: #fcd34d;
+  color: #b45309;
+}

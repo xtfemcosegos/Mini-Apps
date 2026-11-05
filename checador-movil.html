@@ -77,6 +77,197 @@
       --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
+    /* MODO CLARO REFINED / ALTO CONTRASTE */
+    :root[data-theme="light"], [data-theme="light"], body.theme-light {
+      --bg-dark: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-surface: #ffffff;
+      --bg-input: #f8fafc;
+      --primary: #2563eb;
+      --primary-glow: rgba(37, 99, 235, 0.25);
+      --accent-green: #059669;
+      --accent-green-glow: rgba(5, 150, 105, 0.25);
+      --accent-amber: #d97706;
+      --accent-red: #dc2626;
+      --accent-cyan: #0284c7;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border: rgba(148, 163, 184, 0.35);
+      --border-focus: rgba(37, 99, 235, 0.6);
+    }
+
+    [data-theme="light"] .app-header {
+      background: rgba(255, 255, 255, 0.96);
+      border-bottom-color: #e2e8f0;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    }
+
+    [data-theme="light"] .brand-titles h1 {
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .header-time-pill {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .card {
+      background: #ffffff;
+      border-color: #e2e8f0;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+
+    [data-theme="light"] .card-title-row h2 {
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .id-display-input {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .id-display-input:focus {
+      border-color: #2563eb;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    [data-theme="light"] .btn-toggle-numpad {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      color: #334155;
+    }
+
+    [data-theme="light"] .btn-toggle-numpad:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    /* TECLADO VIRTUAL EN MODO CLARO: MÁXIMO CONTRASTE */
+    [data-theme="light"] .numpad-btn {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      color: #0f172a !important;
+      font-weight: 800;
+      box-shadow: 0 2px 5px rgba(15, 23, 42, 0.07);
+    }
+
+    [data-theme="light"] .numpad-btn:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+    }
+
+    [data-theme="light"] .numpad-btn:active {
+      background: #2563eb !important;
+      color: #ffffff !important;
+      border-color: #1d4ed8;
+    }
+
+    [data-theme="light"] .numpad-btn.btn-clear {
+      background: #fef2f2;
+      border-color: #fca5a5;
+      color: #dc2626 !important;
+      font-weight: 800;
+    }
+
+    [data-theme="light"] .numpad-btn.btn-backspace {
+      background: #fffbeb;
+      border-color: #fcd34d;
+      color: #b45309 !important;
+      font-weight: 800;
+    }
+
+    [data-theme="light"] .officer-match-dropdown {
+      background: #ffffff;
+      border-color: #93c5fd;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+    }
+
+    [data-theme="light"] .officer-match-item {
+      border-bottom-color: #f1f5f9;
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .officer-match-item:hover,
+    [data-theme="light"] .officer-match-item.is-selected {
+      background: #eff6ff;
+    }
+
+    [data-theme="light"] .match-item-name {
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .btn-action-outline {
+      border-color: #cbd5e1;
+      color: #475569;
+    }
+
+    [data-theme="light"] .btn-action-outline:hover {
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .salida-modal-card {
+      background: #ffffff;
+      border-color: #e2e8f0;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+    }
+
+    [data-theme="light"] .salida-modal-title {
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .salida-data-grid {
+      background: #f8fafc;
+      border-color: #e2e8f0;
+    }
+
+    [data-theme="light"] .salida-data-value {
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .matched-profile-card {
+      background: #ffffff;
+      border-color: #e2e8f0;
+    }
+
+    [data-theme="light"] .profile-name {
+      color: #0f172a;
+    }
+
+    .btn-theme-toggle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .btn-theme-toggle:hover {
+      border-color: var(--primary);
+      transform: scale(1.05);
+    }
+
+    .btn-theme-toggle:active {
+      transform: scale(0.92);
+    }
+
+    [data-theme="light"] .btn-theme-toggle {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -685,8 +876,8 @@
       border-radius: 12px;
       padding: 15px 0;
       font-size: 1.35rem;
-      font-weight: 700;
-      color: #ffffff;
+      font-weight: 800;
+      color: var(--text-main);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -2043,9 +2234,14 @@
         <span>RegAs 3 • Inteligencia Artificial</span>
       </div>
     </div>
-    <div class="header-time-pill">
-      <div class="clock-dot"></div>
-      <span id="headerClock">00:00:00</span>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <div class="header-time-pill">
+        <div class="clock-dot"></div>
+        <span id="headerClock">00:00:00</span>
+      </div>
+      <button type="button" id="btnThemeToggleChecador" class="btn-theme-toggle" title="Alternar tema Claro / Oscuro" aria-label="Cambiar tema">
+        <span id="themeToggleIcon">🌙</span>
+      </button>
     </div>
   </header>
 
@@ -2138,7 +2334,7 @@
                 </div>
                 <div class="shift-meta-item">
                   <span class="shift-meta-label">Horario</span>
-                  <span class="shift-meta-value" id="pcResultHorarioVal">07:00 a 15:00 hrs</span>
+                  <span class="shift-meta-value" id="pcResultHorarioVal">06:00 a 14:00 hrs</span>
                 </div>
               </div>
             </div>
@@ -2292,7 +2488,7 @@
             </div>
             <div class="shift-meta-item">
               <span class="shift-meta-label">Horario Operativo</span>
-              <span class="shift-meta-value" id="detailHorarioVal">07:00 a 15:00 hrs</span>
+              <span class="shift-meta-value" id="detailHorarioVal">06:00 a 14:00 hrs</span>
             </div>
           </div>
         </div>
@@ -3140,7 +3336,7 @@
           casetaVal.textContent = assignedCaseta || activeTerminalCaseta || 'Caseta General';
         }
         if (horarioVal) {
-          horarioVal.textContent = data.targetHorario || '07:00 a 15:00 hrs';
+          horarioVal.textContent = data.targetHorario || '06:00 a 14:00 hrs';
         }
 
         const action = data.action || 'sin_registro';
@@ -4473,7 +4669,7 @@
           detailCasetaVal.textContent = assignedCaseta || activeTerminalCaseta || 'Caseta Principal';
         }
 
-        detailHorarioVal.textContent = shiftData.targetHorario || '07:00 a 15:00 hrs';
+        detailHorarioVal.textContent = shiftData.targetHorario || '06:00 a 14:00 hrs';
 
         const action = shiftData.action || 'sin_registro';
 
@@ -4838,5 +5034,56 @@
       </a>
     </nav>
   </div>
+  <script>
+    // Gestión integral de Modo Claro / Oscuro en Checador Móvil
+    function initThemeSupportChecador() {
+      const getSavedTheme = () => {
+        try {
+          const urlTheme = new URLSearchParams(window.location.search).get('theme');
+          if (urlTheme === 'light' || urlTheme === 'dark') return urlTheme;
+          return localStorage.getItem('miniapps_theme') || 'dark';
+        } catch (e) {
+          return 'dark';
+        }
+      };
+
+      const applyTheme = (theme) => {
+        const isLight = (theme === 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+        document.body.setAttribute('data-theme', theme);
+        if (document.body) {
+          document.body.classList.toggle('theme-light', isLight);
+        }
+        const iconEl = document.getElementById('themeToggleIcon');
+        if (iconEl) {
+          iconEl.textContent = isLight ? '☀️' : '🌙';
+        }
+        try { localStorage.setItem('miniapps_theme', theme); } catch (e) {}
+      };
+
+      const current = getSavedTheme();
+      applyTheme(current);
+
+      const btnToggle = document.getElementById('btnThemeToggleChecador');
+      if (btnToggle) {
+        btnToggle.addEventListener('click', () => {
+          const nowTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+          applyTheme(nowTheme);
+        });
+      }
+
+      window.addEventListener('message', (e) => {
+        if (e.data && e.data.type === 'miniapps_theme' && e.data.theme) {
+          applyTheme(e.data.theme);
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initThemeSupportChecador);
+    } else {
+      initThemeSupportChecador();
+    }
+  </script>
 </body>
 </html>

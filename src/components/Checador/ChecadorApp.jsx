@@ -538,7 +538,7 @@ export default function ChecadorApp({ theme, onToggleTheme }) {
               <span>{matchedData.shift?.targetLabel || 'Turno Asignado Hoy'}</span>
             </div>
             <div className="shift-banner-time">
-              Horario: {matchedData.shift?.targetHorario || '07:00 a 15:00 hrs'}
+              Horario: {matchedData.shift?.targetHorario || '06:00 a 14:00 hrs'}
             </div>
           </div>
 
@@ -721,7 +721,7 @@ export default function ChecadorApp({ theme, onToggleTheme }) {
                   <span>{socioShiftData.targetLabel || 'Turno Asignado Hoy'}</span>
                 </div>
                 <div className="shift-banner-time">
-                  Horario: {socioShiftData.targetHorario || '07:00 a 15:00 hrs'}
+                  Horario: {socioShiftData.targetHorario || '06:00 a 14:00 hrs'}
                 </div>
               </div>
 

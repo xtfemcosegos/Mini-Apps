@@ -58,21 +58,38 @@ const server = http.createServer((req, res) => {
         'x-forwarded-host': req.headers.host || `localhost:${FRONTEND_PORT}`
       }
     }, (proxyRes) => {
-      res.writeHead(proxyRes.statusCode, {
-        ...proxyRes.headers,
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Private-Network': 'true'
-      });
+      if (!res.headersSent) {
+        res.writeHead(proxyRes.statusCode, {
+          ...proxyRes.headers,
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Private-Network': 'true'
+        });
+      }
       proxyRes.pipe(res);
+
+      proxyRes.on('error', (err) => {
+        try { res.end(); } catch (e) {}
+      });
     });
 
     proxyReq.on('error', (err) => {
       console.warn(`[Mini Apps Proxy Error :7006 -> :7001] ${req.url}:`, err.message);
-      res.writeHead(502, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({
-        error: 'No se pudo comunicar con el motor UBE en puerto 7001',
-        detalle: err.message
-      }));
+      if (!res.headersSent) {
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          error: 'No se pudo comunicar con el motor UBE en puerto 7001',
+          detalle: err.message
+        }));
+      } else {
+        try { res.end(); } catch (e) {}
+      }
+    });
+
+    // Limpieza de sockets solo si el cliente aborta la conexión antes de finalizar la respuesta
+    res.on('close', () => {
+      if (!res.writableEnded) {
+        try { proxyReq.destroy(); } catch (e) {}
+      }
     });
 
     req.pipe(proxyReq);
