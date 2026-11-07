@@ -1870,7 +1870,7 @@
         const dockWrapper = document.getElementById('miniappsDockWrapper') || document.querySelector('.miniapps-dock-wrapper');
 
         if (bChecador) bChecador.style.display = normalized.checador ? '' : 'none';
-        if (bRecorridos) bRecorridos.style.display = normalized.recorridos ? '' : 'none';
+        if (bRecorridos) bRecorridos.style.display = 'none';
         if (bBitacoras) bBitacoras.style.display = normalized.bitacoras ? '' : 'none';
 
         if (dockWrapper) {
@@ -1921,7 +1921,7 @@
       // Configuración de API Base (Túnel Cloudflare)
       const BACKEND_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('10.') || window.location.hostname.startsWith('192.168.'))
         ? ''
-        : 'https://be-regas.cic-10.com';
+        : 'https://oxosd450mlh.taile94978.ts.net';
 
       // Consultar features en vivo al backend para concordancia con RegAs 3
       try {
@@ -2391,7 +2391,7 @@
       }
 
       // API FETCH
-      const BACKEND_URL = 'https://be-regas.cic-10.com';
+      const BACKEND_URL = 'https://oxosd450mlh.taile94978.ts.net';
       async function getApiBase() {
         return BACKEND_URL;
       }

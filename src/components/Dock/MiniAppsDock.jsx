@@ -143,8 +143,9 @@ export default function MiniAppsDock({
     return null;
   }
 
-  // Si solo CDI está habilitado y no es un dock de panel con botón de cerrar, ocultar completamente
-  if (!showCloseButton && !isPaneDock && visibleApps.length <= 1) {
+  // Si no hay otras aplicaciones autorizadas para cambiar y no es un dock con botón de cerrar, ocultar completamente
+  const minVisible = excluded.length > 0 ? 0 : 1;
+  if (!showCloseButton && !isPaneDock && visibleApps.length <= minVisible) {
     return null;
   }
 

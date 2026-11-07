@@ -1471,6 +1471,417 @@
       box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
       border: 1.5px solid #10b981;
     }
+
+    /* ── BOTÓN Y MODAL DE DISPONIBILIDAD DE ESTACIONAMIENTO (CORTE 10:00 AM) ── */
+    .cdi-parking-btn {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-left: 4px solid #0284c7;
+      border-radius: 12px;
+      padding: 7px 12px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.18s ease;
+      color: var(--text);
+      font-family: inherit;
+      text-align: left;
+    }
+    .cdi-parking-btn.visible {
+      display: flex;
+    }
+    .cdi-parking-btn.is-captured {
+      border-left-color: #10b981;
+    }
+    .cdi-parking-btn:active {
+      transform: scale(0.985);
+    }
+    .parking-btn-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .parking-btn-icon {
+      font-size: 1.2rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .parking-btn-texts {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      min-width: 0;
+    }
+    .parking-btn-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .parking-btn-sub {
+      font-size: 0.64rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .parking-btn-badge {
+      font-size: 0.62rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .parking-btn-badge.badge-pending {
+      background: rgba(2, 132, 199, 0.12);
+      color: #0369a1;
+      border: 1px solid rgba(2, 132, 199, 0.3);
+    }
+    html[data-theme="dark"] .parking-btn-badge.badge-pending {
+      background: rgba(56, 189, 248, 0.18);
+      color: #38bdf8;
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+    .parking-btn-badge.badge-done {
+      background: rgba(16, 185, 129, 0.14);
+      color: #047857;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+    html[data-theme="dark"] .parking-btn-badge.badge-done {
+      background: rgba(16, 185, 129, 0.22);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    .parking-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 25000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+    }
+    .parking-modal-backdrop.open {
+      display: flex;
+    }
+    .parking-modal-card {
+      width: 100%;
+      max-width: 410px;
+      max-height: 90dvh;
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: 18px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      color: var(--text);
+    }
+    .parking-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 15px;
+      border-bottom: 1px solid var(--card-border);
+      gap: 8px;
+    }
+    .parking-modal-title-group {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .parking-modal-title {
+      font-size: 0.92rem;
+      font-weight: 800;
+      margin: 0;
+      color: var(--text);
+    }
+    .parking-modal-subtitle {
+      font-size: 0.70rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin: 2px 0 0;
+    }
+    .parking-modal-close {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      background: transparent;
+      color: var(--text);
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .parking-modal-notice {
+      padding: 10px 15px 0;
+    }
+    .parking-notice-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      padding: 8px 10px;
+      border-radius: 9px;
+      font-size: 0.72rem;
+      line-height: 1.35;
+    }
+    .parking-notice-box.notice-pending {
+      background: rgba(2, 132, 199, 0.1);
+      border: 1px solid rgba(2, 132, 199, 0.3);
+      color: #0369a1;
+    }
+    html[data-theme="dark"] .parking-notice-box.notice-pending {
+      background: rgba(56, 189, 248, 0.15);
+      color: #7dd3fc;
+    }
+    .parking-notice-box.notice-captured {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #047857;
+    }
+    html[data-theme="dark"] .parking-notice-box.notice-captured {
+      background: rgba(16, 185, 129, 0.18);
+      color: #6ee7b7;
+    }
+    .parking-modal-body {
+      padding: 12px 15px 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .parking-section-card {
+      background: rgba(148, 163, 184, 0.08);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 9px 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .parking-section-header {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .parking-fields-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
+      gap: 8px;
+    }
+    .parking-field-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .parking-field-label {
+      font-size: 0.70rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .parking-stepper-control {
+      display: flex;
+      align-items: center;
+      border: 1.5px solid var(--card-border);
+      border-radius: 9px;
+      background: var(--card-bg);
+      overflow: hidden;
+    }
+    .parking-step-btn {
+      width: 32px;
+      height: 34px;
+      border: none;
+      background: rgba(148, 163, 184, 0.15);
+      color: var(--text);
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .parking-field-input {
+      flex: 1;
+      min-width: 0;
+      height: 34px;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 800;
+      text-align: center;
+      outline: none;
+      -moz-appearance: textfield;
+    }
+    .parking-field-input::-webkit-outer-spin-button,
+    .parking-field-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .parking-field-readonly {
+      height: 34px;
+      border-radius: 9px;
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--text);
+    }
+    .parking-modal-footer {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .parking-btn-cancel {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1.5px solid var(--card-border);
+      background: transparent;
+      color: var(--text);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .parking-btn-clear {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(239, 68, 68, 0.45);
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .parking-btn-submit {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+
+    .footer-parking-summary {
+      margin-top: 2px;
+      border-left: 3.5px solid #0284c7;
+      padding: 5px 14px;
+    }
+    html[data-theme="dark"] .footer-parking-summary {
+      border-left-color: #38bdf8;
+    }
+    .summary-parking-val {
+      font-size: 1.02rem;
+      font-weight: 800;
+      color: #0369a1;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.15;
+    }
+    html[data-theme="dark"] .summary-parking-val {
+      color: #38bdf8;
+    }
+    .parking-summary-section {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1.5px dashed var(--card-border);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .parking-summary-header-strip {
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-left: 4px solid #0284c7;
+      border-radius: 10px;
+      padding: 7px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .parking-summary-caseta-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-left: 3.5px solid #f59e0b;
+      border-radius: 10px;
+      padding: 7px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+    }
+    .parking-summary-caseta-card.is-captured {
+      border-left-color: #10b981;
+    }
+    .parking-summary-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: var(--text);
+    }
+    .parking-summary-chips-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+    .parking-summary-lot-chip {
+      font-size: 0.65rem;
+      font-weight: 600;
+      background: rgba(148, 163, 184, 0.1);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 2px 6px;
+      color: var(--text-muted);
+    }
+    .parking-summary-lot-chip strong {
+      color: var(--text);
+      font-weight: 800;
+    }
+    .parking-field-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+    }
+    .parking-field-capacity-badge {
+      font-size: 0.60rem;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 5px;
+      background: rgba(2, 132, 199, 0.12);
+      color: #0369a1;
+      border: 1px solid rgba(2, 132, 199, 0.25);
+    }
+    html[data-theme="dark"] .parking-field-capacity-badge {
+      background: rgba(56, 189, 248, 0.16);
+      color: #38bdf8;
+    }
+
   </style>
 </head>
 <body data-theme="light">
@@ -1559,8 +1970,20 @@
 
   <!-- SECCIÓN INFERIOR COMPACTA (RESUMEN DEBAJO DE CONTADORES + DOCK DE APPS) -->
   <div class="bottom-section">
+    <!-- BOTÓN DISPONIBILIDAD DE ESTACIONAMIENTO (CORTE 10:00 AM - SOLO EN MICHELENA, IMPULSO, EDISON, SIMÓN BOLÍVAR, CARRANZA, UNIVERSIDAD) -->
+    <button type="button" class="cdi-parking-btn" id="btnParkingAvailability" title="Disponibilidad de estacionamiento (Corte único diario 10:00 AM)">
+      <div class="parking-btn-left">
+        <span class="parking-btn-icon">🅿️</span>
+        <div class="parking-btn-texts">
+          <span class="parking-btn-label">Disponibilidad de estacionamiento</span>
+          <span class="parking-btn-sub" id="parkingBtnSubtext">Se llena una sola vez a las 10:00 AM</span>
+        </div>
+      </div>
+      <span class="parking-btn-badge badge-pending" id="parkingBtnBadge">⏰ 10:00 AM</span>
+    </button>
+
     <!-- RESUMEN: CONTEO POR CASETA Y CONTEO GENERAL (CLICABLE PARA VER RESUMEN COMPACTO) -->
-    <div class="footer-summary is-clickable" id="footerSummaryDock" role="button" tabindex="0" title="Resumen de Conteos">
+    <div class="footer-summary is-clickable" id="footerSummaryDock" role="button" tabindex="0" title="Resumen de Conteos y Disponibilidad de Estacionamiento">
       <div class="summary-item">
         <span class="summary-title">Total Caseta</span>
         <span class="summary-value" id="totalCaseta">0</span>
@@ -1581,28 +2004,15 @@
           </svg>
           <span id="btnModalBackText">Volver</span>
         </button>
-        <h2 class="compact-top-title">Resumen de Casetas</h2>
+        <h2 class="compact-top-title">Resumen General CDI</h2>
         <div class="compact-live-tag">
           <span class="compact-live-dot"></span>
           <span>EN VIVO</span>
         </div>
       </div>
 
-      <div class="compact-total-strip">
-        <div class="strip-total-main">
-          <span class="strip-total-lbl">TOTAL GENERAL:</span>
-          <span class="strip-total-num" id="modalTotalGeneralVal">0</span>
-        </div>
-        <div class="strip-breakdown">
-          <span class="strip-chip" title="Internos">👤 <strong id="modalChipInternos">0</strong></span>
-          <span class="strip-chip" title="Externos">🏢 <strong id="modalChipExternos">0</strong></span>
-          <span class="strip-chip" title="Prestadores">🔧 <strong id="modalChipPrestadores">0</strong></span>
-          <span class="strip-chip" title="Visitas">📋 <strong id="modalChipVisitas">0</strong></span>
-        </div>
-      </div>
-
       <div class="compact-casetas-list" id="allCasetasModalList">
-        <!-- Renderizado dinámico en tiempo real -->
+        <!-- Renderizado dinámico en tiempo real: Total de Ingresos (colapsable) + Total de Cajones (colapsable) -->
       </div>
     </div>
 
@@ -1742,6 +2152,27 @@
     </div>
   </div>
 
+  <!-- MODAL DE DISPONIBILIDAD DE ESTACIONAMIENTO (CORTE 10:00 AM) -->
+  <div class="parking-modal-backdrop" id="parkingModalBackdrop">
+    <div class="parking-modal-card" role="dialog" aria-modal="true">
+      <div class="parking-modal-header">
+        <div class="parking-modal-title-group">
+          <span style="font-size: 1.4rem;">🅿️</span>
+          <div>
+            <h3 class="parking-modal-title">Disponibilidad de estacionamiento</h3>
+            <p class="parking-modal-subtitle" id="parkingModalSubtitle">Caseta • Corte único 10:00 AM</p>
+          </div>
+        </div>
+        <button type="button" class="parking-modal-close" id="btnParkingModalClose">✕</button>
+      </div>
+      <div class="parking-modal-notice" id="parkingModalNotice"></div>
+      <form class="parking-modal-body" id="parkingModalForm">
+        <div id="parkingModalSections"></div>
+        <div class="parking-modal-footer" id="parkingModalFooter"></div>
+      </form>
+    </div>
+  </div>
+
   <!-- LÓGICA DE CONTROL, SINCRONIZACIÓN Y ACTUALIZACIÓN EN VIVO -->
   <script>
     (function() {
@@ -1811,7 +2242,7 @@
         // 4. Si se configuró previamente en localStorage
         try {
           const cached = localStorage.getItem('regas_active_api_base');
-          if (cached && !cached.includes('10.200.79.175') && !cached.includes('trycloudflare') && !cached.includes('ngrok')) {
+          if (cached && !cached.includes('10.200.79.175') && !cached.includes('trycloudflare') && !cached.includes('ngrok') && !cached.includes('workers.dev') && !cached.includes('cic-10.com')) {
             if (window.location.protocol === 'https:' && cached.startsWith('http://')) {
               // Descartar HTTP en HTTPS
             } else {
@@ -1823,9 +2254,9 @@
         // 5. Fallback por defecto oficial: Túnel Cloudflare (be-regas.cic-10.com)
         const isEmergency = urlParams.get('emergency') === '1' || urlParams.get('backend') === 'ngrok';
         if (isEmergency) {
-          return 'https://sandworm-header-salami.ngrok-free.dev';
+          return 'https://oxosd450mlh.taile94978.ts.net';
         }
-        return 'https://be-regas.cic-10.com';
+        return 'https://oxosd450mlh.taile94978.ts.net';
       };
 
       let BACKEND_BASE = resolveBackendBase();
@@ -2402,7 +2833,431 @@
         const totalCas = (counts.internos || 0) + (counts.externos || 0) + (counts.prestadores || 0) + (counts.visitas || 0);
         const totalCasEl = document.getElementById('totalCaseta');
         if (totalCasEl) totalCasEl.textContent = totalCas;
+        if (typeof updateParkingButtonUI === 'function') updateParkingButtonUI();
       };
+      // =========================================================================
+      // DISPONIBILIDAD DE ESTACIONAMIENTO (CORTE ÚNICO DIARIO 10:00 AM)
+      // =========================================================================
+      const PARKING_SCHEMAS = {
+        'michelena': {
+          caseta: 'Michelena',
+          icon: '📍',
+          totalCapacity: 352,
+          sections: [
+            {
+              title: 'Michelena',
+              icon: '📍',
+              fields: [
+                { key: 'michelena_ordinarios', label: 'Ordinarios', shortLabel: 'Ord.', total: 164 },
+                { key: 'michelena_exclusivos', label: 'Exclusivos', shortLabel: 'Excl.', total: 18 }
+              ]
+            },
+            {
+              title: 'Estacionamiento Anexo (Michelenita)',
+              icon: '🅿️',
+              fields: [
+                { key: 'anexo_ordinarios', label: 'Ordinarios', shortLabel: 'Anexo', total: 170 }
+              ]
+            }
+          ]
+        },
+        'impulso': {
+          caseta: 'Impulso',
+          icon: '⚡',
+          totalCapacity: 268,
+          sections: [
+            {
+              title: 'Impulso',
+              icon: '⚡',
+              fields: [
+                { key: 'impulso_ordinarios', label: 'Ordinarios', shortLabel: 'Ord.', total: 203 },
+                { key: 'impulso_exclusivos', label: 'Exclusivos', shortLabel: 'Excl.', total: 39 }
+              ]
+            },
+            {
+              title: 'Estacionamiento Anexo Domínguez',
+              icon: '🅿️',
+              fields: [
+                { key: 'anexo_dominguez_ordinarios', label: 'Ordinarios', shortLabel: 'Domínguez', total: 26 }
+              ]
+            }
+          ]
+        },
+        'edison': {
+          caseta: 'Edison',
+          icon: '🛡️',
+          totalCapacity: 112,
+          sections: [
+            {
+              title: 'Edison',
+              icon: '🛡️',
+              fields: [
+                { key: 'edison_ordinarios', label: 'Ordinarios', shortLabel: 'Ord.', total: 43 },
+                { key: 'edison_exclusivos', label: 'Exclusivos', shortLabel: 'Excl.', total: 44 }
+              ]
+            },
+            {
+              title: 'Estacionamiento Anexo Vías',
+              icon: '🅿️',
+              fields: [
+                { key: 'anexo_vias_ordinarios', label: 'Ordinarios', shortLabel: 'Vías', total: 25 }
+              ]
+            }
+          ]
+        },
+        'simon bolivar': {
+          caseta: 'Simón Bolívar',
+          icon: '🏛️',
+          totalCapacity: 24,
+          sections: [
+            {
+              title: 'Simón Bolívar',
+              icon: '🏛️',
+              fields: [
+                { key: 'disponibilidad_general', label: 'Disponibilidad General', shortLabel: 'General', total: 24 }
+              ]
+            }
+          ]
+        },
+        'carranza': {
+          caseta: 'Carranza',
+          icon: '🚪',
+          totalCapacity: 126,
+          sections: [
+            {
+              title: 'Carranza',
+              icon: '🚪',
+              fields: [
+                { key: 'disponibilidad_general', label: 'Disponibilidad General', shortLabel: 'General', total: 126 }
+              ]
+            }
+          ]
+        },
+        'universidad': {
+          caseta: 'Universidad',
+          icon: '🏫',
+          totalCapacity: 207,
+          sections: [
+            {
+              title: 'Universidad',
+              icon: '🏫',
+              fields: [
+                { key: 'disponibilidad_general', label: 'Disponibilidad General', shortLabel: 'General', total: 207 }
+              ]
+            }
+          ]
+        }
+      };
+      const PARKING_ORDER = ['edison', 'impulso', 'michelena', 'carranza', 'universidad', 'simon bolivar'];
+      const TOTAL_PARKING_CAPACITY_ALL = 1089;
+      const getCasetaAvailableSum = (sch, rec) => {
+        if (!sch || !rec || !rec.captured || !rec.valores) return 0;
+        let s = 0;
+        sch.sections.forEach(sec => sec.fields.forEach(f => { s += Number(rec.valores[f.key] || 0); }));
+        return s;
+      };
+
+      let parkingByCaseta = {};
+      let parkingReportSentToday = false;
+      try {
+        const rawP = localStorage.getItem('regas_cdi_parking_' + currentDate);
+        if (rawP) parkingByCaseta = JSON.parse(rawP) || {};
+        parkingReportSentToday = localStorage.getItem('regas_cdi_parking_sent_' + currentDate) === '1';
+      } catch (e) {}
+
+      const setParkingReportSent = (isSent) => {
+        parkingReportSentToday = Boolean(isSent);
+        try {
+          localStorage.setItem('regas_cdi_parking_sent_' + currentDate, parkingReportSentToday ? '1' : '0');
+        } catch (e) {}
+        updateParkingButtonUI();
+      };
+
+      const saveLocalParking = () => {
+        try {
+          localStorage.setItem('regas_cdi_parking_' + currentDate, JSON.stringify(parkingByCaseta));
+        } catch (e) {}
+      };
+
+      const mergeRemoteParking = (remoteEst) => {
+        if (!remoteEst || typeof remoteEst !== 'object') return;
+        Object.entries(remoteEst).forEach(([k, val]) => {
+          if (val && val.captured) {
+            parkingByCaseta[normCasetaStr(k)] = val;
+          } else if (val && val.captured === false) {
+            delete parkingByCaseta[normCasetaStr(k)];
+          }
+        });
+        saveLocalParking();
+        updateParkingButtonUI();
+      };
+
+      const updateParkingButtonUI = () => {
+        const btn = document.getElementById('btnParkingAvailability');
+        const sub = document.getElementById('parkingBtnSubtext');
+        const badge = document.getElementById('parkingBtnBadge');
+
+        let globalAvail = 0;
+        let capturedCount = 0;
+        PARKING_ORDER.forEach(pk => {
+          const sc = PARKING_SCHEMAS[pk];
+          const rc = parkingByCaseta[pk];
+          if (sc && rc && rc.captured) {
+            capturedCount++;
+            globalAvail += getCasetaAvailableSum(sc, rc);
+          }
+        });
+
+        const isCasetaRecComplete = (sc, rc) => {
+          if (!sc || !rc || !rc.captured || !rc.valores) return false;
+          return sc.sections.every(s => s.fields.every(f => {
+            const v = rc.valores[f.key];
+            if (v === undefined || v === null || String(v).trim() === '') return false;
+            const n = Number(v);
+            return !Number.isNaN(n) && n >= 0;
+          }));
+        };
+
+        const key = normCasetaStr(currentCaseta);
+        const schema = PARKING_SCHEMAS[key];
+        const rec = parkingByCaseta[key];
+        const isCaptured = isCasetaRecComplete(schema, rec);
+        const casetaAvail = getCasetaAvailableSum(schema, rec);
+
+        if (!btn) return;
+        if (!schema) {
+          btn.classList.remove('visible');
+          return;
+        }
+        btn.classList.add('visible');
+        btn.classList.toggle('is-captured', isCaptured);
+        if (sub) {
+          sub.textContent = parkingReportSentToday
+            ? `🔒 Reporte enviado hoy • Disponibles: ${casetaAvail} / ${schema.totalCapacity}`
+            : isCaptured
+            ? `Disponibles: ${casetaAvail} / ${schema.totalCapacity} (${rec.horaRegistro || '10:00 AM'}) • Toca para editar antes del envío`
+            : `Capacidad: ${schema.totalCapacity} cajones • Se llena a las 10:00 AM`;
+        }
+        if (badge) {
+          badge.className = 'parking-btn-badge ' + (isCaptured ? 'badge-done' : 'badge-pending');
+          badge.textContent = parkingReportSentToday
+            ? `🔒 ${casetaAvail}/${schema.totalCapacity}`
+            : isCaptured
+            ? `✎ ${casetaAvail}/${schema.totalCapacity}`
+            : '⏰ 10:00 AM';
+        }
+      };
+
+      const openParkingModal = () => {
+        const key = normCasetaStr(currentCaseta);
+        const schema = PARKING_SCHEMAS[key];
+        if (!schema) return;
+        triggerHaptic(25);
+        const backdrop = document.getElementById('parkingModalBackdrop');
+        const subtitle = document.getElementById('parkingModalSubtitle');
+        const notice = document.getElementById('parkingModalNotice');
+        const sectionsEl = document.getElementById('parkingModalSections');
+        const footerEl = document.getElementById('parkingModalFooter');
+        if (!backdrop || !sectionsEl || !footerEl) return;
+
+        const rec = parkingByCaseta[key];
+        const isCaptured = Boolean(rec && rec.captured && rec.valores && schema.sections.every(s => s.fields.every(f => rec.valores[f.key] !== undefined && rec.valores[f.key] !== null && String(rec.valores[f.key]).trim() !== '')));
+        const isLocked = Boolean(parkingReportSentToday);
+
+        if (subtitle) subtitle.textContent = `Caseta ${schema.caseta} • Corte 10:00 AM`;
+        if (notice) {
+          notice.innerHTML = isLocked
+            ? `<div class="parking-notice-box notice-captured"><span>🔒</span><span><strong>Reporte 10:00 AM ya enviado hoy.</strong> Los datos están bloqueados hasta el siguiente día.</span></div>`
+            : isCaptured
+            ? `<div class="parking-notice-box notice-captured"><span>✎</span><span><strong>Datos capturados hoy (${rec.horaRegistro || '10:00 AM'}).</strong> Aún no se envía el reporte general, por lo que puedes modificar y actualizar los valores.</span></div>`
+            : `<div class="parking-notice-box notice-pending"><span>⏰</span><span><strong>Este dato se llena a las 10:00 AM.</strong> Podrás editarlo antes del envío; una vez enviado se bloquea hasta mañana.</span></div>`;
+        }
+
+        let secHtml = '';
+        schema.sections.forEach(sec => {
+          secHtml += `<div class="parking-section-card" style="margin-bottom:8px;">
+            <div class="parking-section-header"><span>${sec.icon}</span><span>${sec.title}</span></div>
+            <div class="parking-fields-grid">`;
+          sec.fields.forEach(f => {
+            const rawSaved = rec && rec.valores ? rec.valores[f.key] : undefined;
+            const hasSaved = isCaptured && rawSaved !== undefined && rawSaved !== null && String(rawSaved).trim() !== '';
+            const val = hasSaved ? String(rawSaved) : '';
+            if (isLocked) {
+              secHtml += `<div class="parking-field-item">
+                <label class="parking-field-label">${f.label}</label>
+                <div class="parking-field-readonly">${val || 0}</div>
+              </div>`;
+            } else {
+              secHtml += `<div class="parking-field-item">
+                <label class="parking-field-label" for="park_inp_${f.key}">${f.label} <small style="color:var(--text-muted);">(Máx: ${f.total})</small></label>
+                <div class="parking-stepper-control">
+                  <button type="button" class="parking-step-btn" data-step="-1" data-max="${f.total}" data-target="park_inp_${f.key}">−</button>
+                  <input id="park_inp_${f.key}" data-field-key="${f.key}" data-max="${f.total}" type="number" inputmode="numeric" min="0" max="${f.total}" placeholder="Sin capturar (mín. 0)" required class="parking-field-input" value="${val}">
+                  <button type="button" class="parking-step-btn" data-step="1" data-max="${f.total}" data-target="park_inp_${f.key}">+</button>
+                </div>
+              </div>`;
+            }
+          });
+          secHtml += `</div></div>`;
+        });
+        sectionsEl.innerHTML = secHtml;
+
+        sectionsEl.querySelectorAll('.parking-step-btn').forEach(b => {
+          b.addEventListener('click', () => {
+            const inp = document.getElementById(b.getAttribute('data-target'));
+            if (!inp) return;
+            const delta = parseInt(b.getAttribute('data-step'), 10) || 0;
+            const maxVal = parseInt(b.getAttribute('data-max'), 10) || 9999;
+            const rawCur = String(inp.value || '').trim();
+            let nextNum;
+            if (rawCur === '') {
+              nextNum = delta > 0 ? delta : 0;
+            } else {
+              const cur = parseInt(rawCur, 10) || 0;
+              nextNum = Math.max(0, cur + delta);
+            }
+            if (nextNum > maxVal) nextNum = maxVal;
+            inp.value = String(nextNum);
+            triggerHaptic(15);
+          });
+        });
+
+        if (isLocked) {
+          footerEl.innerHTML = `<button type="button" class="parking-btn-cancel" id="btnParkingCancelAct">Cerrar consulta (Bloqueado hasta mañana)</button>`;
+        } else {
+          footerEl.innerHTML = `
+            <button type="button" class="parking-btn-cancel" id="btnParkingCancelAct">Cancelar</button>
+            <button type="button" class="parking-btn-clear" id="btnParkingClearAct">Borrar</button>
+            <button type="submit" class="parking-btn-submit" id="btnParkingSubmitAct">${isCaptured ? 'Actualizar' : 'Guardar'}</button>
+          `;
+        }
+        const cancelAct = document.getElementById('btnParkingCancelAct');
+        if (cancelAct) cancelAct.addEventListener('click', () => backdrop.classList.remove('open'));
+        const clearAct = document.getElementById('btnParkingClearAct');
+        if (clearAct) {
+          clearAct.addEventListener('click', async () => {
+            sectionsEl.querySelectorAll('.parking-field-input').forEach(inp => { inp.value = ''; });
+            delete parkingByCaseta[key];
+            saveLocalParking();
+            updateParkingButtonUI();
+            const subBtn = document.getElementById('btnParkingSubmitAct');
+            if (subBtn) subBtn.textContent = 'Guardar';
+            triggerHaptic(25);
+            try {
+              const res = await fetch(`${BACKEND_BASE}/api/cdi/estacionamiento`, {
+                method: 'POST',
+                headers: API_HEADERS,
+                body: JSON.stringify({
+                  fecha: currentDate,
+                  caseta: currentCaseta,
+                  clear: true,
+                  action: 'clear',
+                  deviceId: deviceUuid
+                })
+              });
+              if (res.ok) {
+                const data = await res.json();
+                if (data && data.cdi && data.cdi.estacionamiento) {
+                  mergeRemoteParking(data.cdi.estacionamiento);
+                }
+              }
+            } catch (err) {
+              console.warn('Borrado local de estacionamiento:', err);
+            }
+          });
+        }
+
+        backdrop.classList.add('open');
+      };
+
+      const btnParkingEl = document.getElementById('btnParkingAvailability');
+      if (btnParkingEl) btnParkingEl.addEventListener('click', openParkingModal);
+      const btnParkingClose = document.getElementById('btnParkingModalClose');
+      if (btnParkingClose) {
+        btnParkingClose.addEventListener('click', () => {
+          const b = document.getElementById('parkingModalBackdrop');
+          if (b) b.classList.remove('open');
+        });
+      }
+      const parkingModalForm = document.getElementById('parkingModalForm');
+      if (parkingModalForm) {
+        parkingModalForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const key = normCasetaStr(currentCaseta);
+          const schema = PARKING_SCHEMAS[key];
+          if (!schema) return;
+          if (parkingReportSentToday) {
+            showToast('🔒 Reporte ya enviado hoy (Bloqueado hasta mañana)');
+            return;
+          }
+
+          const valores = {};
+          let allFilled = true;
+          parkingModalForm.querySelectorAll('.parking-field-input').forEach(inp => {
+            const k = inp.getAttribute('data-field-key');
+            const raw = String(inp.value ?? '').trim();
+            if (raw === '') {
+              allFilled = false;
+              return;
+            }
+            const v = parseInt(raw, 10);
+            if (Number.isNaN(v) || v < 0) {
+              allFilled = false;
+              return;
+            }
+            const maxVal = parseInt(inp.getAttribute('data-max'), 10);
+            valores[k] = (!Number.isNaN(maxVal) && maxVal > 0) ? Math.min(maxVal, v) : Math.max(0, v);
+          });
+
+          if (!allFilled) {
+            showToast('⚠️ Captura todos los campos (mínimo 0)');
+            return;
+          }
+
+          const horaRegistro = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+          parkingByCaseta[key] = {
+            caseta: schema.caseta,
+            fecha: currentDate,
+            horaCorte: '10:00 AM',
+            horaRegistro,
+            captured: true,
+            capturedAt: new Date().toISOString(),
+            valores
+          };
+          saveLocalParking();
+          updateParkingButtonUI();
+
+          const backdrop = document.getElementById('parkingModalBackdrop');
+          if (backdrop) backdrop.classList.remove('open');
+          showToast('✓ Estacionamiento (10:00 AM) guardado');
+
+          try {
+            const res = await fetch(`${BACKEND_BASE}/api/cdi/estacionamiento`, {
+              method: 'POST',
+              headers: API_HEADERS,
+              body: JSON.stringify({
+                fecha: currentDate,
+                caseta: currentCaseta,
+                valores,
+                horaRegistro,
+                deviceId: deviceUuid
+              })
+            });
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.cdi && data.cdi.estacionamiento) {
+                mergeRemoteParking(data.cdi.estacionamiento);
+              }
+              if (data && (data.estacionamientoDispatched === true || data.alreadyDispatched === true || (data.cdi && data.cdi.estacionamientoDispatched === true))) {
+                setParkingReportSent(true);
+              }
+            }
+          } catch (err) {
+            console.warn('Guardado local de estacionamiento:', err);
+          }
+        });
+      }
+
 
       // Despacho acumulado tras 600ms de inactividad directamente a UBE / Worker
       const queueDispatch = (cat) => {
@@ -2462,9 +3317,9 @@
             }
           } catch (err) {
             console.error('Error sincronizando CDI:', err);
-            if (BACKEND_BASE !== 'https://be-regas.segos911.workers.dev') {
+            if (BACKEND_BASE !== 'https://oxosd450mlh.taile94978.ts.net') {
               console.warn('[CDI] Reintentando incremento mediante Cloudflare Worker UBE...');
-              BACKEND_BASE = 'https://be-regas.segos911.workers.dev';
+              BACKEND_BASE = 'https://oxosd450mlh.taile94978.ts.net';
               try {
                 const res2 = await fetch(`${BACKEND_BASE}/api/cdi/increment`, {
                   method: 'POST',
@@ -2553,23 +3408,14 @@
       let latestCdiCasetas = {};
       let latestCdiTotals = {};
       let isAllCasetasSummaryOpen = false;
+      let isIngresosAccordionOpen = false;
+      let isCajonesAccordionOpen = false;
 
       function renderAllCasetasModal() {
         const modalList = document.getElementById('allCasetasModalList');
-        const totalGenVal = document.getElementById('modalTotalGeneralVal');
-        const chipInternos = document.getElementById('modalChipInternos');
-        const chipExternos = document.getElementById('modalChipExternos');
-        const chipPrestadores = document.getElementById('modalChipPrestadores');
-        const chipVisitas = document.getElementById('modalChipVisitas');
         const btnModalBackText = document.getElementById('btnModalBackText');
 
         if (btnModalBackText) btnModalBackText.textContent = `Volver a ${currentCaseta}`;
-        if (totalGenVal) totalGenVal.textContent = latestCdiTotals.total || 0;
-        if (chipInternos) chipInternos.textContent = latestCdiTotals.internos || 0;
-        if (chipExternos) chipExternos.textContent = latestCdiTotals.externos || 0;
-        if (chipPrestadores) chipPrestadores.textContent = latestCdiTotals.prestadores || 0;
-        if (chipVisitas) chipVisitas.textContent = latestCdiTotals.visitas || 0;
-
         if (!modalList) return;
 
         const defaultCasetas = [
@@ -2582,35 +3428,137 @@
           ...Object.keys(latestCdiCasetas || {})
         ])).filter(Boolean);
 
-        let html = '';
-        allKnown.forEach(cName => {
-          const cObj = findCasetaInMap(latestCdiCasetas, cName) || { internos: 0, externos: 0, prestadores: 0, visitas: 0 };
-          const cTotal = Number(cObj.total || (Number(cObj.internos || 0) + Number(cObj.externos || 0) + Number(cObj.prestadores || 0) + Number(cObj.visitas || 0)));
-          const isSelected = normCasetaStr(cName) === normCasetaStr(currentCaseta);
+        // 1. Acordeón colapsable: Total de Ingresos
+        let ingresosBodyHtml = '';
+        if (isIngresosAccordionOpen) {
+          allKnown.forEach(cName => {
+            const cObj = findCasetaInMap(latestCdiCasetas, cName) || { internos: 0, externos: 0, prestadores: 0, visitas: 0 };
+            const cTotal = Number(cObj.total || (Number(cObj.internos || 0) + Number(cObj.externos || 0) + Number(cObj.prestadores || 0) + Number(cObj.visitas || 0)));
+            const isSelected = normCasetaStr(cName) === normCasetaStr(currentCaseta);
 
-          html += `
-            <div class="compact-caseta-row ${isSelected ? 'is-active' : ''}" data-caseta="${escapeHtml(cName)}">
-              <div class="row-left">
-                <span class="row-caseta-name">${escapeHtml(cName)}</span>
-                ${isSelected ? '<span class="row-active-tag">Activa</span>' : ''}
+            ingresosBodyHtml += `
+              <div class="compact-caseta-row ${isSelected ? 'is-active' : ''}" data-caseta="${escapeHtml(cName)}">
+                <div class="row-left">
+                  <span class="row-caseta-name">${escapeHtml(cName)}</span>
+                  ${isSelected ? '<span class="row-active-tag">Activa</span>' : ''}
+                </div>
+                <div class="row-metrics">
+                  <span class="row-metric" title="Internos"><span class="metric-ico">👤</span>${cObj.internos || 0}</span>
+                  <span class="row-metric" title="Externos"><span class="metric-ico">🏢</span>${cObj.externos || 0}</span>
+                  <span class="row-metric" title="Prestadores"><span class="metric-ico">🔧</span>${cObj.prestadores || 0}</span>
+                  <span class="row-metric" title="Visitas"><span class="metric-ico">📋</span>${cObj.visitas || 0}</span>
+                </div>
+                <div class="row-right">
+                  <span class="row-total-val">${cTotal}</span>
+                  <span class="row-arrow">›</span>
+                </div>
               </div>
-              <div class="row-metrics">
-                <span class="row-metric" title="Internos"><span class="metric-ico">👤</span>${cObj.internos || 0}</span>
-                <span class="row-metric" title="Externos"><span class="metric-ico">🏢</span>${cObj.externos || 0}</span>
-                <span class="row-metric" title="Prestadores"><span class="metric-ico">🔧</span>${cObj.prestadores || 0}</span>
-                <span class="row-metric" title="Visitas"><span class="metric-ico">📋</span>${cObj.visitas || 0}</span>
+            `;
+          });
+        }
+
+        // 2. Acordeón colapsable: Total de Cajones (Disponibilidad de Estacionamiento)
+        let globalParkAvail = 0;
+        let capParkCount = 0;
+        let occupiedAutos = 0;
+        PARKING_ORDER.forEach(pk => {
+          const sc = PARKING_SCHEMAS[pk];
+          const rc = parkingByCaseta[pk];
+          const isComplete = sc && rc && rc.captured && rc.valores && sc.sections.every(s => s.fields.every(f => rc.valores[f.key] !== undefined && rc.valores[f.key] !== null && String(rc.valores[f.key]).trim() !== ''));
+          if (isComplete) {
+            capParkCount++;
+            globalParkAvail += getCasetaAvailableSum(sc, rc);
+            sc.sections.forEach(s => s.fields.forEach(f => {
+              const cap = f.key === 'anexo_dominguez_ordinarios' ? 40 : f.total;
+              const v = Number(rc.valores[f.key] || 0);
+              occupiedAutos += Math.max(0, cap - v);
+            }));
+          }
+        });
+
+        let cajonesBodyHtml = '';
+        if (isCajonesAccordionOpen) {
+          PARKING_ORDER.forEach(pk => {
+            const sc = PARKING_SCHEMAS[pk];
+            const rc = parkingByCaseta[pk];
+            const isCap = Boolean(sc && rc && rc.captured && rc.valores && sc.sections.every(s => s.fields.every(f => rc.valores[f.key] !== undefined && rc.valores[f.key] !== null && String(rc.valores[f.key]).trim() !== '')));
+            const avail = getCasetaAvailableSum(sc, rc);
+            const allFields = [];
+            sc.sections.forEach(s => s.fields.forEach(f => allFields.push(f)));
+            cajonesBodyHtml += `<div class="parking-summary-caseta-card ${isCap ? 'is-captured' : ''}" data-caseta="${escapeHtml(sc.caseta)}">
+              <div class="parking-summary-card-top">
+                <div><strong>${sc.icon} ${escapeHtml(sc.caseta)}</strong> <span style="font-size:0.60rem;padding:1px 6px;border-radius:999px;background:${isCap ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)'};color:${isCap ? '#10b981' : '#d97706'};font-weight:800;">${isCap ? '✓ ' + (rc.horaRegistro || '10:00 AM') : '⏰ Pendiente 10:00 AM'}</span></div>
+                <div><strong>${isCap ? avail : '—'}</strong> <span style="font-size:0.68rem;color:var(--text-muted);">/ ${sc.totalCapacity} cajones</span></div>
               </div>
-              <div class="row-right">
-                <span class="row-total-val">${cTotal}</span>
-                <span class="row-arrow">›</span>
+              <div class="parking-summary-chips-row">
+                ${allFields.map(f => `<span class="parking-summary-lot-chip">${f.shortLabel}: <strong>${isCap ? (rc.valores?.[f.key] ?? 0) : '—'}</strong>/${f.total}</span>`).join('')}
+              </div>
+            </div>`;
+          });
+        }
+
+        const html = `
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <!-- ACORDEÓN 1: TOTAL DE INGRESOS -->
+            <div class="compact-total-strip" id="accordionToggleIngresos" role="button" tabindex="0" style="cursor:pointer;border-radius:12px;">
+              <div class="strip-total-main">
+                <span class="strip-total-lbl">TOTAL DE INGRESOS:</span>
+                <span class="strip-total-num">${latestCdiTotals.total || 0}</span>
+              </div>
+              <div class="strip-breakdown">
+                <span class="strip-chip" title="Internos">👤 <strong>${latestCdiTotals.internos || 0}</strong></span>
+                <span class="strip-chip" title="Externos">🏢 <strong>${latestCdiTotals.externos || 0}</strong></span>
+                <span class="strip-chip" title="Prestadores">🔧 <strong>${latestCdiTotals.prestadores || 0}</strong></span>
+                <span class="strip-chip" title="Visitas">📋 <strong>${latestCdiTotals.visitas || 0}</strong></span>
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:999px;background:rgba(59,130,246,0.14);color:#2563eb;font-weight:900;transform:${isIngresosAccordionOpen ? 'rotate(180deg)' : 'rotate(0deg)'};transition:transform 0.2s;">▾</span>
               </div>
             </div>
-          `;
-        });
+            ${isIngresosAccordionOpen ? `<div style="display:flex;flex-direction:column;gap:6px;">${ingresosBodyHtml}</div>` : ''}
+
+            <!-- ACORDEÓN 2: TOTAL DE CAJONES -->
+            <div class="parking-summary-section" style="margin-top:4px;">
+              <div class="parking-summary-header-strip" id="accordionToggleCajones" role="button" tabindex="0" style="cursor:pointer;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span style="font-size:1.2rem;">🅿️</span>
+                  <div>
+                    <div style="font-size:0.78rem;font-weight:800;color:var(--text);">Total de Cajones (Disponibilidad)</div>
+                    <div style="font-size:0.64rem;font-weight:600;color:var(--text-muted);">Corte 10:00 AM • ${capParkCount}/6 casetas • Ingresos (Autos): ${occupiedAutos}</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div style="text-align:right;">
+                    <div style="font-size:0.55rem;font-weight:800;color:var(--text-muted);">DISPONIBLES</div>
+                    <div style="font-size:0.95rem;font-weight:900;color:#0284c7;">${globalParkAvail} <small style="font-size:0.68rem;color:var(--text-muted);">/ ${TOTAL_PARKING_CAPACITY_ALL}</small></div>
+                  </div>
+                  <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:999px;background:rgba(59,130,246,0.14);color:#2563eb;font-weight:900;transform:${isCajonesAccordionOpen ? 'rotate(180deg)' : 'rotate(0deg)'};transition:transform 0.2s;">▾</span>
+                </div>
+              </div>
+              ${isCajonesAccordionOpen ? `<div style="display:flex;flex-direction:column;gap:6px;margin-top:6px;">${cajonesBodyHtml}</div>` : ''}
+            </div>
+          </div>
+        `;
 
         modalList.innerHTML = html;
 
-        modalList.querySelectorAll('.compact-caseta-row').forEach(card => {
+        const toggleIngresos = document.getElementById('accordionToggleIngresos');
+        if (toggleIngresos) {
+          toggleIngresos.addEventListener('click', () => {
+            soundClick();
+            isIngresosAccordionOpen = !isIngresosAccordionOpen;
+            renderAllCasetasModal();
+          });
+        }
+
+        const toggleCajones = document.getElementById('accordionToggleCajones');
+        if (toggleCajones) {
+          toggleCajones.addEventListener('click', () => {
+            soundClick();
+            isCajonesAccordionOpen = !isCajonesAccordionOpen;
+            renderAllCasetasModal();
+          });
+        }
+
+        modalList.querySelectorAll('.compact-caseta-row, .parking-summary-caseta-card').forEach(card => {
           card.addEventListener('click', () => {
             const selectedName = card.getAttribute('data-caseta');
             if (selectedName) {
@@ -2631,6 +3579,8 @@
 
       function openAllCasetasSummary() {
         isAllCasetasSummaryOpen = true;
+        isIngresosAccordionOpen = false;
+        isCajonesAccordionOpen = false;
         const modal = document.getElementById('allCasetasModalOverlay');
         if (modal) {
           renderAllCasetasModal();
@@ -2681,6 +3631,10 @@
             const data = await res.json();
             if (data && data.cdi) {
               latestCdiCasetas = data.cdi.casetas || {};
+              if (data.cdi.estacionamiento) mergeRemoteParking(data.cdi.estacionamiento);
+              if (typeof data.cdi.estacionamientoDispatched === 'boolean') {
+                setParkingReportSent(data.cdi.estacionamientoDispatched);
+              }
               latestCdiTotals = data.cdi.totals || {};
               const casObj = findCasetaInMap(data.cdi.casetas, currentCaseta);
               counts.internos = casObj.internos || 0;
@@ -2704,9 +3658,9 @@
           }
         } catch (e) {
           console.warn('Error al consultar datos CDI:', e);
-          if (BACKEND_BASE !== 'https://be-regas.segos911.workers.dev') {
+          if (BACKEND_BASE !== 'https://oxosd450mlh.taile94978.ts.net') {
             console.warn('[CDI] Fallback automático a Cloudflare Worker UBE...');
-            BACKEND_BASE = 'https://be-regas.segos911.workers.dev';
+            BACKEND_BASE = 'https://oxosd450mlh.taile94978.ts.net';
             try {
               const res2 = await fetch(`${BACKEND_BASE}/api/cdi?fecha=${currentDate}`, { headers: API_HEADERS });
               if (res2.ok) {
@@ -2823,6 +3777,13 @@
               if (msg && msg.type === 'cdi_update' && msg.payload) {
                 const data = msg.payload;
                 if (data.fecha === currentDate || (data.cdi && data.cdi.fecha === currentDate)) {
+                  if (data.estacionamiento) mergeRemoteParking(data.estacionamiento);
+                  else if (data.cdi && data.cdi.estacionamiento) mergeRemoteParking(data.cdi.estacionamiento);
+                  if (typeof data.estacionamientoDispatched === 'boolean') {
+                    setParkingReportSent(data.estacionamientoDispatched);
+                  } else if (data.cdi && typeof data.cdi.estacionamientoDispatched === 'boolean') {
+                    setParkingReportSent(data.cdi.estacionamientoDispatched);
+                  }
                   if (data.cdi && data.cdi.casetas) {
                     latestCdiCasetas = data.cdi.casetas;
                     if (data.cdi.totals) latestCdiTotals = data.cdi.totals;

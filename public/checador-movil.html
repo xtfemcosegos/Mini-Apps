@@ -2674,7 +2674,7 @@
         const bBitacoras = document.getElementById('dockBtnBitacoras');
         const dockWrapper = document.querySelector('.miniapps-dock-wrapper');
 
-        if (bChecador) bChecador.style.display = normalized.checador ? '' : 'none';
+        if (bChecador) bChecador.style.display = 'none';
         if (bRecorridos) bRecorridos.style.display = normalized.recorridos ? '' : 'none';
         if (bBitacoras) bBitacoras.style.display = normalized.bitacoras ? '' : 'none';
 
@@ -2716,7 +2716,7 @@
       // Backend Base URL
       const BACKEND_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('10.') || window.location.hostname.startsWith('192.168.'))
         ? ''
-        : 'https://be-regas.cic-10.com';
+        : 'https://oxosd450mlh.taile94978.ts.net';
 
       // Sincronización en vivo vía SSE y fetch
       try {

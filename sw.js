@@ -71,7 +71,7 @@ self.addEventListener('fetch', (event) => {
     url.pathname.startsWith('/backend/') ||
     url.pathname.includes('/events') ||
     url.port === '7001' ||
-    url.hostname.includes('workers.dev') || url.hostname.includes('cic-10.com')
+    url.hostname.includes('ts.net') || url.hostname.includes('workers.dev') || url.hostname.includes('cic-10.com')
   ) {
     return;
   }

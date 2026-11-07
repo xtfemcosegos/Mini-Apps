@@ -435,7 +435,7 @@
 
         if (bChecador) bChecador.style.display = normalized.checador ? '' : 'none';
         if (bRecorridos) bRecorridos.style.display = normalized.recorridos ? '' : 'none';
-        if (bBitacoras) bBitacoras.style.display = normalized.bitacoras ? '' : 'none';
+        if (bBitacoras) bBitacoras.style.display = 'none';
 
         if (dockWrapper) {
           if (window.self !== window.top) {
@@ -491,7 +491,7 @@
         if (p === '7001') return '';
         if (h === 'localhost' || h === '127.0.0.1') return 'http://127.0.0.1:7001';
         if (h.startsWith('10.') || h.startsWith('192.168.')) return `http://${h}:7001`;
-        return 'https://be-regas.cic-10.com';
+        return 'https://oxosd450mlh.taile94978.ts.net';
       };
 
       const BACKEND_BASE = resolveBackendBase();

@@ -103,18 +103,26 @@ export default function App() {
     return 'cdi';
   });
 
+  const getFirstAllowedRightApp = (feats = features) => {
+    const f = feats || {};
+    if (f.checador === true) return 'checador';
+    if (f.recorridos === true) return 'recorridos';
+    if (f.bitacoras === true || f.bitacora === true) return 'bitacora';
+    return null;
+  };
+
   // App paralela (panel derecho en PC)
   const [parallelApp, setParallelApp] = useState(() => {
     const onPc = isPcDevice();
     const initialFeats = getDeviceFeatures();
     const saved = localStorage.getItem('miniapps_parallel_app');
+    const firstAllowed = getFirstAllowedRightApp(initialFeats);
 
-    // En PC, si checador está explícitamente autorizado en RegAs, checador es la app por defecto
-    if (onPc && initialFeats.checador === true) {
+    if (onPc && firstAllowed) {
       if (saved && ['checador', 'recorridos', 'bitacora'].includes(saved) && isAppAllowed(saved, initialFeats)) {
         return saved;
       }
-      return 'checador';
+      return firstAllowed;
     }
     return null;
   });
@@ -129,15 +137,13 @@ export default function App() {
   // Sincronización de app paralela ante cambios de permisos en RegAs o cambios de tamaño de pantalla
   useEffect(() => {
     if (isPc) {
-      if (features.checador === true) {
-        // En PC con checador autorizado:
-        // Si no hay app paralela o la actual perdió permisos, volver por defecto a 'checador'
+      const firstAllowed = getFirstAllowedRightApp(features);
+      if (firstAllowed) {
         if (!parallelApp || !isAppAllowed(parallelApp, features)) {
-          setParallelApp('checador');
-          localStorage.setItem('miniapps_parallel_app', 'checador');
+          setParallelApp(firstAllowed);
+          localStorage.setItem('miniapps_parallel_app', firstAllowed);
         }
       } else {
-        // Si checador NO está explícitamente autorizado en RegAs: "solo muestra cdi como hasta ahora"
         if (parallelApp) {
           setParallelApp(null);
           localStorage.removeItem('miniapps_parallel_app');
@@ -274,14 +280,14 @@ export default function App() {
     localStorage.setItem('miniapps_parallel_app', appId);
   };
 
-  // Modo paralelo split-screen: Exclusivamente en PC y cuando checador está autorizado en RegAs
-  const isSplitMode = Boolean(isPc && features.checador === true);
+  // Modo paralelo split-screen: En PC cuando hay alguna aplicación secundaria autorizada en RegAs
+  const firstAllowedRightApp = getFirstAllowedRightApp(features);
+  const isSplitMode = Boolean(isPc && firstAllowedRightApp);
 
-  // App a renderizar en el panel derecho (por defecto checador)
-  const effectiveRightApp = (parallelApp && isAppAllowed(parallelApp, features)) ? parallelApp : 'checador';
-
-  // Verificar si hay OTRAS aplicaciones autorizadas explícitamente en RegAs (recorridos o bitácoras)
-  const hasOtherAuthorizedApps = Boolean(features.recorridos === true || features.bitacoras === true || features.bitacora === true);
+  // App a renderizar en el panel derecho (por defecto la primera autorizada, priorizando checador)
+  const effectiveRightApp = (parallelApp && isAppAllowed(parallelApp, features))
+    ? parallelApp
+    : (firstAllowedRightApp || 'checador');
 
   return (
     <div className="miniapps-app-shell" data-theme={theme}>
@@ -290,51 +296,102 @@ export default function App() {
         <header className="miniapps-global-header">
           <div className="miniapps-global-header-left">
             <span className="miniapps-global-header-icon">
-              {/* Ícono cámara */}
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                <circle cx="12" cy="13" r="4" />
-              </svg>
+              {effectiveRightApp === 'recorridos' ? (
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+                  <line x1="8" y1="2" x2="8" y2="18" />
+                  <line x1="16" y1="6" x2="16" y2="22" />
+                </svg>
+              ) : effectiveRightApp === 'bitacora' ? (
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
+                  <line x1="16" y1="17" x2="8" y2="17" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+              )}
             </span>
-            <h1 className="miniapps-global-header-title">Control de Accesos</h1>
+            <h1 className="miniapps-global-header-title">
+              {effectiveRightApp === 'recorridos'
+                ? 'Recorridos'
+                : effectiveRightApp === 'bitacora'
+                ? 'Bitácora'
+                : 'Control de Accesos'}
+            </h1>
+            <div
+              className="backend-status-badge is-local"
+              title="Mini Apps 3 v3.0.0 • Servidor UBE Conectado (Puerto 7001)"
+              role="button"
+              tabIndex={0}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '22px',
+                height: '22px',
+                borderRadius: '50%',
+                background: 'rgba(16, 185, 129, 0.2)',
+                border: '1px solid rgba(16, 185, 129, 0.5)',
+                fontSize: '11px',
+                marginLeft: '8px',
+                cursor: 'pointer'
+              }}
+            >
+              <span>✅</span>
+            </div>
           </div>
 
-          {/* BOTONES DE APPS — solo Recorridos y Bitácora (el Checador es siempre el panel derecho fijo) */}
+          {/* BOTONES DE APPS — Muestra únicamente las aplicaciones autorizadas que NO están seleccionadas actualmente */}
           <nav className="miniapps-global-header-nav" aria-label="Acceso rápido apps">
-            {hasOtherAuthorizedApps && (
-              <>
-                {features.recorridos && (
-                  <button
-                    type="button"
-                    className={`miniapps-header-app-btn ${effectiveRightApp === 'recorridos' ? 'active' : ''}`}
-                    onClick={() => { sounds.click(); handleSelectParallelApp('recorridos'); }}
-                    title="Recorridos"
-                  >
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
-                      <line x1="8" y1="2" x2="8" y2="18" />
-                      <line x1="16" y1="6" x2="16" y2="22" />
-                    </svg>
-                    <span>Recorridos</span>
-                  </button>
-                )}
-                {(features.bitacoras || features.bitacora) && (
-                  <button
-                    type="button"
-                    className={`miniapps-header-app-btn ${effectiveRightApp === 'bitacora' ? 'active' : ''}`}
-                    onClick={() => { sounds.click(); handleSelectParallelApp('bitacora'); }}
-                    title="Bitácora"
-                  >
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                      <polyline points="14 2 14 8 20 8" />
-                      <line x1="16" y1="13" x2="8" y2="13" />
-                      <line x1="16" y1="17" x2="8" y2="17" />
-                    </svg>
-                    <span>Bitácora</span>
-                  </button>
-                )}
-              </>
+            {features.checador && effectiveRightApp !== 'checador' && (
+              <button
+                type="button"
+                className="miniapps-header-app-btn"
+                onClick={() => { sounds.click(); handleSelectParallelApp('checador'); }}
+                title="Cambiar a Checador"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+                <span>Checador</span>
+              </button>
+            )}
+            {features.recorridos && effectiveRightApp !== 'recorridos' && (
+              <button
+                type="button"
+                className="miniapps-header-app-btn"
+                onClick={() => { sounds.click(); handleSelectParallelApp('recorridos'); }}
+                title="Cambiar a Recorridos"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+                  <line x1="8" y1="2" x2="8" y2="18" />
+                  <line x1="16" y1="6" x2="16" y2="22" />
+                </svg>
+                <span>Recorridos</span>
+              </button>
+            )}
+            {(features.bitacoras || features.bitacora) && effectiveRightApp !== 'bitacora' && (
+              <button
+                type="button"
+                className="miniapps-header-app-btn"
+                onClick={() => { sounds.click(); handleSelectParallelApp('bitacora'); }}
+                title="Cambiar a Bitácora"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
+                  <line x1="16" y1="17" x2="8" y2="17" />
+                </svg>
+                <span>Bitácora</span>
+              </button>
             )}
           </nav>
 
@@ -431,6 +488,7 @@ export default function App() {
       {!isSplitMode && (
         <MiniAppsDock
           currentApp={activeApp}
+          excludeApp={activeApp}
           parallelApp={null}
           onSelectApp={handleSelectApp}
           features={features}

@@ -3,7 +3,7 @@
  * Compatible con:
  * - Servidor Local UBE (:7001 / :7002)
  * - Red de Caseta (10.x / 192.168.x)
- * - Cloudflare Worker Oficial Permanente (https://be-regas.segos911.workers.dev)
+ * - Cloudflare Worker Oficial Permanente (https://oxosd450mlh.taile94978.ts.net)
  */
 
 export const resolveBackendBase = () => {
@@ -37,7 +37,7 @@ export const resolveBackendBase = () => {
   // 4. Caché de localStorage
   try {
     const cached = localStorage.getItem('regas_active_api_base');
-    if (cached && (cached.includes('trycloudflare.com') || cached.includes('10.200.79.175') || cached.includes('ngrok') || (window.location.protocol === 'https:' && cached.startsWith('http:')))) {
+    if (cached && (cached.includes('trycloudflare.com') || cached.includes('10.200.79.175') || cached.includes('ngrok') || cached.includes('workers.dev') || cached.includes('cic-10.com') || (window.location.protocol === 'https:' && cached.startsWith('http:')))) {
       localStorage.removeItem('regas_active_api_base');
     } else if (cached && (window.location.protocol !== 'https:' || cached.startsWith('https:'))) {
       return cached.replace(/\/+$/, '');
@@ -48,9 +48,9 @@ export const resolveBackendBase = () => {
   // Canal de emergencia Ngrok (desactivado por defecto; se activa solo con ?emergency=1 o ?backend=ngrok)
   const isEmergency = urlParams.get('emergency') === '1' || urlParams.get('backend') === 'ngrok';
   if (isEmergency) {
-    return 'https://sandworm-header-salami.ngrok-free.dev';
+    return 'https://oxosd450mlh.taile94978.ts.net';
   }
-  return 'https://be-regas.cic-10.com';
+  return 'https://oxosd450mlh.taile94978.ts.net';
 };
 
 export const BACKEND_BASE = resolveBackendBase();
@@ -85,7 +85,7 @@ async function apiRequest(endpoint, options = {}) {
     }
     return response.json();
   } catch (netErr) {
-    const fallbackBase = 'https://be-regas.segos911.workers.dev';
+    const fallbackBase = 'https://oxosd450mlh.taile94978.ts.net';
     if (base !== fallbackBase && !options._isRetry) {
       console.warn('[Mini Apps ⚠️] Reintentando ' + endpoint + ' vía Cloudflare Worker...');
       return apiRequest(endpoint, { ...options, _isRetry: true, _baseOverride: fallbackBase });
@@ -390,6 +390,39 @@ export async function syncCdiCounts(caseta, counts, fecha) {
       caseta,
       counts,
       fecha: fecha || getTodayDateIso()
+    })
+  });
+}
+
+export async function saveCdiEstacionamiento(caseta, valores, fecha) {
+  const d = fecha || getTodayDateIso();
+  const devId = getDeviceUuid();
+  const horaRegistro = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+  return apiRequest('/api/cdi/estacionamiento', {
+    method: 'POST',
+    body: JSON.stringify({
+      fecha: d,
+      caseta,
+      valores,
+      horaRegistro,
+      deviceId: devId,
+      timestamp: Date.now()
+    })
+  });
+}
+
+export async function clearCdiEstacionamiento(caseta, fecha) {
+  const d = fecha || getTodayDateIso();
+  const devId = getDeviceUuid();
+  return apiRequest('/api/cdi/estacionamiento', {
+    method: 'POST',
+    body: JSON.stringify({
+      fecha: d,
+      caseta,
+      clear: true,
+      action: 'clear',
+      deviceId: devId,
+      timestamp: Date.now()
     })
   });
 }
