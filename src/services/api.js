@@ -110,11 +110,34 @@ export async function sendDeviceIdentifySignal() {
 
 export function getDeviceUuid() {
   if (typeof window === 'undefined') return 'server_node';
+  // 1. Preservar intactos los dispositivos que ya se han identificado previamente
   let id = localStorage.getItem('regas_cdi_device_uuid');
+  if (id) {
+    return id;
+  }
+
+  // 2. Solo para NUEVOS dispositivos (o si borraron caché/cookies):
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const rawCaseta = params.get('caseta') || params.get('c');
+    const devParam = params.get('dev') || params.get('device_id');
+    if (devParam) {
+      id = devParam.trim();
+    } else if (rawCaseta) {
+      // Apuntar con parámetro de caseta, sustituyendo espacios por "_"
+      const cleanSlug = rawCaseta.trim().replace(/\s+/g, '_');
+      id = 'dev_' + cleanSlug;
+    }
+  } catch (e) {}
+
   if (!id) {
     id = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 8);
-    localStorage.setItem('regas_cdi_device_uuid', id);
   }
+
+  try {
+    localStorage.setItem('regas_cdi_device_uuid', id);
+  } catch (e) {}
+
   return id;
 }
 

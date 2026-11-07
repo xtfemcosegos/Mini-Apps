@@ -223,6 +223,22 @@ const saveLocalParkingMap = (dateIso, mapObj) => {
 
 export default function CDIApp({ theme, onToggleTheme, onIdentifyDevice, isIdentifying }) {
   const [caseta, setCaseta] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const p = new URLSearchParams(window.location.search);
+        const rawC = p.get('caseta') || p.get('c');
+        if (rawC) {
+          const decoded = rawC.replace(/_/g, ' ').trim();
+          if (decoded) {
+            const canon = canonicalCasetaName(decoded);
+            localStorage.setItem('selectedCaseta', canon);
+            localStorage.setItem('regas_cdi_last_caseta', canon);
+            localStorage.setItem('caseta_seleccionada_cic', canon);
+            return canon;
+          }
+        }
+      } catch (e) {}
+    }
     return canonicalCasetaName(localStorage.getItem('selectedCaseta') || 'Recepción Edison');
   });
   const [mode, setMode] = useState('add'); // 'add' (+1) | 'sub' (-1 / corrección)

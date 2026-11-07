@@ -2303,9 +2303,22 @@
         return name || 'Recepción Edison';
       };
 
-      let storedCaseta = canonicalCasetaName(localStorage.getItem('regas_cdi_last_caseta') || localStorage.getItem('caseta_seleccionada_cic') || 'Recepción Edison');
+      // Recuperar caseta desde parámetro de URL (?caseta=... con espacios convertidos a "_")
+      let casetaFromUrl = '';
+      try {
+        const cdiUrlParams = new URLSearchParams(window.location.search);
+        const rawC = cdiUrlParams.get('caseta') || cdiUrlParams.get('c');
+        if (rawC) {
+          casetaFromUrl = rawC.replace(/_/g, ' ').trim();
+        }
+      } catch (e) {}
+
+      let storedCaseta = casetaFromUrl
+        ? canonicalCasetaName(casetaFromUrl)
+        : canonicalCasetaName(localStorage.getItem('regas_cdi_last_caseta') || localStorage.getItem('caseta_seleccionada_cic') || 'Recepción Edison');
+
       if (!validCasetas.some(v => normCasetaStr(v) === normCasetaStr(storedCaseta))) {
-        storedCaseta = 'Recepción Edison';
+        if (!casetaFromUrl) storedCaseta = 'Recepción Edison';
       } else {
         storedCaseta = validCasetas.find(v => normCasetaStr(v) === normCasetaStr(storedCaseta)) || storedCaseta;
       }
@@ -3880,10 +3893,34 @@
       // =========================================================================
       // GESTIÓN DE INFORMACIÓN DEL DISPOSITIVO Y TECNOLOGÍA DE ACTUALIZACIÓN REMOTA
       // =========================================================================
-      let deviceUuid = localStorage.getItem('regas_cdi_device_uuid');
+      // 1. Preservar intactos los dispositivos que ya se han identificado previamente
+      let existingDeviceUuid = localStorage.getItem('regas_cdi_device_uuid');
+      let deviceUuid = existingDeviceUuid;
+
+      // 2. Solo para NUEVOS dispositivos (o si borraron caché/cookies):
       if (!deviceUuid) {
-        deviceUuid = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 8);
-        localStorage.setItem('regas_cdi_device_uuid', deviceUuid);
+        try {
+          const urlParamsObj = new URLSearchParams(window.location.search);
+          const rawCaseta = urlParamsObj.get('caseta') || urlParamsObj.get('c');
+          const devParam = urlParamsObj.get('dev') || urlParamsObj.get('device_id');
+
+          if (devParam) {
+            deviceUuid = devParam.trim();
+          } else if (rawCaseta) {
+            // Apuntar con parámetro de caseta, sustituyendo espacios por "_"
+            const cleanSlug = rawCaseta.trim().replace(/\s+/g, '_');
+            deviceUuid = 'dev_' + cleanSlug;
+          }
+        } catch (e) {}
+
+        // Fallback: si no vino parámetro en la URL, generar identificador aleatorio como antes
+        if (!deviceUuid) {
+          deviceUuid = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 8);
+        }
+
+        try {
+          localStorage.setItem('regas_cdi_device_uuid', deviceUuid);
+        } catch (e) {}
       }
 
       let lastReloadApplied = parseInt(localStorage.getItem('regas_cdi_last_reload_applied') || '0', 10);
