@@ -1852,7 +1852,8 @@
         const normalized = {
           checador: features.checador === true,
           recorridos: features.recorridos === true,
-          bitacoras: (features.bitacoras === true || features.bitacora === true)
+          bitacoras: (features.bitacoras === true || features.bitacora === true),
+          mec: features.mec === true
         };
         try {
           localStorage.setItem('regas_cdi_device_features', JSON.stringify(normalized));
@@ -1921,7 +1922,7 @@
       // Configuración de API Base (Túnel Cloudflare)
       const BACKEND_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('10.') || window.location.hostname.startsWith('192.168.'))
         ? ''
-        : 'https://oxosd450mlh.taile94978.ts.net';
+        : 'https://be-regas.cic-10.com';
 
       // Consultar features en vivo al backend para concordancia con RegAs 3
       try {
@@ -2391,7 +2392,7 @@
       }
 
       // API FETCH
-      const BACKEND_URL = 'https://oxosd450mlh.taile94978.ts.net';
+      const BACKEND_URL = 'https://be-regas.cic-10.com';
       async function getApiBase() {
         return BACKEND_URL;
       }

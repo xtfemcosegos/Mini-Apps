@@ -95,6 +95,13 @@
       "description": "Registro de novedades y consignas",
       "url": "./?app=bitacora",
       "icons": [{ "src": "iconos/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "MEC — Seguimiento Carretero",
+      "short_name": "MEC",
+      "description": "Monitoreo en Carretera y Telemetría Vehicular",
+      "url": "./?app=mec",
+      "icons": [{ "src": "iconos/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

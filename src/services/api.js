@@ -240,12 +240,13 @@ export function getDeviceFeatures() {
         return {
           checador: parsed.checador === true,
           recorridos: parsed.recorridos === true,
-          bitacoras: (parsed.bitacoras === true || parsed.bitacora === true)
+          bitacoras: (parsed.bitacoras === true || parsed.bitacora === true),
+          mec: parsed.mec === true
         };
       }
     }
   } catch (e) {}
-  return { checador: false, recorridos: false, bitacoras: false };
+  return { checador: false, recorridos: false, bitacoras: false, mec: false };
 }
 
 export function saveDeviceFeatures(features) {
@@ -258,7 +259,8 @@ export function saveDeviceFeatures(features) {
   const normalized = {
     checador: parsed.checador === true,
     recorridos: parsed.recorridos === true,
-    bitacoras: (parsed.bitacoras === true || parsed.bitacora === true)
+    bitacoras: (parsed.bitacoras === true || parsed.bitacora === true),
+    mec: parsed.mec === true
   };
   try {
     localStorage.setItem('regas_cdi_device_features', JSON.stringify(normalized));
@@ -562,6 +564,45 @@ export async function saveBitacora(bitacora) {
     method: 'POST',
     body: JSON.stringify(bitacora)
   });
+}
+
+// ==========================================
+// 5. MEC (MONITOREO EN CARRETERA)
+// ==========================================
+export async function sendMecLocationPing(pingData) {
+  return apiRequest('/api/mec/location', {
+    method: 'POST',
+    body: JSON.stringify(pingData)
+  });
+}
+
+export async function fetchMecActiveMonitorings() {
+  return apiRequest('/api/mec/active');
+}
+
+export async function startMecMonitoring(data) {
+  return apiRequest('/api/mec/start', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+}
+
+export async function addMecCheckpoint(id, cpData) {
+  return apiRequest(`/api/mec/${encodeURIComponent(id)}/checkpoint`, {
+    method: 'POST',
+    body: JSON.stringify(cpData)
+  });
+}
+
+export async function finishMecMonitoring(id, finishData) {
+  return apiRequest(`/api/mec/${encodeURIComponent(id)}/finish`, {
+    method: 'POST',
+    body: JSON.stringify(finishData)
+  });
+}
+
+export async function fetchBorderWaitTimes(refresh = false) {
+  return apiRequest(`/api/mec/border-wait-times${refresh ? '?refresh=true' : ''}`);
 }
 
 // ==========================================

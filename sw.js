@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cic-miniapps-v19';
+const CACHE_NAME = 'cic-miniapps-v20';
 
 const PRECACHE_ASSETS = [
   './',
@@ -9,6 +9,7 @@ const PRECACHE_ASSETS = [
   './facefinder',
   './recorrido-movil.html',
   './bitacora-movil.html',
+  './mec-movil.html',
   './apple-touch-icon.png',
   './favicon.png',
   './favicon.ico',

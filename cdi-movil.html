@@ -2073,6 +2073,20 @@
           <span class="dock-app-title">Bitácoras</span>
           <span class="dock-app-subtitle">Novedades</span>
         </button>
+
+        <!-- 4. MEC (CARRETERA) -->
+        <button type="button" class="dock-app-btn" id="dockBtnMec" data-app-name="MEC" style="display: none;">
+          <div class="dock-icon-squircle icon-mec" style="background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 3c-.1.3-.1.6-.1.8v5c0 .6.4 1 1 1h2"/>
+              <circle cx="7" cy="17" r="2"/>
+              <path d="M9 17h6"/>
+              <circle cx="17" cy="17" r="2"/>
+            </svg>
+          </div>
+          <span class="dock-app-title">MEC</span>
+          <span class="dock-app-subtitle">Carretera</span>
+        </button>
       </div>
     </nav>
   </div>
@@ -2280,13 +2294,41 @@
 
       let currentDate = getTodayIso();
       const validCasetas = ['Recepción Edison', 'Edison', 'Impulso', 'Michelena', 'Simón Bolívar', 'Carranza', 'Universidad', 'Anexo Edison'];
-      let storedCaseta = localStorage.getItem('regas_cdi_last_caseta') || localStorage.getItem('caseta_seleccionada_cic') || 'Recepción Edison';
-      if (!validCasetas.includes(storedCaseta)) {
+
+      const normCasetaStr = s => String(s || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const canonicalCasetaName = (name) => {
+        const n = normCasetaStr(name);
+        if (n === 'recepcion edison') return 'Recepción Edison';
+        if (n.includes('simon') && n.includes('bolivar')) return 'Simón Bolívar';
+        return name || 'Recepción Edison';
+      };
+
+      let storedCaseta = canonicalCasetaName(localStorage.getItem('regas_cdi_last_caseta') || localStorage.getItem('caseta_seleccionada_cic') || 'Recepción Edison');
+      if (!validCasetas.some(v => normCasetaStr(v) === normCasetaStr(storedCaseta))) {
         storedCaseta = 'Recepción Edison';
-        localStorage.setItem('regas_cdi_last_caseta', storedCaseta);
-        localStorage.setItem('caseta_seleccionada_cic', storedCaseta);
+      } else {
+        storedCaseta = validCasetas.find(v => normCasetaStr(v) === normCasetaStr(storedCaseta)) || storedCaseta;
       }
+      localStorage.setItem('regas_cdi_last_caseta', storedCaseta);
+      localStorage.setItem('caseta_seleccionada_cic', storedCaseta);
       let currentCaseta = storedCaseta;
+
+      function syncCasetaSelectDOM(targetCaseta) {
+        currentCaseta = canonicalCasetaName(targetCaseta);
+        localStorage.setItem('regas_cdi_last_caseta', currentCaseta);
+        localStorage.setItem('caseta_seleccionada_cic', currentCaseta);
+        if (casetaSelect) {
+          const targetNorm = normCasetaStr(currentCaseta);
+          const existingOpt = Array.from(casetaSelect.options).find(o => normCasetaStr(o.value) === targetNorm);
+          if (!existingOpt) {
+            casetaSelect.add(new Option(currentCaseta, currentCaseta));
+            casetaSelect.value = currentCaseta;
+          } else {
+            casetaSelect.value = existingOpt.value;
+            currentCaseta = existingOpt.value;
+          }
+        }
+      }
       let currentMode = 1; // 1 = sumar, -1 = restar/corregir
 
       const counts = {
@@ -2426,7 +2468,8 @@
         const normalized = {
           checador: features.checador === true,
           recorridos: features.recorridos === true,
-          bitacoras: (features.bitacoras === true || features.bitacora === true)
+          bitacoras: (features.bitacoras === true || features.bitacora === true),
+          mec: features.mec === true
         };
         try {
           localStorage.setItem('regas_cdi_device_features', JSON.stringify(normalized));
@@ -2434,7 +2477,8 @@
         const map = {
           checador:   'dockBtnChecador',
           recorridos: 'dockBtnRecorridos',
-          bitacoras:  'dockBtnBitacoras'
+          bitacoras:  'dockBtnBitacoras',
+          mec:        'dockBtnMec'
         };
         Object.entries(map).forEach(([key, btnId]) => {
           const btn = document.getElementById(btnId);
@@ -2445,7 +2489,7 @@
         // Ocultar/mostrar la sección entera del dock: solo se muestra si al menos una mini app extra está habilitada
         const dockWrapper = document.querySelector('.app-dock-wrapper');
         if (dockWrapper) {
-          const hasAny = (normalized.checador || normalized.recorridos || normalized.bitacoras);
+          const hasAny = (normalized.checador || normalized.recorridos || normalized.bitacoras || normalized.mec);
           dockWrapper.style.display = hasAny ? '' : 'none';
         }
         if (typeof renderParallelPaneDock === 'function' && currentParallelKey) {
@@ -2467,7 +2511,8 @@
       const appConfigs = {
         dockBtnChecador: { key: 'checador', name: 'Checador', icon: '📸', title: 'Checador Facial IA', route: 'checador-movil.html' },
         dockBtnRecorridos: { key: 'recorridos', name: 'Recorridos', icon: '🛡️', title: 'Recorridos GPS', route: 'recorrido-movil.html' },
-        dockBtnBitacoras: { key: 'bitacoras', name: 'Bitácoras', icon: '📋', title: 'Bitácora Digital', route: 'bitacora-movil.html' }
+        dockBtnBitacoras: { key: 'bitacoras', name: 'Bitácoras', icon: '📋', title: 'Bitácora Digital', route: 'bitacora-movil.html' },
+        dockBtnMec: { key: 'mec', name: 'MEC', icon: '🚗', title: 'MEC — Seguimiento en Carretera', route: 'mec-movil.html' }
       };
 
       const desktopSplitRoot = document.getElementById('desktopSplitRoot');
@@ -3394,12 +3439,36 @@
       });
 
       const normCasetaStr = s => String(s || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const canonicalCasetaName = (name) => {
+        const n = normCasetaStr(name);
+        if (n === 'recepcion edison') return 'Recepción Edison';
+        if (n.includes('simon') && n.includes('bolivar')) return 'Simón Bolívar';
+        return name || 'Recepción Edison';
+      };
+
       const findCasetaInMap = (map, target) => {
         if (!map || typeof map !== 'object') return {};
-        if (map[target]) return map[target];
         const targetNorm = normCasetaStr(target);
-        const k = Object.keys(map).find(key => normCasetaStr(key) === targetNorm);
-        return k ? map[k] : {};
+        let merged = null;
+        for (const [k, v] of Object.entries(map)) {
+          if (normCasetaStr(k) === targetNorm && v && typeof v === 'object') {
+            const intern = Number(v.internos !== undefined ? v.internos : (v.interno || 0));
+            const extern = Number(v.externos !== undefined ? v.externos : (v.externo || 0));
+            const prest = Number(v.prestadores !== undefined ? v.prestadores : (v.prestador || 0));
+            const visit = Number(v.visitas !== undefined ? v.visitas : (v.visita || 0));
+            const tot = (typeof v.total === 'number') ? v.total : (intern + extern + prest + visit);
+            if (!merged) {
+              merged = { internos: intern, externos: extern, prestadores: prest, visitas: visit, total: tot };
+            } else {
+              merged.internos += intern;
+              merged.externos += extern;
+              merged.prestadores += prest;
+              merged.visitas += visit;
+              merged.total += tot;
+            }
+          }
+        }
+        return merged || {};
       };
 
       // Cargar datos iniciales
@@ -3423,10 +3492,16 @@
           'Simón Bolívar', 'Carranza', 'Universidad', 'Anexo Edison', 'Centro de Control'
         ];
 
-        const allKnown = Array.from(new Set([
-          ...defaultCasetas,
-          ...Object.keys(latestCdiCasetas || {})
-        ])).filter(Boolean);
+        const seenNorms = new Set();
+        const allKnown = [];
+        [...defaultCasetas, ...Object.keys(latestCdiCasetas || {})].filter(Boolean).forEach(c => {
+          const can = canonicalCasetaName(c);
+          const n = normCasetaStr(can);
+          if (!seenNorms.has(n)) {
+            seenNorms.add(n);
+            allKnown.push(can);
+          }
+        });
 
         // 1. Acordeón colapsable: Total de Ingresos
         let ingresosBodyHtml = '';
@@ -3712,16 +3787,8 @@
                 const target = msg.payload.targetDeviceId || 'all';
                 if (target === 'all' || target === deviceUuid) {
                   if (msg.payload.action === 'caseta_change') {
-                    if (msg.payload.caseta && msg.payload.caseta !== currentCaseta) {
-                      currentCaseta = msg.payload.caseta;
-                      localStorage.setItem('regas_cdi_last_caseta', currentCaseta);
-                      localStorage.setItem('caseta_seleccionada_cic', currentCaseta);
-                      if (casetaSelect) {
-                        if (!Array.from(casetaSelect.options).some(o => o.value === currentCaseta)) {
-                          casetaSelect.add(new Option(currentCaseta, currentCaseta));
-                        }
-                        casetaSelect.value = currentCaseta;
-                      }
+                    if (msg.payload.caseta && canonicalCasetaName(msg.payload.caseta) !== currentCaseta) {
+                      syncCasetaSelectDOM(msg.payload.caseta);
                       fetchCdiData();
                     }
                     return;
@@ -3739,16 +3806,8 @@
                   if (updDev.features) {
                     applyDeviceFeatures(updDev.features);
                   }
-                  if (updDev.caseta && updDev.caseta !== currentCaseta) {
-                    currentCaseta = updDev.caseta;
-                    localStorage.setItem('regas_cdi_last_caseta', currentCaseta);
-                    localStorage.setItem('caseta_seleccionada_cic', currentCaseta);
-                    if (casetaSelect) {
-                      if (!Array.from(casetaSelect.options).some(o => o.value === currentCaseta)) {
-                        casetaSelect.add(new Option(currentCaseta, currentCaseta));
-                      }
-                      casetaSelect.value = currentCaseta;
-                    }
+                  if (updDev.caseta && canonicalCasetaName(updDev.caseta) !== currentCaseta) {
+                    syncCasetaSelectDOM(updDev.caseta);
                     fetchCdiData();
                     notifyParallelCasetaChange();
                     showToast('Caseta: ' + currentCaseta);
@@ -3758,16 +3817,8 @@
               if (msg && msg.type === 'cdi_caseta_change' && msg.payload) {
                 const p = msg.payload;
                 if (p && (p.deviceId === deviceUuid || p._id === deviceUuid)) {
-                  if (p.caseta && p.caseta !== currentCaseta) {
-                    currentCaseta = p.caseta;
-                    localStorage.setItem('regas_cdi_last_caseta', currentCaseta);
-                    localStorage.setItem('caseta_seleccionada_cic', currentCaseta);
-                    if (casetaSelect) {
-                      if (!Array.from(casetaSelect.options).some(o => o.value === currentCaseta)) {
-                        casetaSelect.add(new Option(currentCaseta, currentCaseta));
-                      }
-                      casetaSelect.value = currentCaseta;
-                    }
+                  if (p.caseta && canonicalCasetaName(p.caseta) !== currentCaseta) {
+                    syncCasetaSelectDOM(p.caseta);
                     fetchCdiData();
                     notifyParallelCasetaChange();
                     showToast('Caseta: ' + currentCaseta);
@@ -4003,16 +4054,8 @@
               if (data && data.features) {
                 applyDeviceFeatures(data.features);
               }
-              if (data && data.caseta && data.caseta !== currentCaseta) {
-                currentCaseta = data.caseta;
-                localStorage.setItem('regas_cdi_last_caseta', currentCaseta);
-                localStorage.setItem('caseta_seleccionada_cic', currentCaseta);
-                if (casetaSelect) {
-                  if (!Array.from(casetaSelect.options).some(o => o.value === currentCaseta)) {
-                    casetaSelect.add(new Option(currentCaseta, currentCaseta));
-                  }
-                  casetaSelect.value = currentCaseta;
-                }
+              if (data && data.caseta && canonicalCasetaName(data.caseta) !== currentCaseta) {
+                syncCasetaSelectDOM(data.caseta);
                 fetchCdiData();
               }
             }

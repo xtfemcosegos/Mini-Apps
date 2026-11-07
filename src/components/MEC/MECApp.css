@@ -1,0 +1,215 @@
+.mec-react-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.mec-unauthorized-banner {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  color: #f87171;
+}
+
+.mec-hud-panel {
+  background: var(--bg-card, #0f1626);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.mec-speed-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  padding-bottom: 12px;
+}
+
+.mec-speed-val {
+  font-size: 3.4rem;
+  font-weight: 900;
+  line-height: 1;
+  color: #38bdf8;
+  letter-spacing: -0.03em;
+}
+
+.mec-speed-val.cruising {
+  color: #34d399;
+}
+
+.mec-speed-val.fast {
+  color: #fbbf24;
+}
+
+.mec-speed-val.overspeed {
+  color: #f87171;
+}
+
+.mec-compass-box {
+  background: var(--bg-surface, #172238);
+  border-radius: 10px;
+  padding: 8px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mec-hud-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.mec-metric-item {
+  background: var(--bg-surface, #172238);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.mec-metric-lbl {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted, #94a3b8);
+  text-transform: uppercase;
+}
+
+.mec-metric-num {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  margin-top: 2px;
+}
+
+.mec-card {
+  background: var(--bg-card, #0f1626);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mec-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.mec-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mec-form-field.full {
+  grid-column: span 2;
+}
+
+.mec-form-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted, #94a3b8);
+  text-transform: uppercase;
+}
+
+.mec-text-input {
+  background: var(--bg-input, #0b111e);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: var(--text-main, #f8fafc);
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.mec-text-input:focus {
+  border-color: #ea580c;
+}
+
+.mec-btns-row {
+  display: flex;
+  gap: 10px;
+}
+
+.mec-btn-primary {
+  flex: 1;
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.mec-btn-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 8px;
+  padding: 12px 18px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.mec-events-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.mec-event-btn {
+  background: var(--bg-surface, #172238);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  border-radius: 8px;
+  padding: 10px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: var(--text-main, #f8fafc);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.mec-event-btn:active {
+  background: rgba(234, 88, 12, 0.2);
+  border-color: #ea580c;
+}
+
+.mec-sos-btn {
+  background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+  color: white;
+  border: 2px solid #ef4444;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.9rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+}

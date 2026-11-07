@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cic-miniapps-v19';
+const CACHE_NAME = 'cic-miniapps-v20';
 
 const PRECACHE_ASSETS = [
   './',
@@ -9,6 +9,7 @@ const PRECACHE_ASSETS = [
   './facefinder',
   './recorrido-movil.html',
   './bitacora-movil.html',
+  './mec-movil.html',
   './apple-touch-icon.png',
   './favicon.png',
   './favicon.ico',
@@ -71,7 +72,7 @@ self.addEventListener('fetch', (event) => {
     url.pathname.startsWith('/backend/') ||
     url.pathname.includes('/events') ||
     url.port === '7001' ||
-    url.hostname.includes('workers.dev') || url.hostname.includes('cic-10.com')
+    url.hostname.includes('ts.net') || url.hostname.includes('workers.dev') || url.hostname.includes('cic-10.com')
   ) {
     return;
   }

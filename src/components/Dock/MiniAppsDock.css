@@ -140,6 +140,11 @@
   --dock-accent: #7c3aed;
 }
 
+.icon-mec {
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+  --dock-accent: #ea580c;
+}
+
 .icon-qr {
   background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
   --dock-accent: #6366f1;

@@ -1852,7 +1852,8 @@
         const normalized = {
           checador: features.checador === true,
           recorridos: features.recorridos === true,
-          bitacoras: (features.bitacoras === true || features.bitacora === true)
+          bitacoras: (features.bitacoras === true || features.bitacora === true),
+          mec: features.mec === true
         };
         try {
           localStorage.setItem('regas_cdi_device_features', JSON.stringify(normalized));

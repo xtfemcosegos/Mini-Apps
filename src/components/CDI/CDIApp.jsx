@@ -28,6 +28,13 @@ const CASETAS = [
 
 const normCaseta = (s) => String(s || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
+const canonicalCasetaName = (name) => {
+  const n = normCaseta(name);
+  if (n === 'recepcion edison') return 'Recepción Edison';
+  if (n.includes('simon') && n.includes('bolivar')) return 'Simón Bolívar';
+  return name || 'Recepción Edison';
+};
+
 // Esquema oficial de Disponibilidad de Estacionamiento basado en MS Forms (https://forms.office.com/r/keLXCZDW7m)
 // Se llena solo una vez al día a las 10:00 AM
 const PARKING_SCHEMAS = {
@@ -174,10 +181,27 @@ const getCasetaAvailableSum = (schema, record) => {
 
 const findCasetaCounts = (casetasMap, targetCaseta) => {
   if (!casetasMap || typeof casetasMap !== 'object') return null;
-  if (casetasMap[targetCaseta]) return casetasMap[targetCaseta];
   const targetNorm = normCaseta(targetCaseta);
-  const matchedKey = Object.keys(casetasMap).find(k => normCaseta(k) === targetNorm);
-  return matchedKey ? casetasMap[matchedKey] : null;
+  let merged = null;
+  for (const [k, v] of Object.entries(casetasMap)) {
+    if (normCaseta(k) === targetNorm && v && typeof v === 'object') {
+      const intern = Number(v.internos !== undefined ? v.internos : (v.interno || 0));
+      const extern = Number(v.externos !== undefined ? v.externos : (v.externo || 0));
+      const prest = Number(v.prestadores !== undefined ? v.prestadores : (v.prestador || 0));
+      const visit = Number(v.visitas !== undefined ? v.visitas : (v.visita || 0));
+      const tot = (typeof v.total === 'number') ? v.total : (intern + extern + prest + visit);
+      if (!merged) {
+        merged = { internos: intern, externos: extern, prestadores: prest, visitas: visit, total: tot };
+      } else {
+        merged.internos += intern;
+        merged.externos += extern;
+        merged.prestadores += prest;
+        merged.visitas += visit;
+        merged.total += tot;
+      }
+    }
+  }
+  return merged;
 };
 
 const loadLocalParkingMap = (dateIso) => {
@@ -199,7 +223,7 @@ const saveLocalParkingMap = (dateIso, mapObj) => {
 
 export default function CDIApp({ theme, onToggleTheme, onIdentifyDevice, isIdentifying }) {
   const [caseta, setCaseta] = useState(() => {
-    return localStorage.getItem('selectedCaseta') || 'Recepción Edison';
+    return canonicalCasetaName(localStorage.getItem('selectedCaseta') || 'Recepción Edison');
   });
   const [mode, setMode] = useState('add'); // 'add' (+1) | 'sub' (-1 / corrección)
   const [counts, setCounts] = useState({ internos: 0, externos: 0, prestadores: 0, visitas: 0 });
@@ -279,7 +303,7 @@ export default function CDIApp({ theme, onToggleTheme, onIdentifyDevice, isIdent
     const handleCasetaUpdate = (e) => {
       const newCaseta = e.detail && e.detail.caseta;
       if (newCaseta && typeof newCaseta === 'string') {
-        const clean = newCaseta.trim();
+        const clean = canonicalCasetaName(newCaseta.trim());
         console.log('[CDI] Caseta reasignada remotamente desde RegAs 3:', clean);
         localStorage.setItem('selectedCaseta', clean);
         localStorage.setItem('regas_cdi_last_caseta', clean);
@@ -471,15 +495,16 @@ export default function CDIApp({ theme, onToggleTheme, onIdentifyDevice, isIdent
   };
 
   const handleCasetaChange = (newCaseta) => {
-    setCaseta(newCaseta);
+    const cleanCaseta = canonicalCasetaName(newCaseta);
+    setCaseta(cleanCaseta);
     setShowParkingModal(false);
-    localStorage.setItem('selectedCaseta', newCaseta);
-    localStorage.setItem('regas_cdi_last_caseta', newCaseta);
-    localStorage.setItem('caseta_seleccionada_cic', newCaseta);
-    window.postMessage({ type: 'cdi_caseta_changed', caseta: newCaseta }, '*');
+    localStorage.setItem('selectedCaseta', cleanCaseta);
+    localStorage.setItem('regas_cdi_last_caseta', cleanCaseta);
+    localStorage.setItem('caseta_seleccionada_cic', cleanCaseta);
+    window.postMessage({ type: 'cdi_caseta_changed', caseta: cleanCaseta }, '*');
     // Notificar al monitor del operador del cambio de caseta inmediatamente
-    updateDeviceCaseta(newCaseta).catch(() => {});
-    sendDeviceHeartbeat(newCaseta);
+    updateDeviceCaseta(cleanCaseta).catch(() => {});
+    sendDeviceHeartbeat(cleanCaseta);
   };
 
   const activeParkingSchema = getParkingSchema(caseta);
@@ -755,10 +780,16 @@ export default function CDIApp({ theme, onToggleTheme, onIdentifyDevice, isIdent
   ];
 
   // Listado unificado de todas las casetas conocidas
-  const allKnownCasetas = Array.from(new Set([
-    ...CASETAS,
-    ...Object.keys(allCasetasData || {})
-  ])).filter(Boolean);
+  const seenNorms = new Set();
+  const allKnownCasetas = [];
+  [...CASETAS, ...Object.keys(allCasetasData || {})].filter(Boolean).forEach((c) => {
+    const canonical = canonicalCasetaName(c);
+    const n = normCaseta(canonical);
+    if (!seenNorms.has(n)) {
+      seenNorms.add(n);
+      allKnownCasetas.push(canonical);
+    }
+  });
 
   return (
     <div className="cdi-container">
@@ -1022,8 +1053,8 @@ export default function CDIApp({ theme, onToggleTheme, onIdentifyDevice, isIdent
                   onChange={(e) => handleCasetaChange(e.target.value)}
                   aria-label="Seleccionar Caseta"
                 >
-                  {!CASETAS.includes(caseta) && (
-                    <option value={caseta}>{caseta}</option>
+                  {!CASETAS.some(c => normCaseta(c) === normCaseta(caseta)) && (
+                    <option value={canonicalCasetaName(caseta)}>{canonicalCasetaName(caseta)}</option>
                   )}
                   {CASETAS.map((c) => (
                     <option key={c} value={c}>{c}</option>

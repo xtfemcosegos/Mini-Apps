@@ -1,6 +1,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
+import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -25,6 +26,53 @@ const MIME_TYPES = {
   '.webp': 'image/webp',
   '.txt': 'text/plain; charset=UTF-8'
 };
+
+const COMPRESSIBLE_EXTS = new Set(['.html', '.css', '.js', '.mjs', '.json', '.webmanifest', '.svg', '.txt']);
+const staticCache = new Map();
+
+function serveCompressedStatic(req, res, filePath, contentType, ext) {
+  try {
+    const stat = fs.statSync(filePath);
+    const etag = `W/"${stat.size}-${Math.floor(stat.mtimeMs)}"`;
+    const baseHeaders = {
+      'Content-Type': contentType,
+      'Access-Control-Allow-Origin': '*',
+      'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=3600',
+      'ETag': etag
+    };
+
+    if (req.headers['if-none-match'] === etag) {
+      res.writeHead(304, baseHeaders);
+      res.end();
+      return;
+    }
+
+    const acceptEncoding = req.headers['accept-encoding'] || '';
+    if (COMPRESSIBLE_EXTS.has(ext) && stat.size > 256 && acceptEncoding.includes('gzip')) {
+      let cached = staticCache.get(filePath);
+      if (!cached || cached.mtimeMs !== stat.mtimeMs) {
+        const raw = fs.readFileSync(filePath);
+        const gzipped = zlib.gzipSync(raw, { level: zlib.constants.Z_BEST_SPEED });
+        cached = { mtimeMs: stat.mtimeMs, gzipped };
+        if (staticCache.size > 60) staticCache.clear();
+        staticCache.set(filePath, cached);
+      }
+      baseHeaders['Content-Encoding'] = 'gzip';
+      baseHeaders['Content-Length'] = cached.gzipped.length;
+      baseHeaders['Vary'] = 'Accept-Encoding';
+      res.writeHead(200, baseHeaders);
+      res.end(cached.gzipped);
+      return;
+    }
+
+    baseHeaders['Content-Length'] = stat.size;
+    res.writeHead(200, baseHeaders);
+    fs.createReadStream(filePath).pipe(res);
+  } catch (e) {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=UTF-8' });
+    res.end('Recurso no encontrado');
+  }
+}
 
 const BLOCKED_FILES = new Set([
   'server.js', 'server.cjs', 'package.json', 'package-lock.json', 'vite.config.js'
@@ -129,12 +177,7 @@ const server = http.createServer((req, res) => {
   if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
     const ext = path.extname(filePath).toLowerCase();
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';
-    res.writeHead(200, {
-      'Content-Type': contentType,
-      'Access-Control-Allow-Origin': '*',
-      'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=3600'
-    });
-    fs.createReadStream(filePath).pipe(res);
+    serveCompressedStatic(req, res, filePath, contentType, ext);
   } else {
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=UTF-8' });
     res.end('Recurso no encontrado');

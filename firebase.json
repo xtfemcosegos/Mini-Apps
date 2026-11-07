@@ -32,6 +32,14 @@
         "destination": "/bitacora-movil.html"
       },
       {
+        "source": "/mec",
+        "destination": "/mec-movil.html"
+      },
+      {
+        "source": "/mec-movil",
+        "destination": "/mec-movil.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
