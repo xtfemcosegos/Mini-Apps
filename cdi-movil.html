@@ -1,0 +1,4261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>RegAs 3 — CDI Móvil (Control y Conteo de Ingresos)</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CDI Móvil">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/x-icon" href="./iconos/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="./iconos/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./iconos/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="./iconos/icon-192.png">
+  <style>
+    :root {
+      --bg: #f0f4f8;
+      --card-bg: #ffffff;
+      --card-border: rgba(148, 163, 184, 0.28);
+      --card-border-subtle: rgba(226, 232, 240, 0.85);
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      
+      --accent-blue: #2563eb;
+      --accent-blue-soft: rgba(37, 99, 235, 0.08);
+      --accent-emerald: #059669;
+      --accent-emerald-soft: rgba(5, 150, 105, 0.08);
+      --accent-amber: #d97706;
+      --accent-amber-soft: rgba(217, 119, 6, 0.08);
+      --accent-purple: #7c3aed;
+      --accent-purple-soft: rgba(124, 58, 237, 0.08);
+      --accent-cyan: #0284c7;
+      --accent-rose: #ef4444;
+      --accent-rose-soft: rgba(239, 68, 68, 0.08);
+
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 5px -1px rgba(15, 23, 42, 0.04);
+      --shadow-dock: 0 4px 18px -2px rgba(15, 23, 42, 0.09), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      height: 100%;
+      height: 100dvh;
+      max-height: 100dvh;
+      overflow: hidden; /* Ajuste perfecto sin scroll en pantallas normales */
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: env(safe-area-inset-top, 5px) 10px env(safe-area-inset-bottom, 6px) 10px;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 3px 2px 6px;
+      border-bottom: 1px solid var(--card-border);
+      flex-shrink: 0;
+    }
+
+    .header-title-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-title {
+      font-size: 0.92rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .header-badge-live {
+      font-size: 0.58rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 2px 6px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.32);
+      color: #059669;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .header-badge-live::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 5px #10b981;
+      animation: pulseLive 1.8s infinite;
+    }
+
+    @keyframes pulseLive {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+    }
+
+    .header-version-btn {
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #0284c7;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .header-version-btn:active {
+      transform: scale(0.94);
+      background: rgba(56, 189, 248, 0.28);
+    }
+
+    .connection-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 5px #10b981;
+      transition: background 0.2s ease, box-shadow 0.2s ease;
+    }
+    .status-dot.syncing {
+      background: #d97706;
+      box-shadow: 0 0 5px #d97706;
+      animation: pulseSync 0.8s infinite;
+    }
+    .status-dot.offline {
+      background: #ef4444;
+      box-shadow: 0 0 5px #ef4444;
+    }
+
+    @keyframes pulseSync {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(1.2); }
+    }
+
+    /* ── CONTROLES SUPERIORES (CASETA Y MODO) ── */
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin: 4px 0 3px;
+      flex-shrink: 0;
+    }
+
+    .caseta-selector-box {
+      flex: 1;
+      position: relative;
+    }
+
+    .caseta-select {
+      width: 100%;
+      padding: 7px 30px 7px 10px;
+      background: var(--card-bg);
+      border: 1.8px solid var(--accent-blue);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 0.84rem;
+      font-weight: 700;
+      outline: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.08), var(--shadow-sm);
+    }
+
+    .mode-toggle {
+      display: inline-flex;
+      background: #e2e8f0;
+      border: 1px solid var(--card-border);
+      border-radius: 9px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .mode-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      font-weight: 800;
+      padding: 6px 10px;
+      border-radius: 7px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      transition: all 0.15s cubic-bezier(0.2, 0, 0, 1);
+    }
+    .mode-btn:active {
+      transform: scale(0.96);
+    }
+    .mode-btn.active {
+      background: var(--accent-blue);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+    }
+    .mode-btn.mode-sub.active {
+      background: #ef4444;
+      box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+    }
+
+    /* BANNER MODO CORRECCIÓN */
+    .mode-alert-banner {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 7px;
+      padding: 3px 8px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #b91c1c;
+      margin-bottom: 2px;
+      flex-shrink: 0;
+      animation: fadeIn 0.15s ease;
+    }
+    .mode-alert-banner.show {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-2px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── GRILLA DE BOTONES DE CONTEO (RESPONSIVA Y COMPACTA) ── */
+    .grid-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      margin: 2px 0;
+    }
+
+    .counter-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 8px;
+      width: 100%;
+      height: 100%;
+      max-width: 460px;
+      align-content: stretch;
+      justify-content: center;
+    }
+
+    .counter-btn {
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: 16px;
+      padding: 8px 10px;
+      width: 100%;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+      max-height: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2px;
+      color: var(--text);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      touch-action: manipulation;
+      transition: transform 0.08s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.15s ease, background 0.15s ease;
+      box-shadow: var(--shadow-md);
+    }
+
+    .counter-btn::before {
+      content: attr(data-bg-icon);
+      position: absolute;
+      bottom: -6px;
+      right: -2px;
+      font-size: 3rem;
+      line-height: 1;
+      opacity: 0.05;
+      pointer-events: none;
+      filter: grayscale(0.2);
+      transform: rotate(-8deg);
+      transition: opacity 0.15s ease;
+    }
+
+    .counter-btn:active {
+      transform: scale(0.95);
+      box-shadow: var(--shadow-sm);
+    }
+    .counter-btn:active::before {
+      opacity: 0.12;
+    }
+
+    .counter-btn.btn-internos {
+      border-top: 3.5px solid var(--accent-blue);
+    }
+    .counter-btn.btn-internos:active {
+      background: var(--accent-blue-soft);
+    }
+    .counter-btn.btn-externos {
+      border-top: 3.5px solid var(--accent-amber);
+    }
+    .counter-btn.btn-externos:active {
+      background: var(--accent-amber-soft);
+    }
+    .counter-btn.btn-prestadores {
+      border-top: 3.5px solid var(--accent-purple);
+    }
+    .counter-btn.btn-prestadores:active {
+      background: var(--accent-purple-soft);
+    }
+    .counter-btn.btn-visitas {
+      border-top: 3.5px solid var(--accent-emerald);
+    }
+    .counter-btn.btn-visitas:active {
+      background: var(--accent-emerald-soft);
+    }
+
+    body.sub-mode .counter-btn {
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-icon {
+      font-size: 1.35rem;
+      line-height: 1;
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-label {
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-count {
+      font-size: clamp(1.6rem, 5vw, 2.2rem);
+      font-weight: 800;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      margin-top: 1px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .counter-btn.btn-internos .btn-count  { color: var(--accent-blue); }
+    .counter-btn.btn-externos .btn-count  { color: var(--accent-amber); }
+    .counter-btn.btn-prestadores .btn-count { color: var(--accent-purple); }
+    .counter-btn.btn-visitas .btn-count   { color: var(--accent-emerald); }
+
+    .btn-pending-badge {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      background: #ef4444;
+      color: #fff;
+      font-size: 0.62rem;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 999px;
+      display: none;
+      box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+      animation: popIn 0.15s ease;
+      z-index: 2;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.4); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ── CONTROLES INFERIORES: DOCK (3 APPS) Y RESUMEN ── */
+    .bottom-section {
+      flex-shrink: 0;
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    /* DOCK DE 3 APLICACIONES (CHECADOR, RECORRIDOS, BITÁCORAS) */
+    .app-dock-wrapper {
+      width: 100%;
+    }
+
+    .dock-header-label {
+      font-size: 0.58rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+      padding-left: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .dock-header-label::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+    }
+
+    .app-dock {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 5px 6px;
+      box-shadow: var(--shadow-dock);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 5px;
+    }
+
+    .dock-app-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      padding: 5px 3px;
+      background: #f8fafc;
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.15s cubic-bezier(0.2, 0, 0, 1);
+      touch-action: manipulation;
+      text-align: center;
+    }
+
+    .dock-app-btn:hover {
+      background: #ffffff;
+      border-color: rgba(203, 213, 225, 1);
+      transform: translateY(-1px);
+    }
+
+    .dock-app-btn:active {
+      transform: scale(0.95);
+      background: #f1f5f9;
+    }
+
+    .dock-icon-squircle {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+
+    .dock-icon-squircle.icon-checador {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    }
+
+    .dock-icon-squircle.icon-recorridos {
+      background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+    }
+
+    .dock-icon-squircle.icon-bitacoras {
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+    }
+
+    .dock-icon-squircle svg {
+      width: 15px;
+      height: 15px;
+      stroke-width: 2.2;
+    }
+
+    .dock-app-title {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .dock-app-subtitle {
+      font-size: 0.58rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      line-height: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    /* RESUMEN FOOTER */
+    .footer-summary {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+      width: 100%;
+    }
+
+    .summary-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .summary-title {
+      font-size: 0.60rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .summary-value {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      line-height: 1.15;
+    }
+
+    /* FOOTER SUMMARY DOCK CLICABLE */
+    .footer-summary.is-clickable {
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .footer-summary.is-clickable:hover {
+      border-color: #38bdf8;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(56, 189, 248, 0.22);
+    }
+
+    .footer-summary.is-clickable:active {
+      transform: scale(0.985);
+    }
+
+    /* MODAL OVERLAY DE RESUMEN DE TODAS LAS CASETAS EN TIEMPO REAL (COMPACTO) */
+    .all-casetas-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-body, #0f172a);
+      z-index: 9999;
+      display: none;
+      flex-direction: column;
+      padding: 10px 12px calc(env(safe-area-inset-bottom, 10px) + 12px) 12px;
+      box-sizing: border-box;
+      overflow: hidden;
+      animation: modalFadeIn 0.18s ease-out;
+      gap: 6px;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .compact-summary-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      padding: 2px 0 4px 0;
+    }
+
+    .compact-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .compact-back-btn:hover {
+      background: rgba(37, 99, 235, 0.1);
+      border-color: #38bdf8;
+      color: #38bdf8;
+    }
+
+    .compact-top-title {
+      font-size: 0.90rem;
+      font-weight: 800;
+      margin: 0;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .compact-live-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.60rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      letter-spacing: 0.04em;
+    }
+
+    .compact-live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 6px #10b981;
+      animation: pulseSync 1s infinite alternate;
+    }
+
+    /* STRIP TOTAL GENERAL */
+    .compact-total-strip {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      gap: 8px;
+    }
+
+    .strip-total-main {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .strip-total-lbl {
+      font-size: 0.62rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    .strip-total-num {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: #38bdf8;
+      line-height: 1;
+    }
+
+    .strip-breakdown {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .strip-chip {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 2px 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      white-space: nowrap;
+    }
+
+    .strip-chip strong {
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    /* LISTADO COMPACTO DE CASETAS */
+    .compact-casetas-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding-bottom: 12px;
+    }
+
+    .compact-caseta-row {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 7px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+      min-height: 42px;
+      box-sizing: border-box;
+    }
+
+    .compact-caseta-row:hover {
+      border-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.08);
+      transform: translateX(2px);
+    }
+
+    .compact-caseta-row:active {
+      transform: scale(0.995);
+    }
+
+    .compact-caseta-row.is-active {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .row-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      flex: 1 1 120px;
+    }
+
+    .row-caseta-name {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .row-active-tag {
+      font-size: 0.54rem;
+      font-weight: 800;
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      padding: 1px 5px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .row-metrics {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .row-metric {
+      font-size: 0.70rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .metric-ico {
+      font-size: 0.68rem;
+      opacity: 0.85;
+    }
+
+    .row-right {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .row-total-val {
+      font-size: 0.98rem;
+      font-weight: 900;
+      color: var(--text);
+      min-width: 28px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .row-arrow {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      line-height: 1;
+    }
+
+    .compact-caseta-row:hover .row-arrow {
+      color: #38bdf8;
+    }
+
+    /* ── TOAST NOTIFICACIONES ── */
+    .toast-sync {
+      position: fixed;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(15, 23, 42, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 9999;
+    }
+    .toast-sync.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* TOAST PRÓXIMAMENTE DESTACADO */
+    .toast-proximamente {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border: 1.5px solid rgba(56, 189, 248, 0.4);
+      color: #f8fafc;
+      padding: 10px 18px;
+      border-radius: 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(56, 189, 248, 0.2);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 99999;
+      max-width: 90%;
+      text-align: center;
+    }
+    .toast-proximamente.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* ── TEMA CLARO POR DEFECTO Y SELECTOR DE MODO OSCURO ── */
+    html[data-theme="dark"] {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: rgba(255, 255, 255, 0.1);
+      --card-border-subtle: rgba(255, 255, 255, 0.05);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --shadow-dock: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+    html[data-theme="dark"] .app-dock {
+      background: rgba(17, 24, 39, 0.92);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    html[data-theme="dark"] .dock-app-btn {
+      background: #1e293b;
+      border-color: rgba(255, 255, 255, 0.08);
+      color: #f8fafc;
+    }
+    html[data-theme="dark"] .dock-app-btn:hover {
+      background: #273549;
+    }
+    html[data-theme="dark"] .dock-app-btn:active {
+      background: #334155;
+    }
+    html[data-theme="dark"] .mode-toggle {
+      background: #1e293b;
+    }
+    html[data-theme="dark"] .caseta-select {
+      background-color: #111827;
+      color: #f8fafc;
+    }
+
+    .theme-toggle-btn {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 3px 7px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.15s ease;
+    }
+    html[data-theme="dark"] .theme-toggle-btn {
+      background: #1e293b;
+      border-color: rgba(255, 255, 255, 0.15);
+      color: #f8fafc;
+    }
+    .theme-toggle-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* ========================================================
+       SOPORTE DE VISTA PARALELA EN ESCRITORIO
+       ======================================================== */
+    .desktop-split-root {
+      display: flex;
+      flex-direction: row;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .cdi-desktop-left {
+      flex: 1 1 100%;
+      height: 100%;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: flex 0.25s ease;
+    }
+
+    .desktop-split-root.split-active .cdi-desktop-left {
+      flex: 0 0 30% !important;
+      width: 30% !important;
+      max-width: 30% !important;
+      border-right: 2px solid var(--card-border);
+      min-width: 260px;
+    }
+
+    .desktop-split-root.split-active .app-dock-wrapper {
+      display: none !important;
+    }
+
+    .desktop-parallel-panel {
+      flex: 0 0 70% !important;
+      width: 70% !important;
+      max-width: 70% !important;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      position: relative;
+      box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+      animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      min-width: 320px;
+      overflow: hidden;
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(35px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .parallel-header {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--card-border-subtle);
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .parallel-header-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .parallel-icon {
+      font-size: 1.25rem;
+    }
+
+    .parallel-title {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .parallel-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--accent-blue-soft);
+      color: var(--accent-blue);
+      border: 1px solid rgba(37, 99, 235, 0.25);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .parallel-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-parallel-action {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 11px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-parallel-action:hover {
+      background: rgba(148, 163, 184, 0.1);
+      color: var(--text);
+    }
+
+    .btn-parallel-action.btn-parallel-close:hover {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+    }
+
+    .parallel-body {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .parallel-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: transparent;
+    }
+
+    /* Dock flotante exclusivo en la aplicación derecha */
+    .parallel-pane-dock-wrapper {
+      position: absolute;
+      bottom: 14px;
+      left: 0;
+      right: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .parallel-pane-dock-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 22, 38, 0.92);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 20px;
+      padding: 5px 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      pointer-events: auto;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Cuando contiene el botón de QR y el de cerrar en vista paralela */
+    .parallel-pane-dock-bar.compact-parallel {
+      padding: 4px 6px;
+      border-radius: 16px;
+      gap: 8px;
+      background: rgba(16, 22, 38, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+    }
+    .parallel-pane-dock-bar.compact-parallel .parallel-dock-app-btn {
+      padding: 2px;
+      margin: 0;
+    }
+    .parallel-pane-dock-bar.compact-parallel .parallel-dock-btn-close {
+      margin: 0;
+      padding: 0;
+    }
+
+    .parallel-dock-app-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 4px 8px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: all 0.15s ease;
+      color: #f8fafc;
+    }
+    .parallel-dock-app-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .parallel-dock-app-btn:active {
+      transform: scale(0.92);
+    }
+    .parallel-dock-app-label {
+      font-size: 0.64rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .parallel-dock-app-btn:hover .parallel-dock-app-label {
+      color: #ffffff;
+    }
+
+    .parallel-dock-btn-close {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      margin-left: 2px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      outline: none;
+    }
+    .parallel-dock-close-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 12px rgba(239, 68, 68, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .parallel-dock-btn-close:hover .parallel-dock-close-icon {
+      background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+      transform: scale(1.08);
+      box-shadow: 0 5px 16px rgba(239, 68, 68, 0.7);
+    }
+    .parallel-dock-btn-close:active .parallel-dock-close-icon {
+      transform: scale(0.92);
+    }
+
+    /* Modal de Código QR para acceso móvil */
+    .qr-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 7, 15, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20000;
+      padding: 16px;
+      animation: qrFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes qrFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .qr-modal-card {
+      background: #111827;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 22px;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+      color: #f8fafc;
+      animation: qrScaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes qrScaleIn {
+      from { transform: scale(0.92) translateY(10px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    .qr-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .qr-header-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .qr-header-title h3 {
+      font-size: 0.96rem;
+      font-weight: 800;
+      margin: 0;
+      color: #ffffff;
+    }
+    .qr-header-title p {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      margin: 1px 0 0;
+    }
+    .qr-modal-close-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      transition: all 0.15s ease;
+    }
+    .qr-modal-close-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #ef4444;
+    }
+    .qr-modal-body {
+      padding: 20px 20px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .qr-code-frame {
+      background: #ffffff;
+      padding: 12px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 220px;
+      height: 220px;
+      margin-bottom: 14px;
+    }
+    .qr-code-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .qr-url-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 6px 10px;
+      width: 100%;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+    .qr-url-text {
+      font-family: monospace;
+      font-size: 0.74rem;
+      color: #38bdf8;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .qr-copy-btn {
+      background: #2563eb;
+      border: none;
+      color: #ffffff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+    .qr-copy-btn:hover {
+      background: #1d4ed8;
+    }
+    .qr-copy-btn.copied {
+      background: #10b981;
+    }
+    .qr-hint {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      line-height: 1.4;
+      margin: 0;
+    }
+    .qr-modal-footer {
+      padding: 10px 18px 16px;
+      display: flex;
+      justify-content: center;
+    }
+    .qr-btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+      transition: all 0.15s ease;
+    }
+    .qr-btn-primary:hover {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      transform: translateY(-1px);
+    }
+
+    /* MENÚ CONTEXTUAL FLOTANTE AL DAR CLIC DERECHO */
+    .dock-context-menu {
+      position: fixed;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 6px;
+      box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 10000;
+      min-width: 220px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      animation: contextMenuPop 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: auto;
+    }
+
+    .dock-context-menu-header {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      padding: 5px 10px 3px;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--card-border-subtle);
+      margin-bottom: 2px;
+    }
+
+    .dock-context-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 9px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+      transition: all 0.15s ease;
+    }
+
+    .dock-context-item:hover {
+      background: var(--accent-blue-soft);
+      color: var(--accent-blue);
+    }
+
+    .dock-context-item.danger:hover {
+      background: rgba(239, 68, 68, 0.12);
+      color: #ef4444;
+    }
+
+    .dock-context-icon {
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+    }
+
+    .dock-app-btn.is-parallel {
+      background: rgba(16, 185, 129, 0.12);
+    }
+
+    .dock-app-btn.is-parallel .dock-icon-squircle {
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+      border: 1.5px solid #10b981;
+    }
+
+    /* ── BOTÓN Y MODAL DE DISPONIBILIDAD DE ESTACIONAMIENTO (CORTE 10:00 AM) ── */
+    .cdi-parking-btn {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-left: 4px solid #0284c7;
+      border-radius: 12px;
+      padding: 7px 12px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.18s ease;
+      color: var(--text);
+      font-family: inherit;
+      text-align: left;
+    }
+    .cdi-parking-btn.visible {
+      display: flex;
+    }
+    .cdi-parking-btn.is-captured {
+      border-left-color: #10b981;
+    }
+    .cdi-parking-btn:active {
+      transform: scale(0.985);
+    }
+    .parking-btn-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .parking-btn-icon {
+      font-size: 1.2rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .parking-btn-texts {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      min-width: 0;
+    }
+    .parking-btn-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .parking-btn-sub {
+      font-size: 0.64rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .parking-btn-badge {
+      font-size: 0.62rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .parking-btn-badge.badge-pending {
+      background: rgba(2, 132, 199, 0.12);
+      color: #0369a1;
+      border: 1px solid rgba(2, 132, 199, 0.3);
+    }
+    html[data-theme="dark"] .parking-btn-badge.badge-pending {
+      background: rgba(56, 189, 248, 0.18);
+      color: #38bdf8;
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+    .parking-btn-badge.badge-done {
+      background: rgba(16, 185, 129, 0.14);
+      color: #047857;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+    html[data-theme="dark"] .parking-btn-badge.badge-done {
+      background: rgba(16, 185, 129, 0.22);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    .parking-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 25000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+    }
+    .parking-modal-backdrop.open {
+      display: flex;
+    }
+    .parking-modal-card {
+      width: 100%;
+      max-width: 410px;
+      max-height: 90dvh;
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: 18px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      color: var(--text);
+    }
+    .parking-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 15px;
+      border-bottom: 1px solid var(--card-border);
+      gap: 8px;
+    }
+    .parking-modal-title-group {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .parking-modal-title {
+      font-size: 0.92rem;
+      font-weight: 800;
+      margin: 0;
+      color: var(--text);
+    }
+    .parking-modal-subtitle {
+      font-size: 0.70rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin: 2px 0 0;
+    }
+    .parking-modal-close {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      background: transparent;
+      color: var(--text);
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .parking-modal-notice {
+      padding: 10px 15px 0;
+    }
+    .parking-notice-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      padding: 8px 10px;
+      border-radius: 9px;
+      font-size: 0.72rem;
+      line-height: 1.35;
+    }
+    .parking-notice-box.notice-pending {
+      background: rgba(2, 132, 199, 0.1);
+      border: 1px solid rgba(2, 132, 199, 0.3);
+      color: #0369a1;
+    }
+    html[data-theme="dark"] .parking-notice-box.notice-pending {
+      background: rgba(56, 189, 248, 0.15);
+      color: #7dd3fc;
+    }
+    .parking-notice-box.notice-captured {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #047857;
+    }
+    html[data-theme="dark"] .parking-notice-box.notice-captured {
+      background: rgba(16, 185, 129, 0.18);
+      color: #6ee7b7;
+    }
+    .parking-modal-body {
+      padding: 12px 15px 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .parking-section-card {
+      background: rgba(148, 163, 184, 0.08);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 9px 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .parking-section-header {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .parking-fields-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
+      gap: 8px;
+    }
+    .parking-field-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .parking-field-label {
+      font-size: 0.70rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .parking-stepper-control {
+      display: flex;
+      align-items: center;
+      border: 1.5px solid var(--card-border);
+      border-radius: 9px;
+      background: var(--card-bg);
+      overflow: hidden;
+    }
+    .parking-step-btn {
+      width: 32px;
+      height: 34px;
+      border: none;
+      background: rgba(148, 163, 184, 0.15);
+      color: var(--text);
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .parking-field-input {
+      flex: 1;
+      min-width: 0;
+      height: 34px;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 800;
+      text-align: center;
+      outline: none;
+      -moz-appearance: textfield;
+    }
+    .parking-field-input::-webkit-outer-spin-button,
+    .parking-field-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .parking-field-readonly {
+      height: 34px;
+      border-radius: 9px;
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--text);
+    }
+    .parking-modal-footer {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .parking-btn-cancel {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1.5px solid var(--card-border);
+      background: transparent;
+      color: var(--text);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .parking-btn-clear {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(239, 68, 68, 0.45);
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .parking-btn-submit {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+
+    .footer-parking-summary {
+      margin-top: 2px;
+      border-left: 3.5px solid #0284c7;
+      padding: 5px 14px;
+    }
+    html[data-theme="dark"] .footer-parking-summary {
+      border-left-color: #38bdf8;
+    }
+    .summary-parking-val {
+      font-size: 1.02rem;
+      font-weight: 800;
+      color: #0369a1;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.15;
+    }
+    html[data-theme="dark"] .summary-parking-val {
+      color: #38bdf8;
+    }
+    .parking-summary-section {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1.5px dashed var(--card-border);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .parking-summary-header-strip {
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-left: 4px solid #0284c7;
+      border-radius: 10px;
+      padding: 7px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .parking-summary-caseta-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-left: 3.5px solid #f59e0b;
+      border-radius: 10px;
+      padding: 7px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+    }
+    .parking-summary-caseta-card.is-captured {
+      border-left-color: #10b981;
+    }
+    .parking-summary-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: var(--text);
+    }
+    .parking-summary-chips-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+    .parking-summary-lot-chip {
+      font-size: 0.65rem;
+      font-weight: 600;
+      background: rgba(148, 163, 184, 0.1);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 2px 6px;
+      color: var(--text-muted);
+    }
+    .parking-summary-lot-chip strong {
+      color: var(--text);
+      font-weight: 800;
+    }
+    .parking-field-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+    }
+    .parking-field-capacity-badge {
+      font-size: 0.60rem;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 5px;
+      background: rgba(2, 132, 199, 0.12);
+      color: #0369a1;
+      border: 1px solid rgba(2, 132, 199, 0.25);
+    }
+    html[data-theme="dark"] .parking-field-capacity-badge {
+      background: rgba(56, 189, 248, 0.16);
+      color: #38bdf8;
+    }
+
+  </style>
+</head>
+<body data-theme="light">
+
+  <div class="desktop-split-root" id="desktopSplitRoot">
+    <!-- PANEL IZQUIERDO: CDI -->
+    <div class="cdi-desktop-left" id="cdiLeftPane">
+      <!-- HEADER SUPERIOR -->
+      <header class="header">
+        <div class="header-title-box">
+          <div class="header-title">
+            <span>🔢 CDI Móvil</span>
+            <span class="header-badge-live">En Vivo</span>
+            <button type="button" id="btnThemeToggle" class="theme-toggle-btn" title="Alternar modo claro / oscuro">☀️ Claro</button>
+            <button type="button" id="btnVersionBadge" class="header-version-btn" title="Versión v273. Toca para recargar y purgar caché">v273 🔄</button>
+          </div>
+        </div>
+        <div class="connection-status">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Conectando...</span>
+        </div>
+      </header>
+
+  <!-- CONTROLES SUPERIORES (CASETA Y MODO) -->
+  <div class="top-controls">
+    <div class="caseta-selector-box">
+      <select id="casetaSelect" class="caseta-select">
+        <option value="Recepción Edison">📋 Recepción Edison</option>
+        <option value="Edison">🛡️ Edison</option>
+        <option value="Impulso">⚡ Impulso</option>
+        <option value="Michelena">📍 Michelena</option>
+        <option value="Simón Bolívar">🏛️ Simón Bolívar</option>
+        <option value="Carranza">🚪 Carranza</option>
+        <option value="Universidad">🏫 Universidad</option>
+        <option value="Anexo Edison">🏭 Anexo Edison</option>
+      </select>
+    </div>
+
+    <div class="mode-toggle">
+      <button type="button" class="mode-btn active" id="btnModeAdd" title="Sumar +1">+1</button>
+      <button type="button" class="mode-btn mode-sub" id="btnModeSub" title="Restar -1 (Corregir)">−1</button>
+    </div>
+  </div>
+
+  <!-- AVISO VISUAL DE MODO CORRECCIÓN (-1) -->
+  <div class="mode-alert-banner" id="modeAlertBanner">
+    <span>⚠️ Modo Corrección (−1) activo: Cada toque descontará 1 al contador</span>
+  </div>
+
+  <!-- GRILLA DE BOTONES DE CONTEO -->
+  <div class="grid-wrapper">
+    <div class="counter-grid">
+      <!-- 1. INTERNOS -->
+      <button type="button" class="counter-btn btn-internos" data-cat="internos" data-bg-icon="🏢">
+        <span class="btn-icon">🏢</span>
+        <span class="btn-label">Internos</span>
+        <span class="btn-count" id="count-internos">0</span>
+        <span class="btn-pending-badge" id="badge-internos">+1</span>
+      </button>
+
+      <!-- 2. EXTERNOS -->
+      <button type="button" class="counter-btn btn-externos" data-cat="externos" data-bg-icon="🚗">
+        <span class="btn-icon">🚗</span>
+        <span class="btn-label">Externos</span>
+        <span class="btn-count" id="count-externos">0</span>
+        <span class="btn-pending-badge" id="badge-externos">+1</span>
+      </button>
+
+      <!-- 3. PRESTADORES -->
+      <button type="button" class="counter-btn btn-prestadores" data-cat="prestadores" data-bg-icon="🛠️">
+        <span class="btn-icon">🛠️</span>
+        <span class="btn-label">Prestadores</span>
+        <span class="btn-count" id="count-prestadores">0</span>
+        <span class="btn-pending-badge" id="badge-prestadores">+1</span>
+      </button>
+
+      <!-- 4. VISITAS -->
+      <button type="button" class="counter-btn btn-visitas" data-cat="visitas" data-bg-icon="👤">
+        <span class="btn-icon">👤</span>
+        <span class="btn-label">Visitas</span>
+        <span class="btn-count" id="count-visitas">0</span>
+        <span class="btn-pending-badge" id="badge-visitas">+1</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- SECCIÓN INFERIOR COMPACTA (RESUMEN DEBAJO DE CONTADORES + DOCK DE APPS) -->
+  <div class="bottom-section">
+    <!-- BOTÓN DISPONIBILIDAD DE ESTACIONAMIENTO (CORTE 10:00 AM - SOLO EN MICHELENA, IMPULSO, EDISON, SIMÓN BOLÍVAR, CARRANZA, UNIVERSIDAD) -->
+    <button type="button" class="cdi-parking-btn" id="btnParkingAvailability" title="Disponibilidad de estacionamiento (Corte único diario 10:00 AM)">
+      <div class="parking-btn-left">
+        <span class="parking-btn-icon">🅿️</span>
+        <div class="parking-btn-texts">
+          <span class="parking-btn-label">Disponibilidad de estacionamiento</span>
+          <span class="parking-btn-sub" id="parkingBtnSubtext">Se llena una sola vez a las 10:00 AM</span>
+        </div>
+      </div>
+      <span class="parking-btn-badge badge-pending" id="parkingBtnBadge">⏰ 10:00 AM</span>
+    </button>
+
+    <!-- RESUMEN: CONTEO POR CASETA Y CONTEO GENERAL (CLICABLE PARA VER RESUMEN COMPACTO) -->
+    <div class="footer-summary is-clickable" id="footerSummaryDock" role="button" tabindex="0" title="Resumen de Conteos y Disponibilidad de Estacionamiento">
+      <div class="summary-item">
+        <span class="summary-title">Total Caseta</span>
+        <span class="summary-value" id="totalCaseta">0</span>
+      </div>
+      <div class="summary-item" style="text-align: right;">
+        <span class="summary-title">Total General</span>
+        <span class="summary-value" id="totalGeneral">0</span>
+      </div>
+    </div>
+
+    <!-- MODAL OVERLAY: RESUMEN DE TODAS LAS CASETAS EN TIEMPO REAL (COMPACTO) -->
+    <div class="all-casetas-modal-overlay" id="allCasetasModalOverlay">
+      <div class="compact-summary-top">
+        <button type="button" class="compact-back-btn" id="btnAllCasetasBack">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span id="btnModalBackText">Volver</span>
+        </button>
+        <h2 class="compact-top-title">Resumen General CDI</h2>
+        <div class="compact-live-tag">
+          <span class="compact-live-dot"></span>
+          <span>EN VIVO</span>
+        </div>
+      </div>
+
+      <div class="compact-casetas-list" id="allCasetasModalList">
+        <!-- Renderizado dinámico en tiempo real: Total de Ingresos (colapsable) + Total de Cajones (colapsable) -->
+      </div>
+    </div>
+
+    <!-- DOCK DE APLICACIONES DE CASETA (3 BOTONES: CHECADOR, RECORRIDOS, BITÁCORAS) -->
+    <nav class="app-dock-wrapper" aria-label="Aplicaciones de Caseta">
+      <div class="dock-header-label">Aplicaciones de Caseta</div>
+      <div class="app-dock">
+        <!-- 0. CÓDIGO QR ACCESO MÓVIL (A LA IZQUIERDA) -->
+        <button type="button" class="dock-app-btn" id="dockBtnQrMobile" data-app-name="Móvil QR" title="Abrir código QR para celular (https://cic-os-miniapps.web.app)">
+          <div class="dock-icon-squircle icon-qr" style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1.5" />
+              <rect x="14" y="3" width="7" height="7" rx="1.5" />
+              <rect x="14" y="14" width="7" height="7" rx="1.5" />
+              <rect x="3" y="14" width="7" height="7" rx="1.5" />
+              <path d="M7 7h.01M17 7h.01M17 17h.01M7 17h.01" stroke-width="3" />
+            </svg>
+          </div>
+          <span class="dock-app-title">Móvil</span>
+          <span class="dock-app-subtitle">Código QR</span>
+        </button>
+
+        <!-- 1. CHECADOR -->
+        <button type="button" class="dock-app-btn" id="dockBtnChecador" data-app-name="Checador">
+          <div class="dock-icon-squircle icon-checador">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+          <span class="dock-app-title">Checador</span>
+          <span class="dock-app-subtitle">Asistencia</span>
+        </button>
+
+        <!-- 2. RECORRIDOS -->
+        <button type="button" class="dock-app-btn" id="dockBtnRecorridos" data-app-name="Recorridos">
+          <div class="dock-icon-squircle icon-recorridos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+              <line x1="8" y1="2" x2="8" y2="18"/>
+              <line x1="16" y1="6" x2="16" y2="22"/>
+            </svg>
+          </div>
+          <span class="dock-app-title">Recorridos</span>
+          <span class="dock-app-subtitle">Rondines</span>
+        </button>
+
+        <!-- 3. BITÁCORAS -->
+        <button type="button" class="dock-app-btn" id="dockBtnBitacoras" data-app-name="Bitácoras">
+          <div class="dock-icon-squircle icon-bitacoras">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <span class="dock-app-title">Bitácoras</span>
+          <span class="dock-app-subtitle">Novedades</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+  </div> <!-- Fin cdiLeftPane -->
+
+  <!-- PANEL DERECHO: APLICACIÓN PARALELA EN ESCRITORIO -->
+  <div class="desktop-parallel-panel" id="desktopParallelPanel" style="display: none;">
+    <!-- Sin encabezado adicional: el iframe ocupa toda la altura -->
+    <div class="parallel-body" style="height: 100%; flex: 1;">
+      <iframe id="parallelIframe" src="" allow="camera; microphone; geolocation" class="parallel-iframe" title="Aplicación Paralela"></iframe>
+    </div>
+    <!-- Dock flotante solo dentro de la app derecha con botón rojo de cerrar -->
+    <div class="parallel-pane-dock-wrapper" id="parallelPaneDockWrapper">
+      <nav class="parallel-pane-dock-bar" id="parallelPaneDockBar" aria-label="Dock Aplicación Paralela">
+        <!-- Se puebla dinámicamente con las apps excepto la activa a la derecha y el botón rojo de cerrar -->
+      </nav>
+    </div>
+  </div>
+  </div> <!-- Fin desktopSplitRoot -->
+
+  <!-- MENÚ CONTEXTUAL FLOTANTE AL DAR CLIC DERECHO EN BOTÓN DEL DOCK -->
+  <div class="dock-context-menu" id="dockContextMenu" style="display: none;">
+    <div class="dock-context-menu-header" id="contextMenuTitle">Opciones de Aplicación</div>
+    <button type="button" class="dock-context-item" id="btnContextParallel">
+      <span class="dock-context-icon">◫</span>
+      <span id="labelContextParallel">Mostrar en paralelo</span>
+    </button>
+    <button type="button" class="dock-context-item" id="btnContextFullscreen">
+      <span class="dock-context-icon">🗖</span>
+      <span>Pantalla completa</span>
+    </button>
+  </div>
+
+  <!-- TOAST DE CONFIRMACIÓN DE SINCRONIZACIÓN -->
+  <div class="toast-sync" id="toastSync">
+    <span>✓ Sincronizado</span>
+  </div>
+
+  <!-- TOAST DESTACADO PRÓXIMAMENTE -->
+  <div class="toast-proximamente" id="toastProximamente">
+    <span style="font-size: 1.1rem;">🚀</span>
+    <span id="toastProximamenteText">Próximamente</span>
+  </div>
+
+  <!-- MODAL DE CÓDIGO QR PARA ACCESO MÓVIL (https://cic-os-miniapps.web.app) -->
+  <div class="qr-modal-backdrop" id="miniappsQrModal" style="display: none;">
+    <div class="qr-modal-card">
+      <div class="qr-modal-header">
+        <div class="qr-header-title">
+          <span class="qr-header-icon">📱</span>
+          <div>
+            <h3>Acceso Móvil Mini Apps</h3>
+            <p>Escanea el código con tu celular</p>
+          </div>
+        </div>
+        <button type="button" class="qr-modal-close-btn" id="btnQrModalClose" aria-label="Cerrar">✕</button>
+      </div>
+
+      <div class="qr-modal-body">
+        <div class="qr-code-frame">
+          <img id="qrModalImg" src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=https%3A%2F%2Fcic-os-miniapps.web.app&margin=6" alt="Código QR Mini Apps">
+        </div>
+
+        <div class="qr-url-box">
+          <span class="qr-url-text">https://cic-os-miniapps.web.app</span>
+          <button type="button" class="qr-copy-btn" id="btnQrCopyLink">Copiar</button>
+        </div>
+
+        <p class="qr-hint">
+          Apunta con la cámara de tu teléfono móvil para abrir la versión portátil de CDI, Checador Facial, Recorridos y Bitácoras.
+        </p>
+      </div>
+
+      <div class="qr-modal-footer">
+        <button type="button" class="qr-btn-primary" id="btnQrModalBottomClose">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE DISPONIBILIDAD DE ESTACIONAMIENTO (CORTE 10:00 AM) -->
+  <div class="parking-modal-backdrop" id="parkingModalBackdrop">
+    <div class="parking-modal-card" role="dialog" aria-modal="true">
+      <div class="parking-modal-header">
+        <div class="parking-modal-title-group">
+          <span style="font-size: 1.4rem;">🅿️</span>
+          <div>
+            <h3 class="parking-modal-title">Disponibilidad de estacionamiento</h3>
+            <p class="parking-modal-subtitle" id="parkingModalSubtitle">Caseta • Corte único 10:00 AM</p>
+          </div>
+        </div>
+        <button type="button" class="parking-modal-close" id="btnParkingModalClose">✕</button>
+      </div>
+      <div class="parking-modal-notice" id="parkingModalNotice"></div>
+      <form class="parking-modal-body" id="parkingModalForm">
+        <div id="parkingModalSections"></div>
+        <div class="parking-modal-footer" id="parkingModalFooter"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- LÓGICA DE CONTROL, SINCRONIZACIÓN Y ACTUALIZACIÓN EN VIVO -->
+  <script>
+    (function() {
+      // Detección estricta PC vs Móvil (Desactiva por completo simulación de PC en móviles)
+      function checkIsPcMode() {
+        if (window.location.search.includes('device=mobile')) return false;
+        if (window.location.search.includes('device=pc')) return true;
+
+        try {
+          const ua = navigator.userAgent || '';
+          const platform = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '';
+          const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|Silk|Kindle/i.test(ua) || (navigator.userAgentData && navigator.userAgentData.mobile);
+
+          // EN MÓVILES: DESACTIVAR POR COMPLETO LA VISTA DE COMPUTADORA
+          if (isMobileUA) return false;
+
+          const isDesktopOS = (/Win|Mac|Linux|X11/i.test(platform) || /Windows NT|Macintosh|X11/i.test(ua)) && !isMobileUA;
+          if (isDesktopOS && window.innerWidth >= 768) return true;
+        } catch (e) {}
+
+        return false;
+      }
+
+      // Detección dinámica e inteligente del backend (Local, Red Caseta 10.x / 192.168.x, o Cloud Worker UBE)
+      const resolveBackendBase = () => {
+        // Limpieza preventiva de túneles trycloudflare obsoletos, ngrok inactivo, Cloudflare y Mixed Content
+        try {
+          const cur = localStorage.getItem('regas_active_api_base');
+          if (cur && (cur.includes('trycloudflare') || cur.includes('ngrok') || cur.includes('cic-10.com') || cur.includes('workers.dev') || (window.location.protocol === 'https:' && cur.startsWith('http://')))) {
+            localStorage.removeItem('regas_active_api_base');
+          }
+        } catch(e) {}
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const qBackend = urlParams.get('backend') || urlParams.get('api');
+        if (qBackend) {
+          if (window.location.protocol === 'https:' && qBackend.startsWith('http://')) {
+            // Ignorar backend HTTP en HTTPS para evitar bloqueo de contenido mixto
+          } else {
+            try { localStorage.setItem('regas_active_api_base', qBackend); } catch(e) {}
+            return qBackend.replace(/\/+$/, '');
+          }
+        }
+        const qIp = urlParams.get('ip');
+        if (qIp && window.location.protocol !== 'https:') {
+          const formatted = `http://${qIp}:7001`;
+          try { localStorage.setItem('regas_active_api_base', formatted); } catch(e) {}
+          return formatted;
+        }
+
+        const h = window.location.hostname;
+        const p = window.location.port;
+
+        // 1. Si se sirve desde el servidor local (puerto 7000 o 7001)
+        if (p === '7000' || p === '7001') return '';
+
+        // 2. Si corre en localhost o 127.0.0.1 (solo en HTTP)
+        if (h === 'localhost' || h === '127.0.0.1') {
+          return window.location.protocol === 'https:' ? '' : 'http://127.0.0.1:7001';
+        }
+
+        // 3. Si corre desde la red interna de la caseta (10.x, 192.168.x, 172.x) en HTTP
+        if ((h.startsWith('10.') || h.startsWith('192.168.') || /^172\.(1[6-9]|2\d|3[01])\./.test(h)) && window.location.protocol !== 'https:') {
+          return `http://${h}:7001`;
+        }
+
+        // 4. Si se configuró previamente en localStorage
+        try {
+          const cached = localStorage.getItem('regas_active_api_base');
+          if (cached && !cached.includes('10.200.79.175') && !cached.includes('trycloudflare') && !cached.includes('ngrok') && !cached.includes('cic-10.com') && !cached.includes('workers.dev')) {
+            if (window.location.protocol === 'https:' && cached.startsWith('http://')) {
+              // Descartar HTTP en HTTPS
+            } else {
+              return cached.replace(/\/+$/, '');
+            }
+          }
+        } catch(e) {}
+
+        // 5. Fallback por defecto oficial: Conector Tailscale UBE (oxosd450mlh.taile94978.ts.net)
+        const isEmergency = urlParams.get('emergency') === '1' || urlParams.get('backend') === 'ngrok';
+        if (isEmergency) {
+          return 'https://oxosd450mlh.taile94978.ts.net';
+        }
+        return 'https://oxosd450mlh.taile94978.ts.net';
+      };
+
+      let BACKEND_BASE = resolveBackendBase();
+
+      const API_HEADERS = {
+        'Content-Type': 'application/json',
+        'Bypass-Tunnel-Reminder': 'true',
+        'bypass-tunnel-reminder': 'true',
+        'ngrok-skip-browser-warning': 'true'
+      };
+
+      const getTodayIso = () => {
+        try {
+          const mx = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Monterrey' }).format(new Date());
+          if (/^\d{4}-\d{2}-\d{2}$/.test(mx)) return mx;
+        } catch (e) {}
+        const d = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      };
+
+      let currentDate = getTodayIso();
+      const validCasetas = ['Recepción Edison', 'Edison', 'Impulso', 'Michelena', 'Simón Bolívar', 'Carranza', 'Universidad', 'Anexo Edison'];
+
+      const normCasetaStr = s => String(s || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const canonicalCasetaName = (name) => {
+        const n = normCasetaStr(name);
+        if (n === 'recepcion edison') return 'Recepción Edison';
+        if (n.includes('simon') && n.includes('bolivar')) return 'Simón Bolívar';
+        return name || 'Recepción Edison';
+      };
+
+      // Recuperar caseta desde parámetro de URL (?caseta=... con espacios convertidos a "_")
+      let casetaFromUrl = '';
+      try {
+        const cdiUrlParams = new URLSearchParams(window.location.search);
+        const rawC = cdiUrlParams.get('caseta') || cdiUrlParams.get('c');
+        if (rawC) {
+          casetaFromUrl = rawC.replace(/_/g, ' ').trim();
+        }
+      } catch (e) {}
+
+      let storedCaseta = casetaFromUrl
+        ? canonicalCasetaName(casetaFromUrl)
+        : canonicalCasetaName(localStorage.getItem('regas_cdi_last_caseta') || localStorage.getItem('caseta_seleccionada_cic') || 'Recepción Edison');
+
+      if (!validCasetas.some(v => normCasetaStr(v) === normCasetaStr(storedCaseta))) {
+        if (!casetaFromUrl) storedCaseta = 'Recepción Edison';
+      } else {
+        storedCaseta = validCasetas.find(v => normCasetaStr(v) === normCasetaStr(storedCaseta)) || storedCaseta;
+      }
+      localStorage.setItem('regas_cdi_last_caseta', storedCaseta);
+      localStorage.setItem('caseta_seleccionada_cic', storedCaseta);
+      let currentCaseta = storedCaseta;
+
+      function syncCasetaSelectDOM(targetCaseta) {
+        currentCaseta = canonicalCasetaName(targetCaseta);
+        localStorage.setItem('regas_cdi_last_caseta', currentCaseta);
+        localStorage.setItem('caseta_seleccionada_cic', currentCaseta);
+        if (casetaSelect) {
+          const targetNorm = normCasetaStr(currentCaseta);
+          const existingOpt = Array.from(casetaSelect.options).find(o => normCasetaStr(o.value) === targetNorm);
+          if (!existingOpt) {
+            casetaSelect.add(new Option(currentCaseta, currentCaseta));
+            casetaSelect.value = currentCaseta;
+          } else {
+            casetaSelect.value = existingOpt.value;
+            currentCaseta = existingOpt.value;
+          }
+        }
+      }
+      let currentMode = 1; // 1 = sumar, -1 = restar/corregir
+
+      const counts = {
+        internos: 0,
+        externos: 0,
+        prestadores: 0,
+        visitas: 0
+      };
+
+      const pendingDeltas = {
+        internos: 0,
+        externos: 0,
+        prestadores: 0,
+        visitas: 0
+      };
+
+      const debounceTimers = {};
+      const statusDot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
+      const toastSync = document.getElementById('toastSync');
+      const casetaSelect = document.getElementById('casetaSelect');
+      const btnModeAdd = document.getElementById('btnModeAdd');
+      const btnModeSub = document.getElementById('btnModeSub');
+      const modeAlertBanner = document.getElementById('modeAlertBanner');
+
+      // Selector de Modo Claro / Oscuro con persistencia (Modo Claro por defecto)
+      let currentAppTheme = localStorage.getItem('miniapps_theme') || 'light';
+      const applyAppTheme = (t) => {
+        currentAppTheme = t;
+        document.documentElement.setAttribute('data-theme', t);
+        if (document.body) document.body.setAttribute('data-theme', t);
+        localStorage.setItem('miniapps_theme', t);
+        const btn = document.getElementById('btnThemeToggle');
+        if (btn) {
+          btn.textContent = t === 'light' ? '☀️ Claro' : '🌙 Oscuro';
+          btn.title = `Cambiar a modo ${t === 'light' ? 'oscuro' : 'claro'}`;
+        }
+      };
+      applyAppTheme(currentAppTheme);
+      const btnThemeEl = document.getElementById('btnThemeToggle');
+      if (btnThemeEl) {
+        btnThemeEl.addEventListener('click', () => {
+          applyAppTheme(currentAppTheme === 'light' ? 'dark' : 'light');
+        });
+      }
+
+      if (btnModeAdd && btnModeSub) {
+        btnModeAdd.addEventListener('click', () => {
+          currentMode = 1;
+          btnModeAdd.classList.add('active');
+          btnModeSub.classList.remove('active');
+          document.body.classList.remove('sub-mode');
+          if (modeAlertBanner) modeAlertBanner.classList.remove('show');
+          triggerHaptic(20);
+        });
+        btnModeSub.addEventListener('click', () => {
+          currentMode = -1;
+          btnModeSub.classList.add('active');
+          btnModeAdd.classList.remove('active');
+          document.body.classList.add('sub-mode');
+          if (modeAlertBanner) modeAlertBanner.classList.add('show');
+          triggerHaptic(30);
+        });
+      }
+
+      if (currentCaseta) {
+        casetaSelect.value = currentCaseta;
+      }
+
+      const notifyParallelCasetaChange = () => {
+        const pIframe = document.getElementById('parallelIframe');
+        if (pIframe && pIframe.contentWindow) {
+          try {
+            pIframe.contentWindow.postMessage({ type: 'cdi_caseta_changed', caseta: currentCaseta }, '*');
+          } catch (e) {}
+        }
+      };
+
+      casetaSelect.addEventListener('change', (e) => {
+        currentCaseta = e.target.value;
+        localStorage.setItem('regas_cdi_last_caseta', currentCaseta);
+        localStorage.setItem('caseta_seleccionada_cic', currentCaseta);
+        notifyParallelCasetaChange();
+        fetchCdiData();
+
+        // Notificar cambio de caseta al backend para sincronizar en tiempo real con RegAs 3
+        if (BACKEND_BASE) {
+          fetch(`${BACKEND_BASE}/api/cdi/devices/caseta`, {
+            method: 'POST',
+            headers: API_HEADERS,
+            body: JSON.stringify({ deviceId: deviceUuid, caseta: currentCaseta, source: 'mobile' })
+          }).catch(() => {});
+        }
+
+        if (typeof sendDeviceHeartbeat === 'function') {
+          sendDeviceHeartbeat();
+        }
+      });
+
+      // Feedback táctil háptico
+      const triggerHaptic = (ms = 25) => {
+        if (navigator.vibrate) {
+          try { navigator.vibrate(ms); } catch (e) {}
+        }
+      };
+
+      const showToast = (msg = '✓ Sincronizado') => {
+        toastSync.textContent = msg;
+        toastSync.classList.add('show');
+        setTimeout(() => {
+          toastSync.classList.remove('show');
+        }, 1500);
+      };
+
+      // Notificación Próximamente para los botones del Dock
+      let toastProxTimer = null;
+      const showProximamente = (nombreModulo) => {
+        triggerHaptic(35);
+        const toastEl = document.getElementById('toastProximamente');
+        const textEl = document.getElementById('toastProximamenteText');
+        if (toastEl && textEl) {
+          textEl.textContent = `Próximamente: Módulo de ${nombreModulo}`;
+          toastEl.classList.add('show');
+          if (toastProxTimer) clearTimeout(toastProxTimer);
+          toastProxTimer = setTimeout(() => {
+            toastEl.classList.remove('show');
+          }, 2000);
+        }
+      };
+
+      let currentParallelKey = null;
+      let activeContextConfig = null;
+
+      // Aplicar visibilidad de funciones recibidas del servidor (Checador, Recorridos, Bitácoras)
+      const applyDeviceFeatures = (features) => {
+        if (!features || typeof features !== 'object') return;
+        const normalized = {
+          checador: features.checador === true,
+          recorridos: features.recorridos === true,
+          bitacoras: (features.bitacoras === true || features.bitacora === true),
+          mec: features.mec === true
+        };
+        try {
+          localStorage.setItem('regas_cdi_device_features', JSON.stringify(normalized));
+        } catch (e) {}
+        const map = {
+          checador:   'dockBtnChecador',
+          recorridos: 'dockBtnRecorridos',
+          bitacoras:  'dockBtnBitacoras',
+          mec:        'dockBtnMec'
+        };
+        Object.entries(map).forEach(([key, btnId]) => {
+          const btn = document.getElementById(btnId);
+          if (!btn) return;
+          const enabled = Boolean(normalized[key] === true); // por defecto falso (solo CDI visible)
+          btn.style.display = enabled ? '' : 'none';
+        });
+        // Ocultar/mostrar la sección entera del dock: solo se muestra si al menos una mini app extra está habilitada
+        const dockWrapper = document.querySelector('.app-dock-wrapper');
+        if (dockWrapper) {
+          const hasAny = (normalized.checador || normalized.recorridos || normalized.bitacoras || normalized.mec);
+          dockWrapper.style.display = hasAny ? '' : 'none';
+        }
+        if (typeof renderParallelPaneDock === 'function' && currentParallelKey) {
+          renderParallelPaneDock(currentParallelKey);
+        }
+      };
+
+      // Cargar features cacheadas de inmediato para evitar parpadeo
+      try {
+        const cachedFeaturesRaw = localStorage.getItem('regas_cdi_device_features');
+        if (cachedFeaturesRaw) {
+          applyDeviceFeatures(JSON.parse(cachedFeaturesRaw));
+        }
+      } catch (e) {}
+
+      // =========================================================================
+      // VISTA PARALELA EN ESCRITORIO Y MENÚ CONTEXTUAL (CLIC DERECHO EN DOCK)
+      // =========================================================================
+      const appConfigs = {
+        dockBtnChecador: { key: 'checador', name: 'Checador', icon: '📸', title: 'Checador Facial IA', route: 'checador-movil.html' },
+        dockBtnRecorridos: { key: 'recorridos', name: 'Recorridos', icon: '🛡️', title: 'Recorridos GPS', route: 'recorrido-movil.html' },
+        dockBtnBitacoras: { key: 'bitacoras', name: 'Bitácoras', icon: '📋', title: 'Bitácora Digital', route: 'bitacora-movil.html' }
+      };
+
+      const desktopSplitRoot = document.getElementById('desktopSplitRoot');
+      const desktopParallelPanel = document.getElementById('desktopParallelPanel');
+      const parallelIframe = document.getElementById('parallelIframe');
+      const parallelHeaderIcon = document.getElementById('parallelHeaderIcon');
+      const parallelHeaderTitle = document.getElementById('parallelHeaderTitle');
+      const btnParallelClose = document.getElementById('btnParallelClose');
+      const btnParallelFullscreen = document.getElementById('btnParallelFullscreen');
+
+      const dockContextMenu = document.getElementById('dockContextMenu');
+      const contextMenuTitle = document.getElementById('contextMenuTitle');
+      const btnContextParallel = document.getElementById('btnContextParallel');
+      const labelContextParallel = document.getElementById('labelContextParallel');
+      const btnContextFullscreen = document.getElementById('btnContextFullscreen');
+
+      const renderParallelPaneDock = (activeKey) => {
+        const dockBar = document.getElementById('parallelPaneDockBar');
+        if (!dockBar) return;
+
+        let feats = {};
+        try {
+          feats = JSON.parse(localStorage.getItem('regas_cdi_device_features') || '{}');
+        } catch (e) {}
+
+        const allDockApps = [
+          {
+            key: 'cdi',
+            name: 'CDI',
+            iconHtml: '<div class="dock-icon-squircle" style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M7 12h10M12 7v10" /></svg></div>'
+          },
+          {
+            key: 'checador',
+            name: 'Checador',
+            iconHtml: '<div class="dock-icon-squircle icon-checador"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></div>'
+          },
+          {
+            key: 'recorridos',
+            name: 'Recorridos',
+            iconHtml: '<div class="dock-icon-squircle icon-recorridos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg></div>'
+          },
+          {
+            key: 'bitacoras',
+            name: 'Bitácoras',
+            iconHtml: '<div class="dock-icon-squircle icon-bitacoras"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>'
+          }
+        ];
+
+        // Excluir apps visibles en pantalla: CDI (panel izquierdo) y activeKey (panel derecho)
+        // El dock solo debe mostrar las aplicaciones habilitadas que NO están visibles
+        const filteredApps = allDockApps.filter(a => {
+          if (a.key === 'cdi' || a.key === activeKey) return false;
+          if (a.key === 'checador') return feats.checador === true;
+          if (a.key === 'recorridos') return feats.recorridos === true;
+          if (a.key === 'bitacoras') return (feats.bitacoras === true || feats.bitacora === true);
+          return false;
+        });
+
+        if (filteredApps.length === 0) {
+          dockBar.classList.add('compact-parallel');
+          dockBar.classList.remove('only-close');
+        } else {
+          dockBar.classList.remove('compact-parallel');
+          dockBar.classList.remove('only-close');
+        }
+
+        let html = '';
+
+        // 1. Botón de código QR SIEMPRE a la izquierda
+        html += `
+          <button type="button" class="parallel-dock-app-btn parallel-dock-btn-qr" id="btnParallelQr" title="Abrir código QR para celular (https://cic-os-miniapps.web.app)">
+            <div class="dock-icon-squircle icon-qr" style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff;">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                <path d="M7 7h.01M17 7h.01M17 17h.01M7 17h.01" stroke-width="3" />
+              </svg>
+            </div>
+            ${filteredApps.length > 0 ? '<span class="parallel-dock-app-label">Móvil</span>' : ''}
+          </button>
+        `;
+
+        // 2. Aplicaciones disponibles y no visibles EN MEDIO en todos los casos
+        filteredApps.forEach(a => {
+          html += `
+            <button type="button" class="parallel-dock-app-btn" data-key="${a.key}" title="${a.name}">
+              ${a.iconHtml}
+              <span class="parallel-dock-app-label">${a.name}</span>
+            </button>
+          `;
+        });
+
+        // 3. Botón de cerrar rojo y sin etiqueta al lado DERECHO
+        html += `
+          <button type="button" class="parallel-dock-btn-close" id="btnParallelPaneClose" title="Cerrar vista paralela" aria-label="Cerrar vista paralela">
+            <div class="parallel-dock-close-icon">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
+          </button>
+        `;
+
+        dockBar.innerHTML = html;
+
+        // Evento botón QR en panel paralelo
+        const qrBtn = document.getElementById('btnParallelQr');
+        if (qrBtn) {
+          qrBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openQrModal();
+          });
+        }
+
+        // Eventos en los botones del dock del panel paralelo
+        const closeBtn = document.getElementById('btnParallelPaneClose');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeParallelApp();
+          });
+        }
+
+        dockBar.querySelectorAll('.parallel-dock-app-btn:not(#btnParallelQr)').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const key = btn.dataset.key;
+            if (key === 'cdi') {
+              closeParallelApp();
+            } else {
+              const cfg = Object.values(appConfigs).find(c => c.key === key);
+              if (cfg) openParallelApp(cfg);
+            }
+          });
+        });
+      };
+
+      const openParallelApp = (cfg) => {
+        if (!cfg) return;
+        currentParallelKey = cfg.key;
+        localStorage.setItem('miniapps_parallel_app', cfg.key);
+
+        if (parallelIframe) {
+          const search = window.location.search || '';
+          const separator = cfg.route.includes('?') ? '&' : '?';
+          parallelIframe.src = `${cfg.route}${separator}embedded=1&device=pc${search ? '&' + search.replace(/^\?/, '') : ''}`;
+        }
+
+        if (desktopSplitRoot) desktopSplitRoot.classList.add('split-active');
+        if (desktopParallelPanel) desktopParallelPanel.style.display = 'flex';
+
+        // Renderizar el dock dentro del panel derecho excluyendo la app activa
+        renderParallelPaneDock(cfg.key);
+
+        // Actualizar estados visuales de los botones del dock
+        Object.entries(appConfigs).forEach(([btnId, c]) => {
+          const b = document.getElementById(btnId);
+          if (b) {
+            b.classList.toggle('is-parallel', c.key === cfg.key);
+          }
+        });
+      };
+
+      // Control del Modal de Código QR para acceso móvil (https://cic-os-miniapps.web.app)
+      const miniappsQrModal = document.getElementById('miniappsQrModal');
+      const btnQrModalClose = document.getElementById('btnQrModalClose');
+      const btnQrModalBottomClose = document.getElementById('btnQrModalBottomClose');
+      const btnQrCopyLink = document.getElementById('btnQrCopyLink');
+      const dockBtnQrMobile = document.getElementById('dockBtnQrMobile');
+
+      const openQrModal = () => {
+        if (miniappsQrModal) miniappsQrModal.style.display = 'flex';
+      };
+
+      const closeQrModal = () => {
+        if (miniappsQrModal) miniappsQrModal.style.display = 'none';
+      };
+
+      if (btnQrModalClose) btnQrModalClose.addEventListener('click', closeQrModal);
+      if (btnQrModalBottomClose) btnQrModalBottomClose.addEventListener('click', closeQrModal);
+      if (miniappsQrModal) {
+        miniappsQrModal.addEventListener('click', (e) => {
+          if (e.target === miniappsQrModal) closeQrModal();
+        });
+      }
+
+      if (btnQrCopyLink) {
+        btnQrCopyLink.addEventListener('click', () => {
+          const url = 'https://cic-os-miniapps.web.app';
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(() => {
+              btnQrCopyLink.textContent = '✓ Copiado';
+              btnQrCopyLink.classList.add('copied');
+              setTimeout(() => {
+                btnQrCopyLink.textContent = 'Copiar';
+                btnQrCopyLink.classList.remove('copied');
+              }, 2200);
+            });
+          }
+        });
+      }
+
+      if (dockBtnQrMobile) {
+        dockBtnQrMobile.addEventListener('click', (e) => {
+          e.preventDefault();
+          openQrModal();
+        });
+      }
+
+      const closeParallelApp = () => {
+        currentParallelKey = null;
+        localStorage.removeItem('miniapps_parallel_app');
+
+        if (desktopSplitRoot) desktopSplitRoot.classList.remove('split-active');
+        if (desktopParallelPanel) desktopParallelPanel.style.display = 'none';
+        if (parallelIframe) parallelIframe.src = '';
+
+        Object.keys(appConfigs).forEach((btnId) => {
+          const b = document.getElementById(btnId);
+          if (b) b.classList.remove('is-parallel');
+        });
+      };
+
+      if (btnParallelClose) {
+        btnParallelClose.addEventListener('click', closeParallelApp);
+      }
+
+      if (btnParallelFullscreen) {
+        btnParallelFullscreen.addEventListener('click', () => {
+          if (currentParallelKey) {
+            const cfg = Object.values(appConfigs).find(c => c.key === currentParallelKey);
+            if (cfg) {
+              const search = window.location.search || '';
+              window.location.href = cfg.route + search;
+            }
+          }
+        });
+      }
+
+      // Cerrar menú contextual al hacer clic fuera o al redimensionar
+      const hideContextMenu = () => {
+        if (dockContextMenu) dockContextMenu.style.display = 'none';
+        activeContextConfig = null;
+      };
+      window.addEventListener('click', hideContextMenu);
+      window.addEventListener('resize', hideContextMenu);
+      window.addEventListener('scroll', hideContextMenu);
+
+      // Configurar eventos de clic izquierdo y clic derecho para cada botón del Dock
+      Object.entries(appConfigs).forEach(([btnId, cfg]) => {
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+
+        // Clic izquierdo
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const search = window.location.search || '';
+          const isDesktop = checkIsPcMode();
+
+          // En escritorio: si no está abierta en paralelo, abrirla en paralelo directamente o cambiarla
+          if (isDesktop) {
+            if (currentParallelKey === cfg.key) {
+              // Ya está abierta en paralelo: alternar/cerrar
+              closeParallelApp();
+            } else {
+              openParallelApp(cfg);
+            }
+            return;
+          }
+
+          // En móvil: pantalla completa como siempre
+          const sep = cfg.route.includes('?') ? '&' : '?';
+          window.location.href = `${cfg.route}${sep}device=mobile${search ? '&' + search.replace(/^\?/, '') : ''}`;
+        });
+
+        // Clic derecho (ContextMenu): Menú con opción explícita "Mostrar en paralelo"
+        btn.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          activeContextConfig = cfg;
+          if (contextMenuTitle) {
+            contextMenuTitle.textContent = `Opciones de ${cfg.name}`;
+          }
+
+          if (labelContextParallel) {
+            labelContextParallel.textContent = (currentParallelKey === cfg.key)
+              ? 'Cerrar vista paralela'
+              : 'Mostrar en paralelo';
+          }
+
+          const rect = btn.getBoundingClientRect();
+          const menuWidth = 220;
+          const menuHeight = 90;
+          const posX = Math.max(10, Math.min(window.innerWidth - menuWidth - 10, rect.left + rect.width / 2 - menuWidth / 2));
+          const posY = Math.max(10, rect.top - menuHeight - 10);
+
+          if (dockContextMenu) {
+            dockContextMenu.style.left = `${posX}px`;
+            dockContextMenu.style.top = `${posY}px`;
+            dockContextMenu.style.display = 'flex';
+          }
+        });
+      });
+
+      // Acciones del Menú Contextual
+      if (btnContextParallel) {
+        btnContextParallel.addEventListener('click', (e) => {
+          e.stopPropagation();
+          hideContextMenu();
+          if (!activeContextConfig) return;
+
+          if (currentParallelKey === activeContextConfig.key) {
+            closeParallelApp();
+          } else {
+            openParallelApp(activeContextConfig);
+          }
+        });
+      }
+
+      if (btnContextFullscreen) {
+        btnContextFullscreen.addEventListener('click', (e) => {
+          e.stopPropagation();
+          hideContextMenu();
+          if (!activeContextConfig) return;
+          const search = window.location.search || '';
+          window.location.href = activeContextConfig.route + search;
+        });
+      }
+
+      // Restaurar app paralela al cargar si está en escritorio y hay preferencia guardada
+      try {
+        const savedParallel = localStorage.getItem('miniapps_parallel_app');
+        if (savedParallel && checkIsPcMode()) {
+          const cfg = Object.values(appConfigs).find(c => c.key === savedParallel);
+          if (cfg) {
+            setTimeout(() => openParallelApp(cfg), 200);
+          }
+        }
+      } catch (e) {}
+
+      const updateUI = () => {
+        ['internos', 'externos', 'prestadores', 'visitas'].forEach(cat => {
+          const countEl = document.getElementById(`count-${cat}`);
+          const badgeEl = document.getElementById(`badge-${cat}`);
+          if (countEl) countEl.textContent = counts[cat] || 0;
+
+          if (badgeEl) {
+            const delta = pendingDeltas[cat];
+            if (delta !== 0) {
+              badgeEl.textContent = delta > 0 ? `+${delta}` : `${delta}`;
+              badgeEl.style.display = 'inline-block';
+              badgeEl.style.background = delta > 0 ? '#ef4444' : '#64748b';
+            } else {
+              badgeEl.style.display = 'none';
+            }
+          }
+        });
+
+        const totalCas = (counts.internos || 0) + (counts.externos || 0) + (counts.prestadores || 0) + (counts.visitas || 0);
+        const totalCasEl = document.getElementById('totalCaseta');
+        if (totalCasEl) totalCasEl.textContent = totalCas;
+        if (typeof updateParkingButtonUI === 'function') updateParkingButtonUI();
+      };
+      // =========================================================================
+      // DISPONIBILIDAD DE ESTACIONAMIENTO (CORTE ÚNICO DIARIO 10:00 AM)
+      // =========================================================================
+      const PARKING_SCHEMAS = {
+        'michelena': {
+          caseta: 'Michelena',
+          icon: '📍',
+          totalCapacity: 352,
+          sections: [
+            {
+              title: 'Michelena',
+              icon: '📍',
+              fields: [
+                { key: 'michelena_ordinarios', label: 'Ordinarios', shortLabel: 'Ord.', total: 164 },
+                { key: 'michelena_exclusivos', label: 'Exclusivos', shortLabel: 'Excl.', total: 18 }
+              ]
+            },
+            {
+              title: 'Estacionamiento Anexo (Michelenita)',
+              icon: '🅿️',
+              fields: [
+                { key: 'anexo_ordinarios', label: 'Ordinarios', shortLabel: 'Anexo', total: 170 }
+              ]
+            }
+          ]
+        },
+        'impulso': {
+          caseta: 'Impulso',
+          icon: '⚡',
+          totalCapacity: 268,
+          sections: [
+            {
+              title: 'Impulso',
+              icon: '⚡',
+              fields: [
+                { key: 'impulso_ordinarios', label: 'Ordinarios', shortLabel: 'Ord.', total: 203 },
+                { key: 'impulso_exclusivos', label: 'Exclusivos', shortLabel: 'Excl.', total: 39 }
+              ]
+            },
+            {
+              title: 'Estacionamiento Anexo Domínguez',
+              icon: '🅿️',
+              fields: [
+                { key: 'anexo_dominguez_ordinarios', label: 'Ordinarios', shortLabel: 'Domínguez', total: 26 }
+              ]
+            }
+          ]
+        },
+        'edison': {
+          caseta: 'Edison',
+          icon: '🛡️',
+          totalCapacity: 112,
+          sections: [
+            {
+              title: 'Edison',
+              icon: '🛡️',
+              fields: [
+                { key: 'edison_ordinarios', label: 'Ordinarios', shortLabel: 'Ord.', total: 43 },
+                { key: 'edison_exclusivos', label: 'Exclusivos', shortLabel: 'Excl.', total: 44 }
+              ]
+            },
+            {
+              title: 'Estacionamiento Anexo Vías',
+              icon: '🅿️',
+              fields: [
+                { key: 'anexo_vias_ordinarios', label: 'Ordinarios', shortLabel: 'Vías', total: 25 }
+              ]
+            }
+          ]
+        },
+        'simon bolivar': {
+          caseta: 'Simón Bolívar',
+          icon: '🏛️',
+          totalCapacity: 24,
+          sections: [
+            {
+              title: 'Simón Bolívar',
+              icon: '🏛️',
+              fields: [
+                { key: 'disponibilidad_general', label: 'Disponibilidad General', shortLabel: 'General', total: 24 }
+              ]
+            }
+          ]
+        },
+        'carranza': {
+          caseta: 'Carranza',
+          icon: '🚪',
+          totalCapacity: 126,
+          sections: [
+            {
+              title: 'Carranza',
+              icon: '🚪',
+              fields: [
+                { key: 'disponibilidad_general', label: 'Disponibilidad General', shortLabel: 'General', total: 126 }
+              ]
+            }
+          ]
+        },
+        'universidad': {
+          caseta: 'Universidad',
+          icon: '🏫',
+          totalCapacity: 207,
+          sections: [
+            {
+              title: 'Universidad',
+              icon: '🏫',
+              fields: [
+                { key: 'disponibilidad_general', label: 'Disponibilidad General', shortLabel: 'General', total: 207 }
+              ]
+            }
+          ]
+        }
+      };
+      const PARKING_ORDER = ['edison', 'impulso', 'michelena', 'carranza', 'universidad', 'simon bolivar'];
+      const TOTAL_PARKING_CAPACITY_ALL = 1089;
+      const getCasetaAvailableSum = (sch, rec) => {
+        if (!sch || !rec || !rec.captured || !rec.valores) return 0;
+        let s = 0;
+        sch.sections.forEach(sec => sec.fields.forEach(f => { s += Number(rec.valores[f.key] || 0); }));
+        return s;
+      };
+
+      let parkingByCaseta = {};
+      let parkingReportSentToday = false;
+      try {
+        const rawP = localStorage.getItem('regas_cdi_parking_' + currentDate);
+        if (rawP) parkingByCaseta = JSON.parse(rawP) || {};
+        parkingReportSentToday = localStorage.getItem('regas_cdi_parking_sent_' + currentDate) === '1';
+      } catch (e) {}
+
+      const setParkingReportSent = (isSent) => {
+        parkingReportSentToday = Boolean(isSent);
+        try {
+          localStorage.setItem('regas_cdi_parking_sent_' + currentDate, parkingReportSentToday ? '1' : '0');
+        } catch (e) {}
+        updateParkingButtonUI();
+      };
+
+      const saveLocalParking = () => {
+        try {
+          localStorage.setItem('regas_cdi_parking_' + currentDate, JSON.stringify(parkingByCaseta));
+        } catch (e) {}
+      };
+
+      const mergeRemoteParking = (remoteEst) => {
+        if (!remoteEst || typeof remoteEst !== 'object') return;
+        Object.entries(remoteEst).forEach(([k, val]) => {
+          if (val && val.captured) {
+            parkingByCaseta[normCasetaStr(k)] = val;
+          } else if (val && val.captured === false) {
+            delete parkingByCaseta[normCasetaStr(k)];
+          }
+        });
+        saveLocalParking();
+        updateParkingButtonUI();
+      };
+
+      const updateParkingButtonUI = () => {
+        const btn = document.getElementById('btnParkingAvailability');
+        const sub = document.getElementById('parkingBtnSubtext');
+        const badge = document.getElementById('parkingBtnBadge');
+
+        let globalAvail = 0;
+        let capturedCount = 0;
+        PARKING_ORDER.forEach(pk => {
+          const sc = PARKING_SCHEMAS[pk];
+          const rc = parkingByCaseta[pk];
+          if (sc && rc && rc.captured) {
+            capturedCount++;
+            globalAvail += getCasetaAvailableSum(sc, rc);
+          }
+        });
+
+        const isCasetaRecComplete = (sc, rc) => {
+          if (!sc || !rc || !rc.captured || !rc.valores) return false;
+          return sc.sections.every(s => s.fields.every(f => {
+            const v = rc.valores[f.key];
+            if (v === undefined || v === null || String(v).trim() === '') return false;
+            const n = Number(v);
+            return !Number.isNaN(n) && n >= 0;
+          }));
+        };
+
+        const key = normCasetaStr(currentCaseta);
+        const schema = PARKING_SCHEMAS[key];
+        const rec = parkingByCaseta[key];
+        const isCaptured = isCasetaRecComplete(schema, rec);
+        const casetaAvail = getCasetaAvailableSum(schema, rec);
+
+        if (!btn) return;
+        if (!schema) {
+          btn.classList.remove('visible');
+          return;
+        }
+        btn.classList.add('visible');
+        btn.classList.toggle('is-captured', isCaptured);
+        if (sub) {
+          sub.textContent = parkingReportSentToday
+            ? `🔒 Reporte enviado hoy • Disponibles: ${casetaAvail} / ${schema.totalCapacity}`
+            : isCaptured
+            ? `Disponibles: ${casetaAvail} / ${schema.totalCapacity} (${rec.horaRegistro || '10:00 AM'}) • Toca para editar antes del envío`
+            : `Capacidad: ${schema.totalCapacity} cajones • Se llena a las 10:00 AM`;
+        }
+        if (badge) {
+          badge.className = 'parking-btn-badge ' + (isCaptured ? 'badge-done' : 'badge-pending');
+          badge.textContent = parkingReportSentToday
+            ? `🔒 ${casetaAvail}/${schema.totalCapacity}`
+            : isCaptured
+            ? `✎ ${casetaAvail}/${schema.totalCapacity}`
+            : '⏰ 10:00 AM';
+        }
+      };
+
+      const openParkingModal = () => {
+        const key = normCasetaStr(currentCaseta);
+        const schema = PARKING_SCHEMAS[key];
+        if (!schema) return;
+        triggerHaptic(25);
+        const backdrop = document.getElementById('parkingModalBackdrop');
+        const subtitle = document.getElementById('parkingModalSubtitle');
+        const notice = document.getElementById('parkingModalNotice');
+        const sectionsEl = document.getElementById('parkingModalSections');
+        const footerEl = document.getElementById('parkingModalFooter');
+        if (!backdrop || !sectionsEl || !footerEl) return;
+
+        const rec = parkingByCaseta[key];
+        const isCaptured = Boolean(rec && rec.captured && rec.valores && schema.sections.every(s => s.fields.every(f => rec.valores[f.key] !== undefined && rec.valores[f.key] !== null && String(rec.valores[f.key]).trim() !== '')));
+        const isLocked = Boolean(parkingReportSentToday);
+
+        if (subtitle) subtitle.textContent = `Caseta ${schema.caseta} • Corte 10:00 AM`;
+        if (notice) {
+          notice.innerHTML = isLocked
+            ? `<div class="parking-notice-box notice-captured"><span>🔒</span><span><strong>Reporte 10:00 AM ya enviado hoy.</strong> Los datos están bloqueados hasta el siguiente día.</span></div>`
+            : isCaptured
+            ? `<div class="parking-notice-box notice-captured"><span>✎</span><span><strong>Datos capturados hoy (${rec.horaRegistro || '10:00 AM'}).</strong> Aún no se envía el reporte general, por lo que puedes modificar y actualizar los valores.</span></div>`
+            : `<div class="parking-notice-box notice-pending"><span>⏰</span><span><strong>Este dato se llena a las 10:00 AM.</strong> Podrás editarlo antes del envío; una vez enviado se bloquea hasta mañana.</span></div>`;
+        }
+
+        let secHtml = '';
+        schema.sections.forEach(sec => {
+          secHtml += `<div class="parking-section-card" style="margin-bottom:8px;">
+            <div class="parking-section-header"><span>${sec.icon}</span><span>${sec.title}</span></div>
+            <div class="parking-fields-grid">`;
+          sec.fields.forEach(f => {
+            const rawSaved = rec && rec.valores ? rec.valores[f.key] : undefined;
+            const hasSaved = isCaptured && rawSaved !== undefined && rawSaved !== null && String(rawSaved).trim() !== '';
+            const val = hasSaved ? String(rawSaved) : '';
+            if (isLocked) {
+              secHtml += `<div class="parking-field-item">
+                <label class="parking-field-label">${f.label}</label>
+                <div class="parking-field-readonly">${val || 0}</div>
+              </div>`;
+            } else {
+              secHtml += `<div class="parking-field-item">
+                <label class="parking-field-label" for="park_inp_${f.key}">${f.label} <small style="color:var(--text-muted);">(Máx: ${f.total})</small></label>
+                <div class="parking-stepper-control">
+                  <button type="button" class="parking-step-btn" data-step="-1" data-max="${f.total}" data-target="park_inp_${f.key}">−</button>
+                  <input id="park_inp_${f.key}" data-field-key="${f.key}" data-max="${f.total}" type="number" inputmode="numeric" min="0" max="${f.total}" placeholder="Sin capturar (mín. 0)" required class="parking-field-input" value="${val}">
+                  <button type="button" class="parking-step-btn" data-step="1" data-max="${f.total}" data-target="park_inp_${f.key}">+</button>
+                </div>
+              </div>`;
+            }
+          });
+          secHtml += `</div></div>`;
+        });
+        sectionsEl.innerHTML = secHtml;
+
+        sectionsEl.querySelectorAll('.parking-step-btn').forEach(b => {
+          b.addEventListener('click', () => {
+            const inp = document.getElementById(b.getAttribute('data-target'));
+            if (!inp) return;
+            const delta = parseInt(b.getAttribute('data-step'), 10) || 0;
+            const maxVal = parseInt(b.getAttribute('data-max'), 10) || 9999;
+            const rawCur = String(inp.value || '').trim();
+            let nextNum;
+            if (rawCur === '') {
+              nextNum = delta > 0 ? delta : 0;
+            } else {
+              const cur = parseInt(rawCur, 10) || 0;
+              nextNum = Math.max(0, cur + delta);
+            }
+            if (nextNum > maxVal) nextNum = maxVal;
+            inp.value = String(nextNum);
+            triggerHaptic(15);
+          });
+        });
+
+        if (isLocked) {
+          footerEl.innerHTML = `<button type="button" class="parking-btn-cancel" id="btnParkingCancelAct">Cerrar consulta (Bloqueado hasta mañana)</button>`;
+        } else {
+          footerEl.innerHTML = `
+            <button type="button" class="parking-btn-cancel" id="btnParkingCancelAct">Cancelar</button>
+            <button type="button" class="parking-btn-clear" id="btnParkingClearAct">Borrar</button>
+            <button type="submit" class="parking-btn-submit" id="btnParkingSubmitAct">${isCaptured ? 'Actualizar' : 'Guardar'}</button>
+          `;
+        }
+        const cancelAct = document.getElementById('btnParkingCancelAct');
+        if (cancelAct) cancelAct.addEventListener('click', () => backdrop.classList.remove('open'));
+        const clearAct = document.getElementById('btnParkingClearAct');
+        if (clearAct) {
+          clearAct.addEventListener('click', async () => {
+            sectionsEl.querySelectorAll('.parking-field-input').forEach(inp => { inp.value = ''; });
+            delete parkingByCaseta[key];
+            saveLocalParking();
+            updateParkingButtonUI();
+            const subBtn = document.getElementById('btnParkingSubmitAct');
+            if (subBtn) subBtn.textContent = 'Guardar';
+            triggerHaptic(25);
+            try {
+              const res = await fetch(`${BACKEND_BASE}/api/cdi/estacionamiento`, {
+                method: 'POST',
+                headers: API_HEADERS,
+                body: JSON.stringify({
+                  fecha: currentDate,
+                  caseta: currentCaseta,
+                  clear: true,
+                  action: 'clear',
+                  deviceId: deviceUuid
+                })
+              });
+              if (res.ok) {
+                const data = await res.json();
+                if (data && data.cdi && data.cdi.estacionamiento) {
+                  mergeRemoteParking(data.cdi.estacionamiento);
+                }
+              }
+            } catch (err) {
+              console.warn('Borrado local de estacionamiento:', err);
+            }
+          });
+        }
+
+        backdrop.classList.add('open');
+      };
+
+      const btnParkingEl = document.getElementById('btnParkingAvailability');
+      if (btnParkingEl) btnParkingEl.addEventListener('click', openParkingModal);
+      const btnParkingClose = document.getElementById('btnParkingModalClose');
+      if (btnParkingClose) {
+        btnParkingClose.addEventListener('click', () => {
+          const b = document.getElementById('parkingModalBackdrop');
+          if (b) b.classList.remove('open');
+        });
+      }
+      const parkingModalForm = document.getElementById('parkingModalForm');
+      if (parkingModalForm) {
+        parkingModalForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const key = normCasetaStr(currentCaseta);
+          const schema = PARKING_SCHEMAS[key];
+          if (!schema) return;
+          if (parkingReportSentToday) {
+            showToast('🔒 Reporte ya enviado hoy (Bloqueado hasta mañana)');
+            return;
+          }
+
+          const valores = {};
+          let allFilled = true;
+          parkingModalForm.querySelectorAll('.parking-field-input').forEach(inp => {
+            const k = inp.getAttribute('data-field-key');
+            const raw = String(inp.value ?? '').trim();
+            if (raw === '') {
+              allFilled = false;
+              return;
+            }
+            const v = parseInt(raw, 10);
+            if (Number.isNaN(v) || v < 0) {
+              allFilled = false;
+              return;
+            }
+            const maxVal = parseInt(inp.getAttribute('data-max'), 10);
+            valores[k] = (!Number.isNaN(maxVal) && maxVal > 0) ? Math.min(maxVal, v) : Math.max(0, v);
+          });
+
+          if (!allFilled) {
+            showToast('⚠️ Captura todos los campos (mínimo 0)');
+            return;
+          }
+
+          const horaRegistro = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+          parkingByCaseta[key] = {
+            caseta: schema.caseta,
+            fecha: currentDate,
+            horaCorte: '10:00 AM',
+            horaRegistro,
+            captured: true,
+            capturedAt: new Date().toISOString(),
+            valores
+          };
+          saveLocalParking();
+          updateParkingButtonUI();
+
+          const backdrop = document.getElementById('parkingModalBackdrop');
+          if (backdrop) backdrop.classList.remove('open');
+          showToast('✓ Estacionamiento (10:00 AM) guardado');
+
+          try {
+            const res = await fetch(`${BACKEND_BASE}/api/cdi/estacionamiento`, {
+              method: 'POST',
+              headers: API_HEADERS,
+              body: JSON.stringify({
+                fecha: currentDate,
+                caseta: currentCaseta,
+                valores,
+                horaRegistro,
+                deviceId: deviceUuid
+              })
+            });
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.cdi && data.cdi.estacionamiento) {
+                mergeRemoteParking(data.cdi.estacionamiento);
+              }
+              if (data && (data.estacionamientoDispatched === true || data.alreadyDispatched === true || (data.cdi && data.cdi.estacionamientoDispatched === true))) {
+                setParkingReportSent(true);
+              }
+            }
+          } catch (err) {
+            console.warn('Guardado local de estacionamiento:', err);
+          }
+        });
+      }
+
+
+      // Despacho acumulado tras 600ms de inactividad directamente a UBE / Worker
+      const queueDispatch = (cat) => {
+        statusDot.className = 'status-dot syncing';
+        statusText.textContent = 'Guardando...';
+
+        if (debounceTimers[cat]) {
+          clearTimeout(debounceTimers[cat]);
+        }
+
+        debounceTimers[cat] = setTimeout(async () => {
+          const deltaToSend = pendingDeltas[cat];
+          if (deltaToSend === 0) return;
+
+          pendingDeltas[cat] = 0;
+          updateUI();
+
+          try {
+            const res = await fetch(`${BACKEND_BASE}/api/cdi/increment`, {
+              method: 'POST',
+              headers: API_HEADERS,
+              body: JSON.stringify({
+                fecha: currentDate,
+                caseta: currentCaseta,
+                categoria: cat,
+                category: cat,
+                count: deltaToSend,
+                delta: deltaToSend,
+                deviceId: deviceUuid,
+                location: cachedDeviceLocation || null
+              })
+            });
+
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.cdi && data.cdi.casetas && data.cdi.casetas[currentCaseta]) {
+                const cObj = data.cdi.casetas[currentCaseta];
+                counts.internos = cObj.internos || 0;
+                counts.externos = cObj.externos || 0;
+                counts.prestadores = cObj.prestadores || 0;
+                counts.visitas = cObj.visitas || 0;
+              }
+              if (data && data.cdi && data.cdi.totals) {
+                const totalGenEl = document.getElementById('totalGeneral');
+                if (totalGenEl) totalGenEl.textContent = data.cdi.totals.total || 0;
+              }
+              updateUI();
+              statusDot.className = 'status-dot';
+              statusDot.style.background = '#10b981';
+              statusText.textContent = 'En Vivo';
+              showToast();
+              if (typeof sendDeviceHeartbeat === 'function') {
+                sendDeviceHeartbeat();
+              }
+            } else {
+              throw new Error('Servidor retornó ' + res.status);
+            }
+          } catch (err) {
+            console.error('Error sincronizando CDI:', err);
+            if (BACKEND_BASE !== 'https://oxosd450mlh.taile94978.ts.net') {
+              console.warn('[CDI] Reintentando incremento mediante Conector Tailscale UBE...');
+              BACKEND_BASE = 'https://oxosd450mlh.taile94978.ts.net';
+              try {
+                const res2 = await fetch(`${BACKEND_BASE}/api/cdi/increment`, {
+                  method: 'POST',
+                  headers: API_HEADERS,
+                  body: JSON.stringify({
+                    fecha: currentDate,
+                    caseta: currentCaseta,
+                    categoria: cat,
+                    category: cat,
+                    count: deltaToSend,
+                    delta: deltaToSend,
+                    deviceId: deviceUuid,
+                    location: cachedDeviceLocation || null
+                  })
+                });
+                if (res2.ok) {
+                  const data = await res2.json();
+                  if (data && data.cdi && data.cdi.casetas) {
+                    const cObj = findCasetaInMap(data.cdi.casetas, currentCaseta);
+                    counts.internos = cObj.internos || 0;
+                    counts.externos = cObj.externos || 0;
+                    counts.prestadores = cObj.prestadores || 0;
+                    counts.visitas = cObj.visitas || 0;
+                  }
+                  if (data && data.cdi && data.cdi.totals) {
+                    const totalGenEl = document.getElementById('totalGeneral');
+                    if (totalGenEl) totalGenEl.textContent = data.cdi.totals.total || 0;
+                  }
+                  updateUI();
+                  statusDot.className = 'status-dot';
+                  statusDot.style.background = '#10b981';
+                  statusText.textContent = 'En Vivo';
+                  showToast();
+                  if (typeof sendDeviceHeartbeat === 'function') sendDeviceHeartbeat();
+                  return;
+                }
+              } catch (e2) {
+                console.warn('[CDI] Fallback worker también falló:', e2);
+              }
+            }
+            statusDot.className = 'status-dot offline';
+            statusText.textContent = 'Reintentando...';
+            pendingDeltas[cat] += deltaToSend;
+            updateUI();
+          }
+        }, 600);
+      };
+
+      // Toque en los 4 botones
+      document.querySelectorAll('.counter-btn').forEach(btn => {
+        btn.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          const cat = btn.dataset.cat;
+          if (!cat) return;
+
+          triggerHaptic(25);
+
+          const step = currentMode; // +1 o -1
+          const newCount = Math.max(0, (counts[cat] || 0) + step);
+          const effectiveDelta = newCount - (counts[cat] || 0);
+
+          if (effectiveDelta === 0 && step < 0) {
+            return;
+          }
+
+          counts[cat] = newCount;
+          pendingDeltas[cat] = (pendingDeltas[cat] || 0) + effectiveDelta;
+          updateUI();
+
+          queueDispatch(cat);
+        });
+      });
+
+      const normCasetaStr = s => String(s || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const canonicalCasetaName = (name) => {
+        const n = normCasetaStr(name);
+        if (n === 'recepcion edison') return 'Recepción Edison';
+        if (n.includes('simon') && n.includes('bolivar')) return 'Simón Bolívar';
+        return name || 'Recepción Edison';
+      };
+
+      const findCasetaInMap = (map, target) => {
+        if (!map || typeof map !== 'object') return {};
+        const targetNorm = normCasetaStr(target);
+        let merged = null;
+        for (const [k, v] of Object.entries(map)) {
+          if (normCasetaStr(k) === targetNorm && v && typeof v === 'object') {
+            const intern = Number(v.internos !== undefined ? v.internos : (v.interno || 0));
+            const extern = Number(v.externos !== undefined ? v.externos : (v.externo || 0));
+            const prest = Number(v.prestadores !== undefined ? v.prestadores : (v.prestador || 0));
+            const visit = Number(v.visitas !== undefined ? v.visitas : (v.visita || 0));
+            const tot = (typeof v.total === 'number') ? v.total : (intern + extern + prest + visit);
+            if (!merged) {
+              merged = { internos: intern, externos: extern, prestadores: prest, visitas: visit, total: tot };
+            } else {
+              merged.internos += intern;
+              merged.externos += extern;
+              merged.prestadores += prest;
+              merged.visitas += visit;
+              merged.total += tot;
+            }
+          }
+        }
+        return merged || {};
+      };
+
+      // Cargar datos iniciales
+      let cdiRateLimitUntil = 0;
+      let evtSource = null;
+      let latestCdiCasetas = {};
+      let latestCdiTotals = {};
+      let isAllCasetasSummaryOpen = false;
+      let isIngresosAccordionOpen = false;
+      let isCajonesAccordionOpen = false;
+
+      function renderAllCasetasModal() {
+        const modalList = document.getElementById('allCasetasModalList');
+        const btnModalBackText = document.getElementById('btnModalBackText');
+
+        if (btnModalBackText) btnModalBackText.textContent = `Volver a ${currentCaseta}`;
+        if (!modalList) return;
+
+        const defaultCasetas = [
+          'Recepción Edison', 'Edison', 'Impulso', 'Michelena',
+          'Simón Bolívar', 'Carranza', 'Universidad', 'Anexo Edison', 'Centro de Control'
+        ];
+
+        const seenNorms = new Set();
+        const allKnown = [];
+        [...defaultCasetas, ...Object.keys(latestCdiCasetas || {})].filter(Boolean).forEach(c => {
+          const can = canonicalCasetaName(c);
+          const n = normCasetaStr(can);
+          if (!seenNorms.has(n)) {
+            seenNorms.add(n);
+            allKnown.push(can);
+          }
+        });
+
+        // 1. Acordeón colapsable: Total de Ingresos
+        let ingresosBodyHtml = '';
+        if (isIngresosAccordionOpen) {
+          allKnown.forEach(cName => {
+            const cObj = findCasetaInMap(latestCdiCasetas, cName) || { internos: 0, externos: 0, prestadores: 0, visitas: 0 };
+            const cTotal = Number(cObj.total || (Number(cObj.internos || 0) + Number(cObj.externos || 0) + Number(cObj.prestadores || 0) + Number(cObj.visitas || 0)));
+            const isSelected = normCasetaStr(cName) === normCasetaStr(currentCaseta);
+
+            ingresosBodyHtml += `
+              <div class="compact-caseta-row ${isSelected ? 'is-active' : ''}" data-caseta="${escapeHtml(cName)}">
+                <div class="row-left">
+                  <span class="row-caseta-name">${escapeHtml(cName)}</span>
+                  ${isSelected ? '<span class="row-active-tag">Activa</span>' : ''}
+                </div>
+                <div class="row-metrics">
+                  <span class="row-metric" title="Internos"><span class="metric-ico">👤</span>${cObj.internos || 0}</span>
+                  <span class="row-metric" title="Externos"><span class="metric-ico">🏢</span>${cObj.externos || 0}</span>
+                  <span class="row-metric" title="Prestadores"><span class="metric-ico">🔧</span>${cObj.prestadores || 0}</span>
+                  <span class="row-metric" title="Visitas"><span class="metric-ico">📋</span>${cObj.visitas || 0}</span>
+                </div>
+                <div class="row-right">
+                  <span class="row-total-val">${cTotal}</span>
+                  <span class="row-arrow">›</span>
+                </div>
+              </div>
+            `;
+          });
+        }
+
+        // 2. Acordeón colapsable: Total de Cajones (Disponibilidad de Estacionamiento)
+        let globalParkAvail = 0;
+        let capParkCount = 0;
+        let occupiedAutos = 0;
+        PARKING_ORDER.forEach(pk => {
+          const sc = PARKING_SCHEMAS[pk];
+          const rc = parkingByCaseta[pk];
+          const isComplete = sc && rc && rc.captured && rc.valores && sc.sections.every(s => s.fields.every(f => rc.valores[f.key] !== undefined && rc.valores[f.key] !== null && String(rc.valores[f.key]).trim() !== ''));
+          if (isComplete) {
+            capParkCount++;
+            globalParkAvail += getCasetaAvailableSum(sc, rc);
+            sc.sections.forEach(s => s.fields.forEach(f => {
+              const cap = f.key === 'anexo_dominguez_ordinarios' ? 40 : f.total;
+              const v = Number(rc.valores[f.key] || 0);
+              occupiedAutos += Math.max(0, cap - v);
+            }));
+          }
+        });
+
+        let cajonesBodyHtml = '';
+        if (isCajonesAccordionOpen) {
+          PARKING_ORDER.forEach(pk => {
+            const sc = PARKING_SCHEMAS[pk];
+            const rc = parkingByCaseta[pk];
+            const isCap = Boolean(sc && rc && rc.captured && rc.valores && sc.sections.every(s => s.fields.every(f => rc.valores[f.key] !== undefined && rc.valores[f.key] !== null && String(rc.valores[f.key]).trim() !== '')));
+            const avail = getCasetaAvailableSum(sc, rc);
+            const allFields = [];
+            sc.sections.forEach(s => s.fields.forEach(f => allFields.push(f)));
+            cajonesBodyHtml += `<div class="parking-summary-caseta-card ${isCap ? 'is-captured' : ''}" data-caseta="${escapeHtml(sc.caseta)}">
+              <div class="parking-summary-card-top">
+                <div><strong>${sc.icon} ${escapeHtml(sc.caseta)}</strong> <span style="font-size:0.60rem;padding:1px 6px;border-radius:999px;background:${isCap ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)'};color:${isCap ? '#10b981' : '#d97706'};font-weight:800;">${isCap ? '✓ ' + (rc.horaRegistro || '10:00 AM') : '⏰ Pendiente 10:00 AM'}</span></div>
+                <div><strong>${isCap ? avail : '—'}</strong> <span style="font-size:0.68rem;color:var(--text-muted);">/ ${sc.totalCapacity} cajones</span></div>
+              </div>
+              <div class="parking-summary-chips-row">
+                ${allFields.map(f => `<span class="parking-summary-lot-chip">${f.shortLabel}: <strong>${isCap ? (rc.valores?.[f.key] ?? 0) : '—'}</strong>/${f.total}</span>`).join('')}
+              </div>
+            </div>`;
+          });
+        }
+
+        const html = `
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <!-- ACORDEÓN 1: TOTAL DE INGRESOS -->
+            <div class="compact-total-strip" id="accordionToggleIngresos" role="button" tabindex="0" style="cursor:pointer;border-radius:12px;">
+              <div class="strip-total-main">
+                <span class="strip-total-lbl">TOTAL DE INGRESOS:</span>
+                <span class="strip-total-num">${latestCdiTotals.total || 0}</span>
+              </div>
+              <div class="strip-breakdown">
+                <span class="strip-chip" title="Internos">👤 <strong>${latestCdiTotals.internos || 0}</strong></span>
+                <span class="strip-chip" title="Externos">🏢 <strong>${latestCdiTotals.externos || 0}</strong></span>
+                <span class="strip-chip" title="Prestadores">🔧 <strong>${latestCdiTotals.prestadores || 0}</strong></span>
+                <span class="strip-chip" title="Visitas">📋 <strong>${latestCdiTotals.visitas || 0}</strong></span>
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:999px;background:rgba(59,130,246,0.14);color:#2563eb;font-weight:900;transform:${isIngresosAccordionOpen ? 'rotate(180deg)' : 'rotate(0deg)'};transition:transform 0.2s;">▾</span>
+              </div>
+            </div>
+            ${isIngresosAccordionOpen ? `<div style="display:flex;flex-direction:column;gap:6px;">${ingresosBodyHtml}</div>` : ''}
+
+            <!-- ACORDEÓN 2: TOTAL DE CAJONES -->
+            <div class="parking-summary-section" style="margin-top:4px;">
+              <div class="parking-summary-header-strip" id="accordionToggleCajones" role="button" tabindex="0" style="cursor:pointer;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span style="font-size:1.2rem;">🅿️</span>
+                  <div>
+                    <div style="font-size:0.78rem;font-weight:800;color:var(--text);">Total de Cajones (Disponibilidad)</div>
+                    <div style="font-size:0.64rem;font-weight:600;color:var(--text-muted);">Corte 10:00 AM • ${capParkCount}/6 casetas • Ingresos (Autos): ${occupiedAutos}</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div style="text-align:right;">
+                    <div style="font-size:0.55rem;font-weight:800;color:var(--text-muted);">DISPONIBLES</div>
+                    <div style="font-size:0.95rem;font-weight:900;color:#0284c7;">${globalParkAvail} <small style="font-size:0.68rem;color:var(--text-muted);">/ ${TOTAL_PARKING_CAPACITY_ALL}</small></div>
+                  </div>
+                  <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:999px;background:rgba(59,130,246,0.14);color:#2563eb;font-weight:900;transform:${isCajonesAccordionOpen ? 'rotate(180deg)' : 'rotate(0deg)'};transition:transform 0.2s;">▾</span>
+                </div>
+              </div>
+              ${isCajonesAccordionOpen ? `<div style="display:flex;flex-direction:column;gap:6px;margin-top:6px;">${cajonesBodyHtml}</div>` : ''}
+            </div>
+          </div>
+        `;
+
+        modalList.innerHTML = html;
+
+        const toggleIngresos = document.getElementById('accordionToggleIngresos');
+        if (toggleIngresos) {
+          toggleIngresos.addEventListener('click', () => {
+            soundClick();
+            isIngresosAccordionOpen = !isIngresosAccordionOpen;
+            renderAllCasetasModal();
+          });
+        }
+
+        const toggleCajones = document.getElementById('accordionToggleCajones');
+        if (toggleCajones) {
+          toggleCajones.addEventListener('click', () => {
+            soundClick();
+            isCajonesAccordionOpen = !isCajonesAccordionOpen;
+            renderAllCasetasModal();
+          });
+        }
+
+        modalList.querySelectorAll('.compact-caseta-row, .parking-summary-caseta-card').forEach(card => {
+          card.addEventListener('click', () => {
+            const selectedName = card.getAttribute('data-caseta');
+            if (selectedName) {
+              soundClick();
+              currentCaseta = selectedName;
+              localStorage.setItem('selectedCaseta', selectedName);
+              localStorage.setItem('regas_cdi_last_caseta', selectedName);
+              localStorage.setItem('caseta_seleccionada_cic', selectedName);
+              if (casetaSelect) casetaSelect.value = selectedName;
+              notifyParallelCasetaChange();
+              fetchCdiData();
+              closeAllCasetasSummary();
+              showToast('Caseta seleccionada: ' + selectedName);
+            }
+          });
+        });
+      }
+
+      function openAllCasetasSummary() {
+        isAllCasetasSummaryOpen = true;
+        isIngresosAccordionOpen = false;
+        isCajonesAccordionOpen = false;
+        const modal = document.getElementById('allCasetasModalOverlay');
+        if (modal) {
+          renderAllCasetasModal();
+          modal.style.display = 'flex';
+        }
+        fetchCdiData();
+      }
+
+      function closeAllCasetasSummary() {
+        isAllCasetasSummaryOpen = false;
+        const modal = document.getElementById('allCasetasModalOverlay');
+        if (modal) {
+          modal.style.display = 'none';
+        }
+      }
+
+      const footerSummaryDock = document.getElementById('footerSummaryDock');
+      if (footerSummaryDock) {
+        footerSummaryDock.addEventListener('click', (e) => {
+          e.preventDefault();
+          soundClick();
+          openAllCasetasSummary();
+        });
+      }
+
+      const btnAllCasetasBack = document.getElementById('btnAllCasetasBack');
+      if (btnAllCasetasBack) {
+        btnAllCasetasBack.addEventListener('click', (e) => {
+          e.preventDefault();
+          soundClick();
+          closeAllCasetasSummary();
+        });
+      }
+
+      const fetchCdiData = async () => {
+        if (Date.now() < cdiRateLimitUntil) return;
+        try {
+          const res = await fetch(`${BACKEND_BASE}/api/cdi?fecha=${currentDate}`, {
+            headers: API_HEADERS
+          });
+          if (res.status === 429) {
+            cdiRateLimitUntil = Date.now() + (10 * 60 * 1000);
+            statusDot.className = 'status-dot syncing';
+            statusText.textContent = 'Cuota Pausada (429)';
+            return;
+          }
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.cdi) {
+              latestCdiCasetas = data.cdi.casetas || {};
+              if (data.cdi.estacionamiento) mergeRemoteParking(data.cdi.estacionamiento);
+              if (typeof data.cdi.estacionamientoDispatched === 'boolean') {
+                setParkingReportSent(data.cdi.estacionamientoDispatched);
+              }
+              latestCdiTotals = data.cdi.totals || {};
+              const casObj = findCasetaInMap(data.cdi.casetas, currentCaseta);
+              counts.internos = casObj.internos || 0;
+              counts.externos = casObj.externos || 0;
+              counts.prestadores = casObj.prestadores || 0;
+              counts.visitas = casObj.visitas || 0;
+
+              const totalGenEl = document.getElementById('totalGeneral');
+              if (totalGenEl && data.cdi.totals) {
+                totalGenEl.textContent = data.cdi.totals.total || 0;
+              }
+
+              if (isAllCasetasSummaryOpen) {
+                renderAllCasetasModal();
+              }
+            }
+            updateUI();
+            statusDot.className = 'status-dot';
+            statusDot.style.background = '#10b981';
+            statusText.textContent = 'En Vivo';
+          }
+        } catch (e) {
+          console.warn('Error al consultar datos CDI:', e);
+          if (BACKEND_BASE !== 'https://oxosd450mlh.taile94978.ts.net') {
+            console.warn('[CDI] Fallback automático a Conector Tailscale UBE...');
+            BACKEND_BASE = 'https://oxosd450mlh.taile94978.ts.net';
+            try {
+              const res2 = await fetch(`${BACKEND_BASE}/api/cdi?fecha=${currentDate}`, { headers: API_HEADERS });
+              if (res2.ok) {
+                const data = await res2.json();
+                if (data && data.cdi) {
+                  const casObj = findCasetaInMap(data.cdi.casetas, currentCaseta);
+                  counts.internos = casObj.internos || 0;
+                  counts.externos = casObj.externos || 0;
+                  counts.prestadores = casObj.prestadores || 0;
+                  counts.visitas = casObj.visitas || 0;
+                  const totalGenEl = document.getElementById('totalGeneral');
+                  if (totalGenEl && data.cdi.totals) totalGenEl.textContent = data.cdi.totals.total || 0;
+                }
+                updateUI();
+                statusDot.className = 'status-dot';
+                statusDot.style.background = '#10b981';
+                statusText.textContent = 'En Vivo';
+                return;
+              }
+            } catch (e2) {
+              console.warn('[CDI] Error en fallback worker:', e2);
+            }
+          }
+          statusDot.className = 'status-dot offline';
+          statusText.textContent = 'Sin conexión';
+        }
+      };
+
+      // SSE en vivo
+      const initSse = () => {
+        try {
+          if (evtSource) {
+            try { evtSource.close(); } catch(e) {}
+          }
+          evtSource = new EventSource(`${BACKEND_BASE}/api/events`);
+          evtSource.onopen = () => {
+            statusDot.className = 'status-dot';
+            statusDot.style.background = '#10b981';
+            statusText.textContent = 'En Vivo';
+          };
+          evtSource.onerror = () => {
+            statusDot.className = 'status-dot syncing';
+            statusText.textContent = 'Reconectando';
+          };
+          evtSource.onmessage = (e) => {
+            try {
+              const msg = JSON.parse(e.data);
+              if (msg && msg.type === 'cdi_force_reload' && msg.payload) {
+                const target = msg.payload.targetDeviceId || 'all';
+                if (target === 'all' || target === deviceUuid) {
+                  if (msg.payload.action === 'caseta_change') {
+                    if (msg.payload.caseta && canonicalCasetaName(msg.payload.caseta) !== currentCaseta) {
+                      syncCasetaSelectDOM(msg.payload.caseta);
+                      fetchCdiData();
+                    }
+                    return;
+                  }
+                  if (typeof handleRemoteForceReload === 'function') {
+                    handleRemoteForceReload(msg.payload.timestamp);
+                  }
+                  return;
+                }
+              }
+              // Aplicar features y caseta en tiempo real cuando el operador las cambia desde RegAs 3
+              if (msg && msg.type === 'cdi_device_update' && msg.payload) {
+                const updDev = msg.payload;
+                if (updDev && (updDev.deviceId === deviceUuid || updDev._id === deviceUuid)) {
+                  if (updDev.features) {
+                    applyDeviceFeatures(updDev.features);
+                  }
+                  if (updDev.caseta && canonicalCasetaName(updDev.caseta) !== currentCaseta) {
+                    syncCasetaSelectDOM(updDev.caseta);
+                    fetchCdiData();
+                    notifyParallelCasetaChange();
+                    showToast('Caseta: ' + currentCaseta);
+                  }
+                }
+              }
+              if (msg && msg.type === 'cdi_caseta_change' && msg.payload) {
+                const p = msg.payload;
+                if (p && (p.deviceId === deviceUuid || p._id === deviceUuid)) {
+                  if (p.caseta && canonicalCasetaName(p.caseta) !== currentCaseta) {
+                    syncCasetaSelectDOM(p.caseta);
+                    fetchCdiData();
+                    notifyParallelCasetaChange();
+                    showToast('Caseta: ' + currentCaseta);
+                  }
+                }
+              }
+              if (msg && msg.type === 'cdi_update' && msg.payload) {
+                const data = msg.payload;
+                if (data.fecha === currentDate || (data.cdi && data.cdi.fecha === currentDate)) {
+                  if (data.estacionamiento) mergeRemoteParking(data.estacionamiento);
+                  else if (data.cdi && data.cdi.estacionamiento) mergeRemoteParking(data.cdi.estacionamiento);
+                  if (typeof data.estacionamientoDispatched === 'boolean') {
+                    setParkingReportSent(data.estacionamientoDispatched);
+                  } else if (data.cdi && typeof data.cdi.estacionamientoDispatched === 'boolean') {
+                    setParkingReportSent(data.cdi.estacionamientoDispatched);
+                  }
+                  if (data.cdi && data.cdi.casetas) {
+                    latestCdiCasetas = data.cdi.casetas;
+                    if (data.cdi.totals) latestCdiTotals = data.cdi.totals;
+                  } else if (data.caseta && data.casetaCounts) {
+                    latestCdiCasetas[data.caseta] = data.casetaCounts;
+                    if (data.totals) latestCdiTotals = data.totals;
+                  }
+                  if (isAllCasetasSummaryOpen) {
+                    renderAllCasetasModal();
+                  }
+
+                  const hasPending = Object.values(pendingDeltas).some(v => v !== 0);
+                  if (data.cdi && data.cdi.casetas && !hasPending) {
+                    const casObj = findCasetaInMap(data.cdi.casetas, currentCaseta);
+                    counts.internos = casObj.internos || 0;
+                    counts.externos = casObj.externos || 0;
+                    counts.prestadores = casObj.prestadores || 0;
+                    counts.visitas = casObj.visitas || 0;
+                    updateUI();
+                  } else if (data.caseta && data.casetaCounts && !hasPending) {
+                    if (normCasetaStr(data.caseta) === normCasetaStr(currentCaseta)) {
+                      counts.internos = data.casetaCounts.internos || 0;
+                      counts.externos = data.casetaCounts.externos || 0;
+                      counts.prestadores = data.casetaCounts.prestadores || 0;
+                      counts.visitas = data.casetaCounts.visitas || 0;
+                      updateUI();
+                    }
+                  }
+                  const tGen = data.totals?.total ?? data.cdi?.totals?.total;
+                  if (typeof tGen === 'number') {
+                    const totalGenEl = document.getElementById('totalGeneral');
+                    if (totalGenEl) totalGenEl.textContent = tGen;
+                  }
+                }
+              }
+            } catch (err) {}
+          };
+        } catch (e) {
+          console.warn('SSE no disponible:', e);
+        }
+      };
+
+      // =========================================================================
+      // GESTIÓN DE INFORMACIÓN DEL DISPOSITIVO Y TECNOLOGÍA DE ACTUALIZACIÓN REMOTA
+      // =========================================================================
+      // 1. Preservar intactos los dispositivos que ya se han identificado previamente
+      let existingDeviceUuid = localStorage.getItem('regas_cdi_device_uuid');
+      let deviceUuid = existingDeviceUuid;
+
+      // 2. Solo para NUEVOS dispositivos (o si borraron caché/cookies):
+      if (!deviceUuid) {
+        try {
+          const urlParamsObj = new URLSearchParams(window.location.search);
+          const rawCaseta = urlParamsObj.get('caseta') || urlParamsObj.get('c');
+          const devParam = urlParamsObj.get('dev') || urlParamsObj.get('device_id');
+
+          if (devParam) {
+            deviceUuid = devParam.trim();
+          } else if (rawCaseta) {
+            // Apuntar con parámetro de caseta, sustituyendo espacios por "_"
+            const cleanSlug = rawCaseta.trim().replace(/\s+/g, '_');
+            deviceUuid = 'dev_' + cleanSlug;
+          }
+        } catch (e) {}
+
+        // Fallback: si no vino parámetro en la URL, generar identificador aleatorio como antes
+        if (!deviceUuid) {
+          deviceUuid = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 8);
+        }
+
+        try {
+          localStorage.setItem('regas_cdi_device_uuid', deviceUuid);
+        } catch (e) {}
+      }
+
+      let lastReloadApplied = parseInt(localStorage.getItem('regas_cdi_last_reload_applied') || '0', 10);
+      let isReloading = false;
+
+      async function handleRemoteForceReload(reloadTs) {
+        if (isReloading) return;
+        const tsNum = Number(reloadTs) || Date.now();
+        if (tsNum <= lastReloadApplied) return;
+        isReloading = true;
+        lastReloadApplied = tsNum;
+        localStorage.setItem('regas_cdi_last_reload_applied', String(tsNum));
+
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,0.96);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999999;font-family:system-ui,-apple-system,sans-serif;padding:24px;text-align:center;box-sizing:border-box;';
+        overlay.innerHTML = `
+          <div style="font-size: 3.2rem; margin-bottom: 14px; animation: spin 1s linear infinite;">🔄</div>
+          <h3 style="margin: 0 0 10px 0; font-size: 1.3rem; font-weight: 800; color: #38bdf8; letter-spacing: -0.01em;">Actualizando CDI Móvil</h3>
+          <p style="margin: 0 0 16px 0; font-size: 0.9rem; color: #94a3b8; max-width: 320px; line-height: 1.5;">El servidor ha enviado una solicitud de actualización. Purgando caché local e instalando el nuevo Dock compacto...</p>
+          <div style="width: 200px; height: 6px; background: rgba(255,255,255,0.15); border-radius: 999px; overflow: hidden; position: relative;">
+            <div style="width: 100%; height: 100%; background: #38bdf8; animation: pulseSync 1s infinite alternate;"></div>
+          </div>
+        `;
+        document.body.appendChild(overlay);
+
+        try {
+          if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (const reg of registrations) {
+              await reg.update().catch(() => {});
+              await reg.unregister().catch(() => {});
+            }
+          }
+        } catch (e) {}
+
+        try {
+          if ('caches' in window) {
+            const keys = await caches.keys();
+            for (const k of keys) {
+              await caches.delete(k);
+            }
+          }
+        } catch (e) {}
+
+        setTimeout(() => {
+          const url = new URL(window.location.href);
+          url.searchParams.set('_v', Date.now().toString());
+          window.location.replace(url.toString());
+        }, 900);
+      }
+
+      function cyrb53(str, seed = 0) {
+        let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+        for (let i = 0, ch; i < str.length; i++) {
+          ch = str.charCodeAt(i);
+          h1 = Math.imul(h1 ^ ch, 2654435761);
+          h2 = Math.imul(h2 ^ ch, 1597334677);
+        }
+        h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+        h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+        h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+        h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+        return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16).padStart(12, '0');
+      }
+
+      function generatePcFingerprint() {
+        try {
+          const cachedFp = localStorage.getItem('regas_cdi_pc_fingerprint');
+          if (cachedFp) return { fingerprint: cachedFp, traits: {} };
+
+          let gpuVendor = 'generic', gpuRenderer = 'generic';
+          try {
+            const c = document.createElement('canvas');
+            const gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+            if (gl) {
+              const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+              if (dbg) {
+                gpuVendor = gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) || 'generic';
+                gpuRenderer = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || 'generic';
+              }
+            }
+          } catch (e) {}
+
+          const s = window.screen || {};
+          const screenStr = `${s.width}x${s.height}@${s.colorDepth || 24}_ratio${window.devicePixelRatio || 1}`;
+          const nav = window.navigator || {};
+          const cores = nav.hardwareConcurrency || 0;
+          const memory = nav.deviceMemory || 0;
+          const platform = nav.platform || '';
+
+          let canvasHash = '';
+          try {
+            const cv = document.createElement('canvas');
+            cv.width = 240; cv.height = 60;
+            const ctx = cv.getContext('2d');
+            if (ctx) {
+              ctx.fillStyle = '#10b981'; ctx.fillRect(10, 5, 80, 25);
+              ctx.fillStyle = '#38bdf8'; ctx.font = "14px 'Segoe UI', Arial, sans-serif";
+              ctx.fillText('CIC_REGAS_WIN_PC_🔒', 4, 22);
+              canvasHash = cyrb53(cv.toDataURL());
+            }
+          } catch (e) {}
+
+          const traits = { gpu: `${gpuVendor} ~ ${gpuRenderer}`, screen: screenStr, cores, memory, platform, canvasHash, timeZone: (Intl.DateTimeFormat().resolvedOptions().timeZone || '') };
+          const fingerprint = 'fp_win_' + cyrb53(JSON.stringify(traits));
+          try {
+            localStorage.setItem('regas_cdi_pc_fingerprint', fingerprint);
+            localStorage.setItem('regas_cdi_pc_traits', JSON.stringify(traits));
+          } catch (e) {}
+          return { fingerprint, traits };
+        } catch (err) {
+          return { fingerprint: '', traits: {} };
+        }
+      }
+
+      function detectDeviceInfo() {
+        const ua = navigator.userAgent || '';
+        let model = 'Dispositivo Web';
+        let type = 'pc';
+
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) || (navigator.userAgentData && navigator.userAgentData.mobile);
+        type = isMobile ? 'mobile' : 'pc';
+
+        if (/iPhone/i.test(ua)) {
+          model = 'Apple iPhone';
+        } else if (/iPad/i.test(ua)) {
+          model = 'Apple iPad';
+          type = 'mobile';
+        } else if (/Android/i.test(ua)) {
+          const match = ua.match(/Android[^;]+;\s*([^;)]+)\)/i);
+          if (match && match[1]) {
+            model = match[1].replace(/Build\/.*/i, '').trim();
+          } else {
+            model = 'Android';
+          }
+        } else if (/Windows NT/i.test(ua)) {
+          model = 'PC Windows';
+        } else if (/Macintosh|Mac OS X/i.test(ua)) {
+          model = 'Mac (macOS)';
+        } else if (/Linux/i.test(ua)) {
+          model = 'PC Linux';
+        }
+
+        if (navigator.userAgentData && navigator.userAgentData.platform) {
+          if (!model.includes('Android') && !model.includes('iPhone')) {
+            model = `${model} (${navigator.userAgentData.platform})`;
+          }
+        }
+
+        return { model, type };
+      }
+
+      const { model: deviceModel, type: deviceType } = detectDeviceInfo();
+      let cachedDeviceLocation = null;
+      let isRequestingLocation = false;
+
+      function requestDeviceLocation(onLocationReady) {
+        if (!navigator.geolocation) {
+          cachedDeviceLocation = { status: 'unsupported', error: 'GPS no soportado' };
+          if (onLocationReady) onLocationReady(cachedDeviceLocation);
+          return;
+        }
+
+        if (typeof window !== 'undefined' && window.isSecureContext === false) {
+          cachedDeviceLocation = { status: 'error', error: 'Red local HTTP (Requiere HTTPS para GPS de hardware)' };
+          if (onLocationReady) onLocationReady(cachedDeviceLocation);
+          return;
+        }
+
+        if (isRequestingLocation) return;
+        isRequestingLocation = true;
+
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            isRequestingLocation = false;
+            cachedDeviceLocation = {
+              status: 'ok',
+              lat: Number(pos.coords.latitude.toFixed(6)),
+              lng: Number(pos.coords.longitude.toFixed(6)),
+              accuracy: Math.round(pos.coords.accuracy),
+              timestamp: pos.timestamp
+            };
+            if (onLocationReady) onLocationReady(cachedDeviceLocation);
+          },
+          (err) => {
+            isRequestingLocation = false;
+            let errText = 'GPS no disponible';
+            const rawMsg = (err && err.message) ? err.message : '';
+            if (/secure origins|permanently-removed|insecure/i.test(rawMsg) || (typeof window !== 'undefined' && window.isSecureContext === false)) {
+              errText = 'Red local HTTP (Requiere HTTPS para GPS de hardware)';
+            } else if (err.code === 1) {
+              errText = 'Permiso GPS denegado por el usuario';
+            } else if (err.code === 2) {
+              errText = 'Señal GPS no disponible';
+            } else if (err.code === 3) {
+              errText = 'Tiempo de espera GPS agotado';
+            } else if (rawMsg) {
+              errText = rawMsg;
+            }
+            cachedDeviceLocation = { status: 'error', error: errText };
+            if (onLocationReady) onLocationReady(cachedDeviceLocation);
+          },
+          { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }
+        );
+      }
+
+      async function sendDeviceHeartbeat() {
+        const fpObj = (deviceType === 'pc') ? generatePcFingerprint() : { fingerprint: '', traits: null };
+        const storedPc = (typeof localStorage !== 'undefined') ? (localStorage.getItem('regas_cdi_pc_name') || '') : '';
+        const payload = {
+          deviceId: deviceUuid,
+          deviceModel: deviceModel,
+          deviceType: deviceType, // 'mobile' | 'pc'
+          isPc: deviceType === 'pc',
+          pcName: storedPc,
+          fingerprint: fpObj.fingerprint,
+          fingerprintTraits: fpObj.traits,
+          caseta: currentCaseta,
+          location: cachedDeviceLocation,
+          lastReloadApplied: lastReloadApplied,
+          lastSeen: new Date().toISOString(),
+          timestamp: Date.now()
+        };
+
+        if (BACKEND_BASE) {
+          try {
+            const res = await fetch(`${BACKEND_BASE}/api/cdi/device-heartbeat`, {
+              method: 'POST',
+              headers: API_HEADERS,
+              body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.forceReload) {
+                handleRemoteForceReload(data.reloadTimestamp);
+              }
+              if (data && data.pcName) {
+                localStorage.setItem('regas_cdi_pc_name', data.pcName);
+              }
+              // Si el servidor reconoció la PC por huella digital
+              if (data && data.deviceId && data.deviceId !== deviceUuid) {
+                deviceUuid = data.deviceId;
+                localStorage.setItem('regas_cdi_device_uuid', data.deviceId);
+              }
+              // Aplicar features que el servidor indica para este dispositivo
+              if (data && data.features) {
+                applyDeviceFeatures(data.features);
+              }
+              if (data && data.caseta && canonicalCasetaName(data.caseta) !== currentCaseta) {
+                syncCasetaSelectDOM(data.caseta);
+                fetchCdiData();
+              }
+            }
+          } catch (err) {}
+        }
+      }
+
+      // Botón manual de versión y recarga forzada en header
+      const btnVersionBadge = document.getElementById('btnVersionBadge');
+      if (btnVersionBadge) {
+        btnVersionBadge.addEventListener('click', () => {
+          if (confirm('¿Deseas forzar la actualización de CDI Móvil a la versión más reciente v273? Esto limpiará la memoria caché local y recargará la pantalla.')) {
+            handleRemoteForceReload(Date.now() + 1000);
+          }
+        });
+      }
+
+      // Enviar reporte inicial de dispositivo y solicitar geolocalización
+      sendDeviceHeartbeat();
+      requestDeviceLocation(() => {
+        sendDeviceHeartbeat();
+      });
+
+      // Reintentar geolocalización periódicamente (cada 60s) si no se tiene posición fija
+      setInterval(() => {
+        if (!cachedDeviceLocation || cachedDeviceLocation.status !== 'ok') {
+          requestDeviceLocation(() => {
+            sendDeviceHeartbeat();
+          });
+        }
+      }, 60000);
+
+      // Heartbeat periódico cada 25s
+      setInterval(sendDeviceHeartbeat, 25000);
+
+      // Heartbeat al reenfocar la pantalla
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+          sendDeviceHeartbeat();
+        }
+      });
+
+      fetchCdiData();
+      initSse();
+
+      // Failsafe polling inteligente: solo si la pestaña está visible y SSE no está conectado
+      let failsafeTicks = 0;
+      setInterval(() => {
+        if (typeof document !== 'undefined' && document.hidden) return;
+        if (Date.now() < cdiRateLimitUntil) return;
+        failsafeTicks++;
+        const isSseConnected = Boolean(evtSource && evtSource.readyState === 1);
+        // Si SSE está conectado, solo hacer comprobación pasiva cada 2 minutos (15 ticks x 8s)
+        if (isSseConnected && (failsafeTicks % 15 !== 0)) return;
+
+        const hasPending = Object.values(pendingDeltas).some(v => v !== 0);
+        if (!hasPending) {
+          fetchCdiData();
+        }
+      }, 8000);
+    })();
+  </script>
+
+  <!-- Registro de Service Worker PWA y Auto-Actualización -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js?v=21')
+          .then((reg) => {
+            reg.update().catch(() => {});
+            if (reg.waiting) {
+              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('[CDI PWA] Nueva versión disponible. Activando...');
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                  }
+                });
+              }
+            });
+            console.log('[CDI PWA] Service Worker v21 registrado con alcance:', reg.scope);
+          })
+          .catch((err) => {
+            console.warn('[CDI PWA] Fallo al registrar Service Worker:', err);
+          });
+      });
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          console.log('[CDI PWA] Service Worker actualizado. Recargando página...');
+          window.location.reload();
+        }
+      });
+    }
+  </script>
+</body>
+</html>
