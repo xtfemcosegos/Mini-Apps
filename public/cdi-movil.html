@@ -2212,10 +2212,10 @@
 
       // Detección dinámica e inteligente del backend (Local, Red Caseta 10.x / 192.168.x, o Cloud Worker UBE)
       const resolveBackendBase = () => {
-        // Limpieza preventiva de túneles trycloudflare obsoletos, ngrok inactivo y Mixed Content
+        // Limpieza preventiva de túneles trycloudflare obsoletos, ngrok inactivo, Cloudflare y Mixed Content
         try {
           const cur = localStorage.getItem('regas_active_api_base');
-          if (cur && (cur.includes('trycloudflare') || cur.includes('ngrok') || (window.location.protocol === 'https:' && cur.startsWith('http://')))) {
+          if (cur && (cur.includes('trycloudflare') || cur.includes('ngrok') || cur.includes('cic-10.com') || cur.includes('workers.dev') || (window.location.protocol === 'https:' && cur.startsWith('http://')))) {
             localStorage.removeItem('regas_active_api_base');
           }
         } catch(e) {}
@@ -2256,7 +2256,7 @@
         // 4. Si se configuró previamente en localStorage
         try {
           const cached = localStorage.getItem('regas_active_api_base');
-          if (cached && !cached.includes('10.200.79.175') && !cached.includes('trycloudflare') && !cached.includes('ngrok')) {
+          if (cached && !cached.includes('10.200.79.175') && !cached.includes('trycloudflare') && !cached.includes('ngrok') && !cached.includes('cic-10.com') && !cached.includes('workers.dev')) {
             if (window.location.protocol === 'https:' && cached.startsWith('http://')) {
               // Descartar HTTP en HTTPS
             } else {
@@ -2265,12 +2265,12 @@
           }
         } catch(e) {}
 
-        // 5. Fallback por defecto oficial: Túnel Cloudflare (be-regas.cic-10.com)
+        // 5. Fallback por defecto oficial: Conector Tailscale UBE (oxosd450mlh.taile94978.ts.net)
         const isEmergency = urlParams.get('emergency') === '1' || urlParams.get('backend') === 'ngrok';
         if (isEmergency) {
-          return 'https://sandworm-header-salami.ngrok-free.dev';
+          return 'https://oxosd450mlh.taile94978.ts.net';
         }
-        return 'https://be-regas.cic-10.com';
+        return 'https://oxosd450mlh.taile94978.ts.net';
       };
 
       let BACKEND_BASE = resolveBackendBase();
@@ -3375,9 +3375,9 @@
             }
           } catch (err) {
             console.error('Error sincronizando CDI:', err);
-            if (BACKEND_BASE !== 'https://be-regas.segos911.workers.dev') {
-              console.warn('[CDI] Reintentando incremento mediante Cloudflare Worker UBE...');
-              BACKEND_BASE = 'https://be-regas.segos911.workers.dev';
+            if (BACKEND_BASE !== 'https://oxosd450mlh.taile94978.ts.net') {
+              console.warn('[CDI] Reintentando incremento mediante Conector Tailscale UBE...');
+              BACKEND_BASE = 'https://oxosd450mlh.taile94978.ts.net';
               try {
                 const res2 = await fetch(`${BACKEND_BASE}/api/cdi/increment`, {
                   method: 'POST',
@@ -3746,9 +3746,9 @@
           }
         } catch (e) {
           console.warn('Error al consultar datos CDI:', e);
-          if (BACKEND_BASE !== 'https://be-regas.segos911.workers.dev') {
-            console.warn('[CDI] Fallback automático a Cloudflare Worker UBE...');
-            BACKEND_BASE = 'https://be-regas.segos911.workers.dev';
+          if (BACKEND_BASE !== 'https://oxosd450mlh.taile94978.ts.net') {
+            console.warn('[CDI] Fallback automático a Conector Tailscale UBE...');
+            BACKEND_BASE = 'https://oxosd450mlh.taile94978.ts.net';
             try {
               const res2 = await fetch(`${BACKEND_BASE}/api/cdi?fecha=${currentDate}`, { headers: API_HEADERS });
               if (res2.ok) {

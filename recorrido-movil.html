@@ -1919,10 +1919,27 @@
       }
       window.addEventListener('load', ensureDockFiltered);
 
-      // Configuración de API Base (Túnel Cloudflare)
-      const BACKEND_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('10.') || window.location.hostname.startsWith('192.168.'))
-        ? ''
-        : 'https://be-regas.cic-10.com';
+      // Configuración de API Base (Túnel Tailscale UBE)
+      const resolveBackendBase = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const qBackend = urlParams.get('backend') || urlParams.get('api');
+        if (qBackend) return qBackend.replace(/\/+$/, '');
+        const h = window.location.hostname;
+        const p = window.location.port;
+        if (p === '7001') return '';
+        if (h === 'localhost' || h === '127.0.0.1') return 'http://127.0.0.1:7001';
+        if (h.startsWith('10.') || h.startsWith('192.168.')) return `http://${h}:7001`;
+        try {
+          const cached = localStorage.getItem('regas_active_api_base');
+          if (cached && (cached.includes('trycloudflare.com') || cached.includes('10.200.79.175') || cached.includes('ngrok') || cached.includes('workers.dev') || cached.includes('cic-10.com') || (window.location.protocol === 'https:' && cached.startsWith('http:')))) {
+            localStorage.removeItem('regas_active_api_base');
+          } else if (cached && (window.location.protocol !== 'https:' || cached.startsWith('https:'))) {
+            return cached.replace(/\/+$/, '');
+          }
+        } catch(e) {}
+        return 'https://oxosd450mlh.taile94978.ts.net';
+      };
+      const BACKEND_BASE = resolveBackendBase();
 
       // Consultar features en vivo al backend para concordancia con RegAs 3
       try {
@@ -2392,9 +2409,9 @@
       }
 
       // API FETCH
-      const BACKEND_URL = 'https://be-regas.cic-10.com';
+      const BACKEND_URL = 'https://oxosd450mlh.taile94978.ts.net';
       async function getApiBase() {
-        return BACKEND_URL;
+        return BACKEND_BASE || BACKEND_URL;
       }
 
       async function apiFetch(endpoint, options = {}) {

@@ -492,7 +492,15 @@
         if (p === '7001') return '';
         if (h === 'localhost' || h === '127.0.0.1') return 'http://127.0.0.1:7001';
         if (h.startsWith('10.') || h.startsWith('192.168.')) return `http://${h}:7001`;
-        return 'https://be-regas.cic-10.com';
+        try {
+          const cached = localStorage.getItem('regas_active_api_base');
+          if (cached && (cached.includes('trycloudflare.com') || cached.includes('10.200.79.175') || cached.includes('ngrok') || cached.includes('workers.dev') || cached.includes('cic-10.com') || (window.location.protocol === 'https:' && cached.startsWith('http:')))) {
+            localStorage.removeItem('regas_active_api_base');
+          } else if (cached && (window.location.protocol !== 'https:' || cached.startsWith('https:'))) {
+            return cached.replace(/\/+$/, '');
+          }
+        } catch(e) {}
+        return 'https://oxosd450mlh.taile94978.ts.net';
       };
 
       const BACKEND_BASE = resolveBackendBase();

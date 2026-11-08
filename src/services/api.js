@@ -3,7 +3,7 @@
  * Compatible con:
  * - Servidor Local UBE (:7001 / :7002)
  * - Red de Caseta (10.x / 192.168.x)
- * - Cloudflare Worker Oficial Permanente (https://oxosd450mlh.taile94978.ts.net)
+ * - Conector Tailscale UBE (https://oxosd450mlh.taile94978.ts.net)
  */
 
 export const resolveBackendBase = () => {
@@ -44,8 +44,7 @@ export const resolveBackendBase = () => {
     }
   } catch (e) {}
 
-  // 5. Cloudflare Worker Permanente UBE (Por defecto)
-  // Canal de emergencia Ngrok (desactivado por defecto; se activa solo con ?emergency=1 o ?backend=ngrok)
+  // 5. Conector Tailscale UBE (Por defecto)
   const isEmergency = urlParams.get('emergency') === '1' || urlParams.get('backend') === 'ngrok';
   if (isEmergency) {
     return 'https://oxosd450mlh.taile94978.ts.net';
@@ -87,7 +86,7 @@ async function apiRequest(endpoint, options = {}) {
   } catch (netErr) {
     const fallbackBase = 'https://oxosd450mlh.taile94978.ts.net';
     if (base !== fallbackBase && !options._isRetry) {
-      console.warn('[Mini Apps ⚠️] Reintentando ' + endpoint + ' vía Cloudflare Worker...');
+      console.warn('[Mini Apps ⚠️] Reintentando ' + endpoint + ' vía Túnel Tailscale...');
       return apiRequest(endpoint, { ...options, _isRetry: true, _baseOverride: fallbackBase });
     }
     throw netErr;
