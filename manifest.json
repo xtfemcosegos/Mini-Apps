@@ -102,6 +102,13 @@
       "description": "Monitoreo en Carretera y Telemetría Vehicular",
       "url": "./?app=mec",
       "icons": [{ "src": "iconos/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Prestadores & Herramientas",
+      "short_name": "Prestadores",
+      "description": "Registro de Prestadores de Servicio y Control de Herramientas",
+      "url": "./?app=prestadores",
+      "icons": [{ "src": "iconos/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cic-miniapps-v20';
+const CACHE_NAME = 'cic-miniapps-v21';
 
 const PRECACHE_ASSETS = [
   './',
@@ -56,6 +56,13 @@ self.addEventListener('activate', (event) => {
         })
       );
     }).then(() => self.clients.claim())
+      .then(() => {
+        return self.clients.matchAll({ type: 'window' }).then((clients) => {
+          clients.forEach((client) => {
+            client.postMessage({ type: 'SW_ACTIVATED', version: CACHE_NAME });
+          });
+        });
+      })
   );
 });
 
@@ -64,7 +71,7 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   const url = new URL(req.url);
 
-  // 1. Peticiones de API, SSE, túneles o métodos no-GET: Directo a la Red (Bypass)
+  // 1. Peticiones de API, SSE, fotos, túneles o métodos no-GET: Directo a la Red (Bypass)
   if (
     req.method !== 'GET' ||
     url.pathname.startsWith('/api/') ||
@@ -77,8 +84,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2. Navegación HTML: Network-First con fallback seguro a index.html en caché
-  if (req.mode === 'navigate' || req.headers.get('accept')?.includes('text/html')) {
+  // 2. Navegación HTML: Network-First con fallback seguro a caché
+  const isHtml = req.mode === 'navigate' ||
+                 req.destination === 'document' ||
+                 req.destination === 'iframe' ||
+                 url.pathname.endsWith('.html') ||
+                 url.pathname === '/' ||
+                 url.pathname.endsWith('/miniapps') ||
+                 url.pathname.endsWith('/miniapps/') ||
+                 req.headers.get('accept')?.includes('text/html');
+
+  if (isHtml) {
     event.respondWith(
       fetch(req)
         .then((networkRes) => {
@@ -89,9 +105,17 @@ self.addEventListener('fetch', (event) => {
           return networkRes;
         })
         .catch(async () => {
-          // Si la red falla o está en modo standalone inicial, buscar en caché
+          // Si la red falla o está en modo offline, buscar en caché
           const cached = await caches.match(req, { ignoreSearch: true });
           if (cached) return cached;
+
+          // Buscar coincidencias directas por nombre de archivo
+          const cleanPath = url.pathname.split('/').pop();
+          if (cleanPath && cleanPath.endsWith('.html')) {
+            const fileCached = await caches.match('./' + cleanPath, { ignoreSearch: true }) ||
+                               await caches.match(cleanPath, { ignoreSearch: true });
+            if (fileCached) return fileCached;
+          }
 
           const indexCached = await caches.match('./index.html', { ignoreSearch: true }) ||
                               await caches.match('./', { ignoreSearch: true }) ||

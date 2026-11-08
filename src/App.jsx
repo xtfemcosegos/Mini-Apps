@@ -3,6 +3,7 @@ import CDIApp from './components/CDI/CDIApp';
 import ChecadorApp from './components/Checador/ChecadorApp';
 import RecorridosApp from './components/Recorridos/RecorridosApp';
 import BitacoraApp from './components/Bitacora/BitacoraApp';
+import PrestadoresApp from './components/Prestadores/PrestadoresApp';
 import MiniAppsDock from './components/Dock/MiniAppsDock';
 import {
   getDeviceFeatures,
@@ -81,6 +82,7 @@ export default function App() {
     if (appId === 'checador') return f.checador === true;
     if (appId === 'recorridos') return f.recorridos === true;
     if (appId === 'bitacora' || appId === 'bitacoras') return (f.bitacoras === true || f.bitacora === true);
+    if (appId === 'prestadores') return f.prestadores === true;
     return false;
   };
 
@@ -95,7 +97,11 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     const qApp = (params.get('app') || '').toLowerCase();
     const initialFeats = getDeviceFeatures();
-    if (qApp && ['cdi', 'checador', 'recorridos', 'bitacora'].includes(qApp)) {
+    const qAction = (params.get('action') || '').toLowerCase();
+    if (qApp === 'prestadores' && qAction === 'herramientas') {
+      return 'prestadores';
+    }
+    if (qApp && ['cdi', 'checador', 'recorridos', 'bitacora', 'prestadores'].includes(qApp)) {
       if (isAppAllowed(qApp, initialFeats)) {
         return qApp;
       }
@@ -108,6 +114,7 @@ export default function App() {
     if (f.checador === true) return 'checador';
     if (f.recorridos === true) return 'recorridos';
     if (f.bitacoras === true || f.bitacora === true) return 'bitacora';
+    if (f.prestadores === true) return 'prestadores';
     return null;
   };
 
@@ -119,7 +126,7 @@ export default function App() {
     const firstAllowed = getFirstAllowedRightApp(initialFeats);
 
     if (onPc && firstAllowed) {
-      if (saved && ['checador', 'recorridos', 'bitacora'].includes(saved) && isAppAllowed(saved, initialFeats)) {
+      if (saved && ['checador', 'recorridos', 'bitacora', 'prestadores'].includes(saved) && isAppAllowed(saved, initialFeats)) {
         return saved;
       }
       return firstAllowed;
@@ -233,6 +240,13 @@ export default function App() {
       } else {
         setActiveApp('cdi');
       }
+    } else if (qApp === 'prestadores') {
+      const qAction = (params.get('action') || '').toLowerCase();
+      if (features.prestadores === true || qAction === 'herramientas') {
+        window.location.replace('prestadores-movil.html?device=mobile' + (search ? '&' + search.replace(/^\?/, '') : ''));
+      } else {
+        setActiveApp('cdi');
+      }
     }
   }, [features, isPc]);
 
@@ -264,6 +278,10 @@ export default function App() {
       }
       if (appId === 'bitacora' || appId === 'bitacoras') {
         window.location.href = 'bitacora-movil.html?device=mobile' + (search ? '&' + search.replace(/^\?/, '') : '');
+        return;
+      }
+      if (appId === 'prestadores') {
+        window.location.href = 'prestadores-movil.html?device=mobile' + (search ? '&' + search.replace(/^\?/, '') : '');
         return;
       }
     }
@@ -320,6 +338,8 @@ export default function App() {
                 ? 'Recorridos'
                 : effectiveRightApp === 'bitacora'
                 ? 'Bitácora'
+                : effectiveRightApp === 'prestadores'
+                ? 'Prestadores'
                 : effectiveRightApp === 'mec'
                 ? 'MEC Carretera'
                 : 'Control de Accesos'}
@@ -394,6 +414,19 @@ export default function App() {
                 <span>Bitácora</span>
               </button>
             )}
+                        {features.prestadores && effectiveRightApp !== 'prestadores' && (
+              <button
+                type="button"
+                className="miniapps-header-app-btn"
+                onClick={() => { sounds.click(); handleSelectParallelApp('prestadores'); }}
+                title="Cambiar a Prestadores"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                </svg>
+                <span>Prestadores</span>
+              </button>
+            )}
             {features.mec && effectiveRightApp !== 'mec' && (
               <button
                 type="button"
@@ -458,6 +491,10 @@ export default function App() {
           {activeApp === 'bitacora' && (features.bitacoras || features.bitacora) && (
             <iframe src="bitacora-movil.html?embedded=1" className="miniapps-app-iframe" title="Bitácora" />
           )}
+          {activeApp === 'prestadores' && (
+            <iframe src="prestadores-movil.html?embedded=1" className="miniapps-app-iframe" title="Prestadores" />
+          )}
+
         </div>
 
         {/* PANEL DERECHO: Exclusivo en PC con Checador (70% de ancho) en paralelo */}
@@ -492,6 +529,13 @@ export default function App() {
                   src="bitacora-movil.html?embedded=1"
                   className="miniapps-app-iframe"
                   title="Bitácora Móvil"
+                />
+              )}
+              {effectiveRightApp === 'prestadores' && features.prestadores && (
+                <iframe
+                  src="prestadores-movil.html?embedded=1&device=pc"
+                  className="miniapps-app-iframe"
+                  title="Prestadores y Herramientas"
                 />
               )}
             </div>

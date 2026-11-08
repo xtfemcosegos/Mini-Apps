@@ -154,6 +154,8 @@ const server = http.createServer((req, res) => {
     reqPath = '/recorrido-movil.html';
   } else if (reqPath === '/bitacora' || reqPath === '/bitacora-movil') {
     reqPath = '/bitacora-movil.html';
+  } else if (reqPath === '/prestadores' || reqPath === '/prestadores-movil') {
+    reqPath = '/prestadores-movil.html';
   }
 
   const baseName = path.basename(reqPath);

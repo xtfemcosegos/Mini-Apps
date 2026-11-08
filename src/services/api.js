@@ -396,12 +396,13 @@ export function getDeviceFeatures() {
           checador: parsed.checador === true,
           recorridos: parsed.recorridos === true,
           bitacoras: (parsed.bitacoras === true || parsed.bitacora === true),
-          mec: parsed.mec === true
+          mec: parsed.mec === true,
+          prestadores: parsed.prestadores === true
         };
       }
     }
   } catch (e) {}
-  return { checador: false, recorridos: false, bitacoras: false, mec: false };
+  return { checador: false, recorridos: false, bitacoras: false, mec: false, prestadores: false };
 }
 
 export function saveDeviceFeatures(features) {
@@ -415,7 +416,8 @@ export function saveDeviceFeatures(features) {
     checador: parsed.checador === true,
     recorridos: parsed.recorridos === true,
     bitacoras: (parsed.bitacoras === true || parsed.bitacora === true),
-    mec: parsed.mec === true
+    mec: parsed.mec === true,
+    prestadores: parsed.prestadores === true
   };
   try {
     localStorage.setItem('regas_cdi_device_features', JSON.stringify(normalized));
@@ -859,3 +861,58 @@ export const sounds = {
     } catch (e) {}
   }
 };
+
+// ==========================================
+// 5. PRESTADORES DE SERVICIOS Y HERRAMIENTAS
+// ==========================================
+export async function fetchPrestadoresStats(fecha) {
+  const q = fecha ? `?fecha=${encodeURIComponent(fecha)}` : '';
+  return apiRequest(`/api/prestadores/stats${q}`);
+}
+
+export async function fetchPrestadoresActivos(filtro = {}) {
+  const params = new URLSearchParams();
+  if (filtro.caseta) params.set('caseta', filtro.caseta);
+  if (filtro.empresa) params.set('empresa', filtro.empresa);
+  const q = params.toString() ? `?${params.toString()}` : '';
+  return apiRequest(`/api/prestadores/activos${q}`);
+}
+
+export async function fetchPrestadoresRegistros(filtro = {}) {
+  const params = new URLSearchParams();
+  if (filtro.fecha) params.set('fecha', filtro.fecha);
+  if (filtro.estatus) params.set('estatus', filtro.estatus);
+  if (filtro.empresa) params.set('empresa', filtro.empresa);
+  if (filtro.busqueda) params.set('busqueda', filtro.busqueda);
+  const q = params.toString() ? `?${params.toString()}` : '';
+  return apiRequest(`/api/prestadores/registros${q}`);
+}
+
+export async function fetchNextFolio() {
+  return apiRequest('/api/prestadores/folio-disponible');
+}
+
+export async function registrarPrestadorEntrada(payload) {
+  return apiRequest('/api/prestadores/registro', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function registrarPrestadorSalida(payload) {
+  return apiRequest('/api/prestadores/salida', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function vincularPrestadorHerramientas(payload) {
+  return apiRequest('/api/prestadores/herramientas', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function fetchPrestadorHerramientas(folio) {
+  return apiRequest(`/api/prestadores/herramientas/${encodeURIComponent(folio)}`);
+}

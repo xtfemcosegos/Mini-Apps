@@ -2164,13 +2164,35 @@
 
       function initServiceWorker() {
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('./sw.js', { scope: './' })
+          navigator.serviceWorker.register('./sw.js?v=21', { scope: './' })
             .then(reg => {
-              console.log('[Mobile SW] Registrado:', reg.scope);
+              console.log('[Mobile SW] Registrado v21:', reg.scope);
+              reg.update().catch(() => {});
+              if (reg.waiting) {
+                reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+              }
+              reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                if (newWorker) {
+                  newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                      newWorker.postMessage({ type: 'SKIP_WAITING' });
+                    }
+                  });
+                }
+              });
             })
             .catch(err => {
               console.warn('[Mobile SW] Error registrando SW:', err);
             });
+
+          let refreshing = false;
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+              refreshing = true;
+              window.location.reload();
+            }
+          });
         }
       }
 

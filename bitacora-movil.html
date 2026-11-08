@@ -619,5 +619,44 @@
       });
     })();
   </script>
+
+  <!-- Registro de Service Worker PWA y Auto-Actualización -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js?v=21')
+          .then((reg) => {
+            reg.update().catch(() => {});
+            if (reg.waiting) {
+              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('[Bitacora PWA] Nueva versión disponible. Activando...');
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                  }
+                });
+              }
+            });
+            console.log('[Bitacora PWA] Service Worker v21 registrado con alcance:', reg.scope);
+          })
+          .catch((err) => {
+            console.warn('[Bitacora PWA] Fallo al registrar Service Worker:', err);
+          });
+      });
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          console.log('[Bitacora PWA] Service Worker actualizado. Recargando página...');
+          window.location.reload();
+        }
+      });
+    }
+  </script>
 </body>
 </html>

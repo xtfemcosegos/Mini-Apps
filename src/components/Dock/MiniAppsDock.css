@@ -145,6 +145,11 @@
   --dock-accent: #ea580c;
 }
 
+.icon-prestadores {
+  background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+  --dock-accent: #0891b2;
+}
+
 .icon-qr {
   background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
   --dock-accent: #6366f1;

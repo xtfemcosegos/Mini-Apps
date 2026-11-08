@@ -30,14 +30,37 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=19')
+        navigator.serviceWorker.register('./sw.js?v=21')
           .then((reg) => {
-            reg.update();
-            console.log('[PWA] Service Worker v19 activo con alcance:', reg.scope);
+            reg.update().catch(() => {});
+            if (reg.waiting) {
+              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('[PWA] Nueva versión disponible. Activando...');
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                  }
+                });
+              }
+            });
+            console.log('[PWA] Service Worker v21 activo con alcance:', reg.scope);
           })
           .catch((err) => {
             console.warn('[PWA] Fallo al registrar Service Worker:', err);
           });
+      });
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          console.log('[PWA] Service Worker actualizado. Recargando interfaz...');
+          window.location.reload();
+        }
       });
     }
   </script>
