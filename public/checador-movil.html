@@ -2718,12 +2718,29 @@
       const resolveBackendBase = () => {
         const urlParams = new URLSearchParams(window.location.search);
         const qBackend = urlParams.get('backend') || urlParams.get('api');
-        if (qBackend) return qBackend.replace(/\/+$/, '');
+        if (qBackend) {
+          if (window.location.protocol === 'https:' && qBackend.startsWith('http://')) {
+            // Ignorar backend HTTP en HTTPS para evitar bloqueo por contenido mixto
+          } else {
+            return qBackend.replace(/\/+$/, '');
+          }
+        }
         const h = window.location.hostname;
         const p = window.location.port;
+        // Si ya estamos sirviendo sobre el host oficial de Tailscale Funnel
+        if (h.includes('ts.net')) {
+          return `${window.location.protocol}//${h}`;
+        }
         if (p === '7001') return '';
-        if (h === 'localhost' || h === '127.0.0.1') return 'http://127.0.0.1:7001';
-        if (h.startsWith('10.') || h.startsWith('192.168.')) return `http://${h}:7001`;
+        if (h === 'localhost' || h === '127.0.0.1') {
+          return window.location.protocol === 'https:' ? '' : 'http://127.0.0.1:7001';
+        }
+        if ((h.startsWith('10.') || h.startsWith('192.168.')) && window.location.protocol !== 'https:') {
+          return `http://${h}:7001`;
+        }
+        if (h.startsWith('100.') && window.location.protocol !== 'https:') {
+          return `http://${h}:7001`;
+        }
         try {
           const cached = localStorage.getItem('regas_active_api_base');
           if (cached && (cached.includes('trycloudflare.com') || cached.includes('10.200.79.175') || cached.includes('ngrok') || cached.includes('workers.dev') || cached.includes('cic-10.com') || (window.location.protocol === 'https:' && cached.startsWith('http:')))) {
@@ -2735,6 +2752,55 @@
         return 'https://oxosd450mlh.taile94978.ts.net';
       };
       const BACKEND_BASE = resolveBackendBase();
+
+      // Helper unificado para resolver URLs de fotos de oficiales (Tailscale HTTPS, LAN local y PWA)
+      function formatOfficerPhotoUrl(elOrFoto, id) {
+        let photo = '';
+        let elemId = '';
+        if (elOrFoto && typeof elOrFoto === 'object') {
+          photo = elOrFoto.foto || elOrFoto.Foto || '';
+          elemId = elOrFoto.id || elOrFoto.ID || elOrFoto.elemId || id || '';
+        } else {
+          photo = elOrFoto || '';
+          elemId = id || '';
+        }
+
+        // 1. Data URI Base64: usar directamente
+        if (photo && typeof photo === 'string' && photo.startsWith('data:')) {
+          return photo;
+        }
+
+        const base = (typeof BACKEND_BASE === 'string' && BACKEND_BASE) ? BACKEND_BASE.replace(/\/+$/, '') : '';
+        const cleanId = String(elemId || '').replace(/\.(webp|jpg|png|jpeg)$/i, '').trim();
+
+        // 2. Si ya es una URL absoluta HTTP / HTTPS
+        if (photo && typeof photo === 'string' && (photo.startsWith('http://') || photo.startsWith('https://'))) {
+          if (window.location.protocol === 'https:' && photo.startsWith('http:')) {
+            try {
+              const parsed = new URL(photo);
+              if (base) {
+                return `${base}${parsed.pathname}${parsed.search}`;
+              }
+              return photo.replace(/^http:/, 'https:');
+            } catch (e) {}
+          }
+          return photo;
+        }
+
+        // 3. Si tenemos ID de socio/oficial, construir la URL canónica garantizada en UBE (/api/photos/elementos/:id)
+        if (cleanId) {
+          const canonicalPath = `/api/photos/elementos/${encodeURIComponent(cleanId)}`;
+          return base ? `${base}${canonicalPath}` : canonicalPath;
+        }
+
+        // 4. Si es una ruta relativa (ej. /api/photos/... o data/fotos/...)
+        if (photo && typeof photo === 'string' && photo.trim()) {
+          const cleanPath = photo.startsWith('/') ? photo : `/${photo}`;
+          return base ? `${base}${cleanPath}` : cleanPath;
+        }
+
+        return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="%231e293b"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="18">👤</text></svg>';
+      }
 
       // Sincronización en vivo vía SSE y fetch
       try {
@@ -2939,9 +3005,7 @@
         let html = '';
         matches.forEach((elem, index) => {
           const isSelected = (index === currentHighlightedIndex) ? ' is-selected' : '';
-          const photoUrl = elem.foto 
-            ? (elem.foto.startsWith('http') || elem.foto.startsWith('/') ? elem.foto : `${BACKEND_BASE}/${elem.foto}`) 
-            : `${BACKEND_BASE}/api/photos/elementos/${elem.id}`;
+          const photoUrl = formatOfficerPhotoUrl(elem);
 
           let displayName = escapeHtml(elem.nombre);
           if (!/^\d+$/.test(query.trim())) {
@@ -3331,13 +3395,7 @@
         const btnOnlySalida = document.getElementById('btnPcOnlySalida');
 
         if (thumbImg) {
-          if (elem.foto) {
-            thumbImg.src = elem.foto;
-          } else if (data.elemId || state.elemId) {
-            thumbImg.src = `${BACKEND_BASE}/api/photos/elementos/${encodeURIComponent(data.elemId || state.elemId)}`;
-          } else {
-            thumbImg.src = 'iconos/silueta.svg';
-          }
+          thumbImg.src = formatOfficerPhotoUrl(elem, data.elemId || state.elemId);
           thumbImg.onerror = function() {
             this.onerror = null;
             this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" rx="14" fill="%231e293b"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="34">👤</text></svg>';
@@ -3685,7 +3743,7 @@
           } else {
             let htmlEntrantes = '';
             entrantes.forEach(el => {
-              const photoSrc = el.foto || `${BACKEND_BASE}/api/photos/elementos/${el.id}`;
+              const photoSrc = formatOfficerPhotoUrl(el);
               const elJson = encodeURIComponent(JSON.stringify(el));
               htmlEntrantes += `
                 <div class="officer-salida-card officer-card-entrante" id="cardOfficer_${el.id}">
@@ -3730,7 +3788,7 @@
           } else {
             let htmlSalida = '';
             enTurno.forEach(el => {
-              const photoSrc = el.foto || `${BACKEND_BASE}/api/photos/elementos/${el.id}`;
+              const photoSrc = formatOfficerPhotoUrl(el);
               const elJson = encodeURIComponent(JSON.stringify(el));
 
               if (el.isConsecutive) {
@@ -3838,7 +3896,7 @@
 
         soundBeep();
 
-        const photoSrc = el.foto || `${BACKEND_BASE}/api/photos/elementos/${el.id}`;
+        const photoSrc = formatOfficerPhotoUrl(el);
         if (salidaModalPhoto) {
           salidaModalPhoto.src = photoSrc;
           salidaModalPhoto.onerror = function() {
@@ -3894,7 +3952,7 @@
 
         soundBeep();
 
-        const photoSrc = el.foto || `${BACKEND_BASE}/api/photos/elementos/${el.id}`;
+        const photoSrc = formatOfficerPhotoUrl(el);
         if (salidaModalPhoto) {
           salidaModalPhoto.src = photoSrc;
           salidaModalPhoto.onerror = function() {
@@ -4656,13 +4714,13 @@
         if (detailThumbImg) {
           if (state.capturedBase64) {
             detailThumbImg.src = state.capturedBase64;
-          } else if (elem.foto) {
-            detailThumbImg.src = elem.foto;
-          } else if (state.elemId) {
-            detailThumbImg.src = `${BACKEND_BASE}/api/photos/elementos/${encodeURIComponent(state.elemId)}`;
           } else {
-            detailThumbImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80"><rect width="80" height="80" rx="14" fill="%231e293b"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="34">👤</text></svg>';
+            detailThumbImg.src = formatOfficerPhotoUrl(elem, state.elemId);
           }
+          detailThumbImg.onerror = function() {
+            this.onerror = null;
+            this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80"><rect width="80" height="80" rx="14" fill="%231e293b"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="34">👤</text></svg>';
+          };
         }
 
         const btnRetake = document.getElementById('btnRetakePhoto');
@@ -4979,11 +5037,13 @@
         if (receiptPhotoImg) {
           if (state.capturedBase64) {
             receiptPhotoImg.src = state.capturedBase64;
-          } else if (state.elementData?.foto) {
-            receiptPhotoImg.src = state.elementData.foto;
           } else {
-            receiptPhotoImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80"><rect width="80" height="80" rx="14" fill="%231e293b"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="34">👤</text></svg>';
+            receiptPhotoImg.src = formatOfficerPhotoUrl(state.elementData);
           }
+          receiptPhotoImg.onerror = function() {
+            this.onerror = null;
+            this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80"><rect width="80" height="80" rx="14" fill="%231e293b"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="34">👤</text></svg>';
+          };
         }
       }
 
