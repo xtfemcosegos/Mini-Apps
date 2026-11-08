@@ -150,6 +150,107 @@ export function getTodayDateIso() {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
+// ==========================================
+// HUELLA DIGITAL CRIPTOGRÁFICA DE HARDWARE (WINDOWS / PC)
+// ==========================================
+function cyrb53(str, seed = 0) {
+  let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+  for (let i = 0, ch; i < str.length; i++) {
+    ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+  h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+  h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16).padStart(12, '0');
+}
+
+export function generatePcFingerprint() {
+  if (typeof window === 'undefined') return { fingerprint: '', traits: {} };
+  try {
+    const cachedFp = localStorage.getItem('regas_cdi_pc_fingerprint');
+    const cachedTraitsRaw = localStorage.getItem('regas_cdi_pc_traits');
+    if (cachedFp && cachedTraitsRaw) {
+      try {
+        return { fingerprint: cachedFp, traits: JSON.parse(cachedTraitsRaw) };
+      } catch (e) {}
+    }
+
+    // 1. GPU (WebGL)
+    let gpuVendor = 'generic', gpuRenderer = 'generic';
+    try {
+      const c = document.createElement('canvas');
+      const gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+      if (gl) {
+        const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+        if (dbg) {
+          gpuVendor = gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) || 'generic';
+          gpuRenderer = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || 'generic';
+        }
+      }
+    } catch (e) {}
+
+    // 2. Pantalla
+    const s = window.screen || {};
+    const screenStr = `${s.width}x${s.height}@${s.colorDepth || 24}_ratio${window.devicePixelRatio || 1}`;
+
+    // 3. Hardware (CPU Cores y RAM)
+    const nav = window.navigator || {};
+    const cores = nav.hardwareConcurrency || 0;
+    const memory = nav.deviceMemory || 0;
+    const platform = nav.platform || '';
+
+    // 4. Canvas 2D Cryptographic Signature
+    let canvasHash = '';
+    try {
+      const cv = document.createElement('canvas');
+      cv.width = 240;
+      cv.height = 60;
+      const ctx = cv.getContext('2d');
+      if (ctx) {
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillStyle = '#10b981';
+        ctx.fillRect(10, 5, 80, 25);
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = "14px 'Segoe UI', Arial, sans-serif";
+        ctx.fillText('CIC_REGAS_WIN_PC_🔒', 4, 22);
+        ctx.fillStyle = 'rgba(234, 88, 12, 0.7)';
+        ctx.fillText('CIC_REGAS_WIN_PC_🔒', 6, 24);
+        canvasHash = cyrb53(cv.toDataURL());
+      }
+    } catch (e) {}
+
+    // 5. Configuración Regional
+    let timeZone = '';
+    try {
+      timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    } catch (e) {}
+
+    const traits = {
+      gpu: `${gpuVendor} ~ ${gpuRenderer}`,
+      screen: screenStr,
+      cores,
+      memory,
+      platform,
+      canvasHash,
+      timeZone,
+      lang: nav.language || ''
+    };
+
+    const fingerprint = 'fp_win_' + cyrb53(JSON.stringify(traits));
+    try {
+      localStorage.setItem('regas_cdi_pc_fingerprint', fingerprint);
+      localStorage.setItem('regas_cdi_pc_traits', JSON.stringify(traits));
+    } catch (e) {}
+
+    return { fingerprint, traits };
+  } catch (err) {
+    return { fingerprint: '', traits: {} };
+  }
+}
+
 export function detectDeviceInfo() {
   if (typeof navigator === 'undefined') return { model: 'Dispositivo Web', type: 'pc', browser: 'Navegador Web', userAgent: '' };
   const ua = navigator.userAgent || '';
@@ -187,7 +288,39 @@ export function detectDeviceInfo() {
   else if (/SamsungBrowser\//i.test(ua)) browser = 'Samsung Internet';
   else if (/OPR\/|Opera/i.test(ua)) browser = 'Opera';
 
-  return { model, type, browser, userAgent: ua };
+    // Detección avanzada de Computadora PC y Huella Invariable
+  let fingerprint = '';
+  let fingerprintTraits = null;
+  let pcName = '';
+  const isWindows = /Windows NT/i.test(ua) || (typeof navigator !== 'undefined' && navigator.userAgentData && navigator.userAgentData.platform === 'Windows');
+
+  if (type === 'pc') {
+    const fpResult = generatePcFingerprint();
+    fingerprint = fpResult.fingerprint;
+    fingerprintTraits = fpResult.traits;
+
+    try {
+      if (typeof window !== 'undefined') {
+        const urlP = new URLSearchParams(window.location.search);
+        pcName = urlP.get('pc') || urlP.get('pc_name') || urlP.get('computername') || localStorage.getItem('regas_cdi_pc_name') || '';
+        if (pcName) {
+          localStorage.setItem('regas_cdi_pc_name', pcName.trim());
+        }
+      }
+    } catch (e) {}
+  }
+
+  return {
+    model: (type === 'pc' && pcName) ? `PC ${pcName}` : model,
+    type,
+    browser,
+    userAgent: ua,
+    isPc: type === 'pc',
+    isWindows,
+    pcName,
+    fingerprint,
+    fingerprintTraits
+  };
 }
 
 let cachedLocation = null;
@@ -308,10 +441,15 @@ export async function fetchDeviceFeatures() {
 export async function sendDeviceHeartbeat(caseta) {
   const devId = getDeviceUuid();
   const info = detectDeviceInfo();
+  const storedPcName = typeof localStorage !== 'undefined' ? localStorage.getItem('regas_cdi_pc_name') || '' : '';
   const payload = {
     deviceId: devId,
     deviceModel: info.model,
     deviceType: info.type,
+    isPc: info.isPc,
+    pcName: info.pcName || storedPcName,
+    fingerprint: info.fingerprint || '',
+    fingerprintTraits: info.fingerprintTraits || null,
     browser: info.browser,
     userAgent: info.userAgent,
     caseta: caseta || 'Sin caseta seleccionada',
@@ -325,6 +463,14 @@ export async function sendDeviceHeartbeat(caseta) {
       method: 'POST',
       body: JSON.stringify(payload)
     });
+    if (res && res.pcName && typeof localStorage !== 'undefined') {
+      localStorage.setItem('regas_cdi_pc_name', res.pcName);
+    }
+    // Si el servidor reconoció la PC por huella digital tras un borrado de caché
+    if (res && res.deviceId && res.deviceId !== devId && typeof localStorage !== 'undefined') {
+      localStorage.setItem('regas_cdi_device_uuid', res.deviceId);
+      console.log('[CDI Hardware 🔒] Identidad restaurada automáticamente por huella digital:', res.deviceId);
+    }
     if (res && res.features) {
       saveDeviceFeatures(res.features);
     }
