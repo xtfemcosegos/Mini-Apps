@@ -2251,12 +2251,12 @@
           }
         } catch(e) {}
 
-        // 5. Fallback por defecto oficial: Conector Tailscale UBE (oxosd450mlh.taile94978.ts.net)
+        // 5. Fallback por defecto oficial: Conector Tailscale UBE (ube-server-1.taile94978.ts.net)
         const isEmergency = urlParams.get('emergency') === '1' || urlParams.get('backend') === 'ngrok';
         if (isEmergency) {
-          return 'https://oxosd450mlh.taile94978.ts.net';
+          return 'https://ube-server-1.taile94978.ts.net';
         }
-        return 'https://oxosd450mlh.taile94978.ts.net';
+        return 'https://ube-server-1.taile94978.ts.net';
       };
 
       let BACKEND_BASE = resolveBackendBase();
@@ -3371,9 +3371,9 @@
             }
           } catch (err) {
             console.error('Error sincronizando CDI:', err);
-            if (BACKEND_BASE !== 'https://oxosd450mlh.taile94978.ts.net') {
+            if (BACKEND_BASE !== 'https://ube-server-1.taile94978.ts.net') {
               console.warn('[CDI] Reintentando incremento mediante Conector Tailscale UBE...');
-              BACKEND_BASE = 'https://oxosd450mlh.taile94978.ts.net';
+              BACKEND_BASE = 'https://ube-server-1.taile94978.ts.net';
               try {
                 const res2 = await fetch(`${BACKEND_BASE}/api/cdi/increment`, {
                   method: 'POST',
@@ -3742,9 +3742,9 @@
           }
         } catch (e) {
           console.warn('Error al consultar datos CDI:', e);
-          if (BACKEND_BASE !== 'https://oxosd450mlh.taile94978.ts.net') {
+          if (BACKEND_BASE !== 'https://ube-server-1.taile94978.ts.net') {
             console.warn('[CDI] Fallback automático a Conector Tailscale UBE...');
-            BACKEND_BASE = 'https://oxosd450mlh.taile94978.ts.net';
+            BACKEND_BASE = 'https://ube-server-1.taile94978.ts.net';
             try {
               const res2 = await fetch(`${BACKEND_BASE}/api/cdi?fecha=${currentDate}`, { headers: API_HEADERS });
               if (res2.ok) {

@@ -2771,7 +2771,7 @@
             return cached.replace(/\/+$/, '');
           }
         } catch(e) {}
-        return 'https://oxosd450mlh.taile94978.ts.net';
+        return 'https://ube-server-1.taile94978.ts.net';
       };
       const BACKEND_BASE = resolveBackendBase();
 
@@ -2783,7 +2783,7 @@
           if (res.ok) return res;
           throw new Error(`HTTP ${res.status}`);
         } catch (err) {
-          const fallbackBase = (base !== '') ? '' : 'https://oxosd450mlh.taile94978.ts.net';
+          const fallbackBase = (base !== '') ? '' : 'https://ube-server-1.taile94978.ts.net';
           try {
             const fallbackUrl = `${fallbackBase}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
             const res2 = await fetch(fallbackUrl, options);

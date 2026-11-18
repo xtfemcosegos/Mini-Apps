@@ -194,7 +194,7 @@ export default function PrestadoresApp({ features = {}, isPc = false, caseta = '
   useEffect(() => {
     if (!currentFolio) return;
 
-    let base = 'https://oxosd450mlh.taile94978.ts.net';
+    let base = 'https://ube-server-1.taile94978.ts.net';
     if (qrBaseMode === 'nube') {
       base = 'https://cic-os-miniapps.web.app';
     } else if (qrBaseMode === 'lan') {
