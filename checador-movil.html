@@ -2638,6 +2638,25 @@
   <script>
     (function() {
       const escapeHtml = str => String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
+      let _currentCasetaOverride = null;
+
+      function getActiveCaseta() {
+        if (_currentCasetaOverride && _currentCasetaOverride.trim()) {
+          return _currentCasetaOverride.trim();
+        }
+
+        const stored = localStorage.getItem('regas_cdi_last_caseta') ||
+                       localStorage.getItem('caseta_seleccionada_cic') ||
+                       localStorage.getItem('selectedCaseta') ||
+                       localStorage.getItem('regas_cdi_device_caseta');
+        if (stored && stored.trim()) return stored.trim();
+
+        const qCaseta = new URLSearchParams(window.location.search).get('caseta');
+        if (qCaseta && qCaseta.trim()) return qCaseta.trim();
+
+        return 'Edison';
+      }
+
       // =========================================================================
       // 0. CONTROL DE PERMISOS POR DISPOSITIVO (DEFECTO: SOLO CDI)
       // =========================================================================
@@ -2665,9 +2684,10 @@
         } catch(e) {}
 
         if (normalized.checador !== true) {
-          // El operador revocó el permiso de Checador: expulsar de inmediato a CDI
-          window.location.replace('./?app=cdi');
-          return;
+          if (!isEmbeddedInIframe) {
+            window.location.replace('./?app=cdi');
+            return;
+          }
         }
 
         const bChecador = document.getElementById('dockBtnChecador');
@@ -2693,14 +2713,11 @@
         const rawCached = localStorage.getItem('regas_cdi_device_features');
         if (rawCached) {
           const parsed = JSON.parse(rawCached);
-          if (parsed && parsed.checador !== true) {
+          if (parsed && parsed.checador === false && !isEmbeddedInIframe) {
             window.location.replace('./?app=cdi');
             return;
           }
           _lastFeatures = parsed;
-        } else {
-          window.location.replace('./?app=cdi');
-          return;
         }
       } catch(e) {}
 
@@ -2727,11 +2744,16 @@
         }
         const h = window.location.hostname;
         const p = window.location.port;
+
+        // Si se sirve desde el servidor de Mini Apps (:7006) o directamente desde UBE (:7001)
+        if (p === '7006' || p === '7001') {
+          return '';
+        }
+
         // Si ya estamos sirviendo sobre el host oficial de Tailscale Funnel
         if (h.includes('ts.net')) {
           return `${window.location.protocol}//${h}`;
         }
-        if (p === '7001') return '';
         if (h === 'localhost' || h === '127.0.0.1') {
           return window.location.protocol === 'https:' ? '' : 'http://127.0.0.1:7001';
         }
@@ -2752,6 +2774,24 @@
         return 'https://oxosd450mlh.taile94978.ts.net';
       };
       const BACKEND_BASE = resolveBackendBase();
+
+      async function apiFetch(endpoint, options = {}) {
+        const base = BACKEND_BASE || '';
+        const url = `${base}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+        try {
+          const res = await fetch(url, options);
+          if (res.ok) return res;
+          throw new Error(`HTTP ${res.status}`);
+        } catch (err) {
+          const fallbackBase = (base !== '') ? '' : 'https://oxosd450mlh.taile94978.ts.net';
+          try {
+            const fallbackUrl = `${fallbackBase}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+            const res2 = await fetch(fallbackUrl, options);
+            if (res2.ok) return res2;
+          } catch(e2) {}
+          throw err;
+        }
+      }
 
       // Helper unificado para resolver URLs de fotos de oficiales (Tailscale HTTPS, LAN local y PWA)
       function formatOfficerPhotoUrl(elOrFoto, id) {
@@ -2814,10 +2854,21 @@
         es.onmessage = (e) => {
           try {
             const data = JSON.parse(e.data);
-            if (data && data.type === 'cdi_device_update' && data.payload) {
+            if (data && (data.type === 'cdi_device_update' || data.type === 'cdi_caseta_change') && data.payload) {
               const p = data.payload;
-              if ((p.deviceId === myDevId || p._id === myDevId) && p.features) {
-                applyFeatures(p.features);
+              if (p.deviceId === myDevId || p._id === myDevId || p.deviceId === 'all' || !p.deviceId) {
+                if (p.features) {
+                  applyFeatures(p.features);
+                }
+                if (p.caseta) {
+                  _currentCasetaOverride = p.caseta.trim();
+                  try {
+                    localStorage.setItem('regas_cdi_last_caseta', _currentCasetaOverride);
+                    localStorage.setItem('caseta_seleccionada_cic', _currentCasetaOverride);
+                    localStorage.setItem('selectedCaseta', _currentCasetaOverride);
+                  } catch(e) {}
+                  loadPendingSalida(_currentCasetaOverride);
+                }
               }
             }
           } catch(err) {}
@@ -2922,29 +2973,28 @@
       async function loadElementosCatalog() {
         if (elementosLoaded && elementosCatalog.length > 0) return;
         try {
-          const res = await fetch(`${BACKEND_BASE}/api/elementos`, {
+          const res = await apiFetch(`/api/elementos`, {
             headers: { 'Bypass-Tunnel-Reminder': 'true' }
           });
-          if (res.ok) {
-            const data = await res.json();
-            const list = Array.isArray(data) ? data : (Array.isArray(data.elementos) ? data.elementos : []);
-            elementosCatalog = list.map(item => ({
-              id: String(item.id || item.ID || item.clave || '').trim(),
-              nombre: (item.nombre || item.Nombre || '').trim(),
-              puesto: item.Puesto || item.puesto || item.AccesoPredeterminado || 'Oficial',
-              foto: item.foto || item.Foto || '',
-              estado: item.Estado || item.estado || 'Activo'
-            })).filter(x => x.id && x.nombre);
+          const data = await res.json();
+          const list = Array.isArray(data) ? data : (Array.isArray(data.elementos) ? data.elementos : []);
+          elementosCatalog = list.map(item => ({
+            id: String(item.id || item.ID || item.clave || '').trim(),
+            nombre: (item.nombre || item.Nombre || '').trim(),
+            puesto: item.Puesto || item.puesto || item.AccesoPredeterminado || 'Oficial',
+            foto: item.foto || item.Foto || '',
+            estado: item.Estado || item.estado || 'Activo'
+          })).filter(x => x.id && x.nombre);
 
-            // Priorizar oficiales activos y ordenar alfabéticamente por nombre
-            elementosCatalog.sort((a, b) => {
-              if (a.estado === 'Activo' && b.estado !== 'Activo') return -1;
-              if (a.estado !== 'Activo' && b.estado === 'Activo') return 1;
-              return a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' });
-            });
+          // Priorizar oficiales activos y ordenar alfabéticamente por nombre
+          elementosCatalog.sort((a, b) => {
+            if (a.estado === 'Activo' && b.estado !== 'Activo') return -1;
+            if (a.estado !== 'Activo' && b.estado === 'Activo') return 1;
+            return a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' });
+          });
 
-            elementosLoaded = true;
-          }
+          elementosLoaded = true;
+          console.log('[Checador] Catálogo cargado con éxito:', elementosCatalog.length, 'oficiales');
         } catch (err) {
           console.warn('[Error cargando catálogo de oficiales]', err);
         }
@@ -3671,30 +3721,20 @@
 
       let currentModalElement = null;
       let currentModalAction = 'salida'; // 'entrada' | 'salida' | 'swap'
-
-      function getActiveCaseta() {
-        const qCaseta = new URLSearchParams(window.location.search).get('caseta');
-        if (qCaseta && qCaseta.trim()) return qCaseta.trim();
-
-        const stored = localStorage.getItem('regas_cdi_last_caseta') ||
-                       localStorage.getItem('caseta_seleccionada_cic') ||
-                       localStorage.getItem('regas_cdi_device_caseta');
-        if (stored && stored.trim()) return stored.trim();
-
-        return 'Edison';
-      }
-
-      async function loadPendingSalida() {
-        const caseta = getActiveCaseta();
+      async function loadPendingSalida(overrideCaseta = null) {
+        if (overrideCaseta && typeof overrideCaseta === 'string') {
+          _currentCasetaOverride = overrideCaseta.trim();
+        }
+        const caseta = _currentCasetaOverride || getActiveCaseta();
         if (pendingCasetaName) pendingCasetaName.textContent = caseta || 'General';
 
         try {
-          const res = await fetch(`${BACKEND_BASE}/api/asistencia/en-turno-pendientes-salida?caseta=${encodeURIComponent(caseta)}`, {
+          const res = await apiFetch(`/api/asistencia/en-turno-pendientes-salida?caseta=${encodeURIComponent(caseta)}`, {
             headers: { 'Bypass-Tunnel-Reminder': 'true' }
           });
           const data = await res.json();
 
-          if (res.ok && data.success) {
+          if (data && data.success) {
             renderShiftsLists(data, caseta);
           } else {
             renderShiftsLists({ entrantes: [], enTurno: [] }, caseta);
@@ -4186,12 +4226,28 @@
 
       // Escuchar mensajes de cambio de caseta desde ventana padre o paralela (CDI)
       window.addEventListener('message', (e) => {
-        if (e.data && (e.data.type === 'cdi_caseta_changed' || e.data.caseta)) {
-          loadPendingSalida();
+        if (!e.data) return;
+        const msg = e.data;
+        if (msg.type === 'cdi_caseta_changed' || msg.type === 'cdi_caseta_change' || msg.caseta) {
+          const targetCaseta = msg.caseta || (msg.payload && msg.payload.caseta);
+          if (targetCaseta && typeof targetCaseta === 'string') {
+            _currentCasetaOverride = targetCaseta.trim();
+            try {
+              localStorage.setItem('regas_cdi_last_caseta', _currentCasetaOverride);
+              localStorage.setItem('caseta_seleccionada_cic', _currentCasetaOverride);
+              localStorage.setItem('selectedCaseta', _currentCasetaOverride);
+            } catch(e) {}
+            loadPendingSalida(_currentCasetaOverride);
+          }
         }
       });
 
       // Cargar lista al iniciar y precargar catálogo de oficiales para búsqueda instantánea
+      try {
+        loadElementosCatalog();
+        loadPendingSalida();
+      } catch (eInit) {}
+
       setTimeout(() => {
         loadPendingSalida();
         if (typeof loadElementosCatalog === 'function') loadElementosCatalog();

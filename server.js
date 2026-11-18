@@ -148,6 +148,8 @@ const server = http.createServer((req, res) => {
   let reqPath = req.url.split('?')[0].split('#')[0];
   if (reqPath === '/' || reqPath === '') {
     reqPath = '/index.html';
+  } else if (reqPath === '/cdi' || reqPath === '/cdi-movil') {
+    reqPath = '/cdi-movil.html';
   } else if (reqPath === '/checador' || reqPath === '/checador-movil') {
     reqPath = '/checador-movil.html';
   } else if (reqPath === '/recorridos' || reqPath === '/recorrido-movil') {

@@ -241,6 +241,8 @@ export default function CDIApp({ theme, onToggleTheme, onIdentifyDevice, isIdent
     }
     return canonicalCasetaName(localStorage.getItem('selectedCaseta') || 'Recepción Edison');
   });
+  const casetaRef = useRef(caseta);
+  casetaRef.current = caseta;
   const [mode, setMode] = useState('add'); // 'add' (+1) | 'sub' (-1 / corrección)
   const [counts, setCounts] = useState({ internos: 0, externos: 0, prestadores: 0, visitas: 0 });
   const [totalGeneral, setTotalGeneral] = useState(0);
@@ -324,9 +326,20 @@ export default function CDIApp({ theme, onToggleTheme, onIdentifyDevice, isIdent
         localStorage.setItem('selectedCaseta', clean);
         localStorage.setItem('regas_cdi_last_caseta', clean);
         localStorage.setItem('caseta_seleccionada_cic', clean);
+        casetaRef.current = clean;
         setCaseta(clean);
         loadCounts(clean);
-        window.postMessage({ type: 'cdi_caseta_changed', caseta: clean }, '*');
+        try {
+          const iframes = document.querySelectorAll('iframe');
+          iframes.forEach(iframe => {
+            try {
+              iframe.contentWindow.postMessage({ type: 'cdi_caseta_changed', caseta: clean }, '*');
+            } catch (err) {}
+          });
+        } catch (err) {}
+        try {
+          window.postMessage({ type: 'cdi_caseta_changed', caseta: clean }, '*');
+        } catch (err) {}
       }
     };
     window.addEventListener('miniapps_caseta_updated', handleCasetaUpdate);
@@ -336,8 +349,8 @@ export default function CDIApp({ theme, onToggleTheme, onIdentifyDevice, isIdent
   // SEÑAL Y LATIDO PERIÓDICO HACIA EL MONITOR DE OPERADOR (CCO) + SSE EN VIVO
   useEffect(() => {
     const doHeartbeat = () => {
-      sendDeviceHeartbeat(caseta).then((res) => {
-        if (res && res.caseta && res.caseta !== caseta) {
+      sendDeviceHeartbeat(casetaRef.current).then((res) => {
+        if (res && res.caseta && res.caseta !== casetaRef.current) {
           setCaseta(res.caseta);
         }
       });
@@ -389,7 +402,7 @@ export default function CDIApp({ theme, onToggleTheme, onIdentifyDevice, isIdent
               setTotalGeneral(Number(cdiPayload.cdi.totals.total || 0));
             }
             if (!hasPending) {
-              const c = findCasetaCounts(cdiPayload.cdi.casetas, caseta);
+              const c = findCasetaCounts(cdiPayload.cdi.casetas, casetaRef.current);
               setCounts({
                 internos: c ? Number(c.internos || 0) : 0,
                 externos: c ? Number(c.externos || 0) : 0,
@@ -403,7 +416,7 @@ export default function CDIApp({ theme, onToggleTheme, onIdentifyDevice, isIdent
               [cdiPayload.caseta]: cdiPayload.casetaCounts
             }));
             if (!hasPending) {
-              const targetNorm = normCaseta(caseta.replace(' // Call Center', ''));
+              const targetNorm = normCaseta(casetaRef.current.replace(' // Call Center', ''));
               if (normCaseta(cdiPayload.caseta) === targetNorm) {
                 setCounts({
                   internos: Number(cdiPayload.casetaCounts.internos || 0),
@@ -427,7 +440,7 @@ export default function CDIApp({ theme, onToggleTheme, onIdentifyDevice, isIdent
         const myDevId = getDeviceUuid();
         if (devicePayload && (devicePayload.deviceId === myDevId || devicePayload._id === myDevId)) {
           setLastSyncMsg('Monitor Conectado');
-          if (devicePayload.caseta && devicePayload.caseta !== caseta) {
+          if (devicePayload.caseta && devicePayload.caseta !== casetaRef.current) {
             console.log('[CDI SSE] Caseta actualizada desde RegAs 3:', devicePayload.caseta);
             setCaseta(devicePayload.caseta);
           }
@@ -440,7 +453,7 @@ export default function CDIApp({ theme, onToggleTheme, onIdentifyDevice, isIdent
       document.removeEventListener('visibilitychange', onVisibility);
       cleanupSse();
     };
-  }, [caseta]);
+  }, []);
 
   // Polling cada 4 segundos cuando la vista de resumen de todas las casetas está activa
   useEffect(() => {
@@ -453,6 +466,16 @@ export default function CDIApp({ theme, onToggleTheme, onIdentifyDevice, isIdent
   }, [showSummaryView, caseta]);
 
   const loadCounts = async (targetCaseta = caseta) => {
+    const activeTarget = targetCaseta || caseta;
+    if (allCasetasData) {
+      const cFast = findCasetaCounts(allCasetasData, activeTarget);
+      setCounts({
+        internos: cFast ? Number(cFast.internos || 0) : 0,
+        externos: cFast ? Number(cFast.externos || 0) : 0,
+        prestadores: cFast ? Number(cFast.prestadores || 0) : 0,
+        visitas: cFast ? Number(cFast.visitas || 0) : 0
+      });
+    }
     try {
       setSyncing(true);
       setLastSyncMsg('Sincronizando...');
@@ -510,16 +533,36 @@ export default function CDIApp({ theme, onToggleTheme, onIdentifyDevice, isIdent
     }
   };
 
-  const handleCasetaChange = (newCaseta) => {
+  const handleCasetaChange = async (newCaseta) => {
     const cleanCaseta = canonicalCasetaName(newCaseta);
+    if (cleanCaseta === caseta) return;
     setCaseta(cleanCaseta);
+    casetaRef.current = cleanCaseta;
     setShowParkingModal(false);
     localStorage.setItem('selectedCaseta', cleanCaseta);
     localStorage.setItem('regas_cdi_last_caseta', cleanCaseta);
     localStorage.setItem('caseta_seleccionada_cic', cleanCaseta);
-    window.postMessage({ type: 'cdi_caseta_changed', caseta: cleanCaseta }, '*');
-    // Notificar al monitor del operador del cambio de caseta inmediatamente
-    updateDeviceCaseta(cleanCaseta).catch(() => {});
+
+    // 1. Notificar a cualquier iframe embebido (ej. Checador paralelo)
+    try {
+      const iframes = document.querySelectorAll('iframe');
+      iframes.forEach(iframe => {
+        try {
+          iframe.contentWindow.postMessage({ type: 'cdi_caseta_changed', caseta: cleanCaseta }, '*');
+        } catch (err) {}
+      });
+    } catch (err) {}
+    try {
+      window.postMessage({ type: 'cdi_caseta_changed', caseta: cleanCaseta }, '*');
+    } catch (err) {}
+
+    // 2. Refrescar de inmediato los conteos de la caseta en CDI
+    loadCounts(cleanCaseta);
+
+    // 3. Notificar al monitor del operador del cambio de caseta inmediatamente
+    try {
+      await updateDeviceCaseta(cleanCaseta);
+    } catch (e) {}
     sendDeviceHeartbeat(cleanCaseta);
   };
 

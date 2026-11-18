@@ -2398,12 +2398,17 @@
       }
 
       const notifyParallelCasetaChange = () => {
-        const pIframe = document.getElementById('parallelIframe');
-        if (pIframe && pIframe.contentWindow) {
-          try {
-            pIframe.contentWindow.postMessage({ type: 'cdi_caseta_changed', caseta: currentCaseta }, '*');
-          } catch (e) {}
-        }
+        try {
+          const iframes = document.querySelectorAll('iframe');
+          iframes.forEach(iframe => {
+            try {
+              iframe.contentWindow.postMessage({ type: 'cdi_caseta_changed', caseta: currentCaseta }, '*');
+            } catch (e) {}
+          });
+        } catch (e) {}
+        try {
+          window.postMessage({ type: 'cdi_caseta_changed', caseta: currentCaseta }, '*');
+        } catch (e) {}
       };
 
       casetaSelect.addEventListener('change', (e) => {
@@ -2419,10 +2424,16 @@
             method: 'POST',
             headers: API_HEADERS,
             body: JSON.stringify({ deviceId: deviceUuid, caseta: currentCaseta, source: 'mobile' })
-          }).catch(() => {});
-        }
-
-        if (typeof sendDeviceHeartbeat === 'function') {
+          }).then(() => {
+            if (typeof sendDeviceHeartbeat === 'function') {
+              sendDeviceHeartbeat();
+            }
+          }).catch(() => {
+            if (typeof sendDeviceHeartbeat === 'function') {
+              sendDeviceHeartbeat();
+            }
+          });
+        } else if (typeof sendDeviceHeartbeat === 'function') {
           sendDeviceHeartbeat();
         }
       });

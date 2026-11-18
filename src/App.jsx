@@ -181,6 +181,40 @@ export default function App() {
     } catch (e) {}
   }, [theme]);
 
+  // Sincronizar cambio de caseta con iframes secundarios (Checador, Recorridos, etc.)
+  useEffect(() => {
+    const forwardCasetaToIframes = (targetCaseta) => {
+      if (!targetCaseta) return;
+      try {
+        const iframes = document.querySelectorAll('iframe');
+        iframes.forEach(iframe => {
+          try {
+            iframe.contentWindow.postMessage({ type: 'cdi_caseta_changed', caseta: targetCaseta }, '*');
+          } catch (err) {}
+        });
+      } catch (err) {}
+    };
+
+    const handleWindowMsg = (e) => {
+      if (e.data && (e.data.type === 'cdi_caseta_changed' || e.data.type === 'cdi_caseta_change')) {
+        forwardCasetaToIframes(e.data.caseta || (e.data.payload && e.data.payload.caseta));
+      }
+    };
+
+    const handleCustomCasetaEvent = (e) => {
+      if (e.detail && e.detail.caseta) {
+        forwardCasetaToIframes(e.detail.caseta);
+      }
+    };
+
+    window.addEventListener('message', handleWindowMsg);
+    window.addEventListener('miniapps_caseta_updated', handleCustomCasetaEvent);
+    return () => {
+      window.removeEventListener('message', handleWindowMsg);
+      window.removeEventListener('miniapps_caseta_updated', handleCustomCasetaEvent);
+    };
+  }, []);
+
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   };
