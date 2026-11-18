@@ -1,0 +1,1994 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>CIC — Prestadores de Servicio & Herramientas</title>
+  <meta name="theme-color" content="#0891b2">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Prestadores">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230891b2' stroke-width='2'><path d='M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z'/></svg>">
+
+  <script src="./qrcode.min.js"></script>
+
+  <script>
+    const isEmbeddedInIframe = (window.self !== window.top) || window.location.search.includes('embedded=1');
+    if (isEmbeddedInIframe) {
+      document.documentElement.classList.add('is-embedded-iframe');
+      const removeMobileDock = () => {
+        document.querySelectorAll('.miniapps-dock-wrapper, #miniappsDockWrapper, .dock-wrapper').forEach(el => {
+          el.remove();
+        });
+      };
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', removeMobileDock);
+      } else {
+        removeMobileDock();
+      }
+      window.addEventListener('load', removeMobileDock);
+    }
+  </script>
+
+  <style>
+    /* Ocultar dock si se ejecuta embebido dentro de un iframe */
+    html.is-embedded-iframe .miniapps-dock-wrapper,
+    body.is-embedded-iframe .miniapps-dock-wrapper,
+    html.is-embedded-iframe #miniappsDockWrapper,
+    body.is-embedded-iframe #miniappsDockWrapper,
+    html.is-embedded-iframe .dock-wrapper,
+    body.is-embedded-iframe .dock-wrapper {
+      display: none !important;
+    }
+    html.is-embedded-iframe .app-wrapper,
+    body.is-embedded-iframe .app-wrapper {
+      padding-bottom: 20px !important;
+      max-width: 100% !important;
+    }
+
+    /* VARIABLES DE TEMA (OSCURO POR DEFECTO) */
+    :root, [data-theme="dark"] {
+      --bg: #090d16;
+      --card-bg: #101626;
+      --card-surface: #182238;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --primary: #0891b2;
+      --primary-hover: #0e7490;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --border: rgba(255, 255, 255, 0.1);
+      --border-card: rgba(148, 163, 184, 0.14);
+      --input-bg: #182238;
+      --input-border: rgba(255, 255, 255, 0.16);
+      --radius: 16px;
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    /* VARIABLES DE TEMA CLARO */
+    [data-theme="light"], :root[data-theme="light"], body.theme-light {
+      --bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --card-surface: #f8fafc;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #64748b;
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --accent-green: #059669;
+      --accent-amber: #d97706;
+      --accent-red: #dc2626;
+      --border: rgba(0, 0, 0, 0.1);
+      --border-card: rgba(148, 163, 184, 0.28);
+      --input-bg: #ffffff;
+      --input-border: #cbd5e1;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      height: 100%;
+      height: 100dvh;
+      overflow-x: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .app-wrapper {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 10px 14px calc(env(safe-area-inset-bottom, 12px) + 72px) 14px;
+    }
+
+    /* ENCABEZADO */
+    .header-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      border: 1px solid var(--border-card);
+      box-shadow: var(--shadow);
+      margin-bottom: 10px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-title-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0891b2, #0e7490);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(8, 145, 178, 0.35);
+    }
+
+    .header-titles h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .header-titles span {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-time {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: var(--card-surface);
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .btn-icon-header {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card-surface);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-icon-header:hover {
+      border-color: var(--primary);
+    }
+
+    /* BARRA DE ESTADÍSTICAS RÁPIDAS */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .stat-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border-card);
+      box-shadow: var(--shadow);
+      border-radius: 12px;
+      padding: 8px 10px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--primary);
+    }
+    .stat-box.green::before { background: var(--accent-green); }
+    .stat-box.amber::before { background: var(--accent-amber); }
+    .stat-box.red::before { background: var(--accent-red); }
+
+    .stat-val {
+      font-size: 1.35rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 3px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .stat-lbl {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    /* TABS */
+    .tab-bar {
+      display: flex;
+      gap: 6px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 10px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: 9px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(8, 145, 178, 0.4);
+    }
+
+    /* SECCIÓN NUEVO INGRESO: CONTENEDOR SPLIT (FORMULARIO + QR) */
+    .split-nuevo-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 768px) {
+      .split-nuevo-container {
+        grid-template-columns: 1.25fr 0.75fr;
+      }
+    }
+
+    .card-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border-card);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+    }
+
+    /* FORMULARIO EN 2 COLUMNAS (CUANDO EL ESPACIO LO PERMITE) */
+    .form-grid-2col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 600px) {
+      .form-grid-2col {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .grid-col-full {
+        grid-column: 1 / -1;
+      }
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* SELECTOR ENTRADA / SALIDA */
+    .toggle-submode {
+      display: flex;
+      background: var(--card-surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 3px;
+      margin-bottom: 12px;
+    }
+
+    .toggle-submode-btn {
+      flex: 1;
+      padding: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .toggle-submode-btn.active-entrada {
+      background: var(--accent-green);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+    }
+
+    .toggle-submode-btn.active-salida {
+      background: var(--accent-amber);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+    }
+
+    /* CAMPOS DE FORMULARIO */
+    .field-box {
+      margin-bottom: 6px;
+    }
+
+    .field-lbl {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .field-lbl .req { color: var(--accent-red); margin-left: 2px; }
+    .sub-lbl {
+      display: block;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      line-height: 1.25;
+    }
+
+    .ctrl-input, .ctrl-select, .ctrl-textarea {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1.5px solid var(--input-border);
+      color: var(--text);
+      font-size: 0.86rem;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 10px;
+      outline: none;
+      transition: all 0.15s ease;
+      user-select: text;
+    }
+
+    .ctrl-input:focus, .ctrl-select:focus, .ctrl-textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.2);
+    }
+
+    .ctrl-input:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      background: var(--card-surface);
+    }
+
+    .radio-pill-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .radio-pill {
+      flex: 1;
+      padding: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--card-surface);
+      color: var(--text-muted);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+
+    .radio-pill.selected {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+    }
+
+    .radio-pill.red.selected {
+      background: var(--accent-red);
+      border-color: var(--accent-red);
+    }
+
+    .btn-action {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 0.92rem;
+      font-weight: 800;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-green {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+    }
+    .btn-green:hover { filter: brightness(1.08); }
+
+    .btn-amber {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+    }
+    .btn-amber:hover { filter: brightness(1.08); }
+
+    /* PANEL DEL CÓDIGO QR EN PANTALLA (PC / CASETA) */
+    .qr-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border-card);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .qr-box {
+      background: #ffffff;
+      padding: 12px;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 180px;
+      min-height: 180px;
+    }
+
+    .qr-tag {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 6px;
+    }
+
+    .folio-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #facc15;
+      background: rgba(250, 204, 21, 0.1);
+      border: 1px solid rgba(250, 204, 21, 0.3);
+      padding: 3px 10px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+
+    /* PANTALLA BLOQUEADA */
+    .locked-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-card);
+      border-radius: 20px;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      max-width: 440px;
+      margin: 2rem auto;
+      box-shadow: var(--shadow);
+    }
+
+    .locked-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 1.8rem;
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-identify {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: #ffffff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      margin-top: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* BOTONES DE ACCIÓN RÁPIDA EN LISTAS */
+    .btn-salida-rapida {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #ffffff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.78rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+    }
+    .btn-salida-rapida:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .btn-qr-tools {
+      background: var(--card-surface);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 5px 11px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.74rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+    }
+    .btn-qr-tools:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: #38bdf8;
+    }
+
+    /* MODAL DE CÓDIGO QR PARA COTEJO DE HERRAMIENTAS */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .modal-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-card);
+      border-radius: 20px;
+      max-width: 440px;
+      width: 100%;
+      padding: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      position: relative;
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--card-surface);
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* DOCK INFERIOR (CUANDO SE ABRE MÓVIL STANDALONE) */
+    .dock-wrapper {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 6px 12px calc(env(safe-area-inset-bottom, 8px) + 6px);
+      background: rgba(9, 13, 22, 0.85);
+      backdrop-filter: blur(14px);
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    .dock-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(24, 34, 56, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 5px 8px;
+      pointer-events: auto;
+      max-width: 440px;
+      width: 100%;
+      justify-content: space-around;
+    }
+
+    .dock-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #94a3b8;
+      font-size: 0.64rem;
+      font-weight: 600;
+      gap: 2px;
+    }
+    .dock-btn.active { color: #38bdf8; font-weight: 800; }
+    .dock-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .dock-btn.active .dock-icon {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+
+    <!-- ENCABEZADO -->
+    <header class="header-card">
+      <div class="header-left">
+        <div class="header-title-icon">🛠️</div>
+        <div class="header-titles">
+          <h1>Prestadores & Herramientas</h1>
+          <span>Control de Contratistas • CIC Caseta</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="header-time" id="headerClock">00:00:00</div>
+        <!-- Botón cambio de tema Claro / Oscuro -->
+        <button type="button" class="btn-icon-header" id="btnThemeToggle" title="Cambiar tema">🌙</button>
+      </div>
+    </header>
+
+    <!-- ESTADÍSTICAS RÁPIDAS DEL DÍA -->
+    <section class="stats-bar">
+      <div class="stat-box green">
+        <div class="stat-val" id="statAdentro">0</div>
+        <div class="stat-lbl">En Sitio</div>
+      </div>
+      <div class="stat-box amber">
+        <div class="stat-val" id="statSalidas">0</div>
+        <div class="stat-lbl">Salidas Hoy</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="statTools">0</div>
+        <div class="stat-lbl">Herramientas</div>
+      </div>
+      <div class="stat-box red">
+        <div class="stat-val" id="statIncendio">0</div>
+        <div class="stat-lbl">Riesgo Alarma</div>
+      </div>
+    </section>
+
+    <!-- VISTA BLOQUEADA POR SEGURIDAD -->
+    <div id="viewLocked" style="display: none;">
+      <div class="locked-card">
+        <div class="locked-icon">🔒</div>
+        <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 6px;">Función Bloqueada</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px;">
+          Por políticas de seguridad, este módulo está deshabilitado por defecto en este dispositivo.
+          Debe ser desbloqueado en vivo por el operador de RegAs 3 desde la pestaña Actividades &gt; Dispositivos CDI.
+        </p>
+        <div id="lockedDevId" class="folio-code" style="font-size: 0.72rem; display: inline-block;">
+          ID: dev_...
+        </div>
+        <div>
+          <button type="button" class="btn-identify" id="btnIdentifyDev">
+            <span>🔔</span>
+            <span>Identificar Dispositivo en RegAs 3</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISTA PRINCIPAL DESBLOQUEADA -->
+    <div id="viewMain" style="display: none;">
+      <!-- PESTAÑAS -->
+      <nav class="tab-bar">
+        <button type="button" class="tab-btn active" id="tabBtnNuevo">
+          <span>➕</span>
+          <span>Registro</span>
+        </button>
+        <button type="button" class="tab-btn" id="tabBtnActivos">
+          <span>🏢</span>
+          <span>En Instalaciones</span>
+          <span id="countActivosBadge" style="background: rgba(255,255,255,0.2); border-radius: 10px; padding: 1px 6px; font-size: 0.7rem;">0</span>
+        </button>
+        <button type="button" class="tab-btn" id="tabBtnHistorial">
+          <span>📜</span>
+          <span>Historial</span>
+        </button>
+      </nav>
+
+      <!-- CONTENIDO TAB 1: REGISTRO (ENTRADA / SALIDA / QR) -->
+      <div id="tabContentNuevo" class="split-nuevo-container">
+        <!-- FORMULARIO DE ACCESOS -->
+        <div class="card-panel">
+          <!-- Toggle Entrada / Salida -->
+          <div class="toggle-submode">
+            <button type="button" class="toggle-submode-btn active-entrada" id="btnToggleEntrada">
+              <span>🟢</span>
+              <span>1. REGISTRAR ENTRADA</span>
+            </button>
+            <button type="button" class="toggle-submode-btn" id="btnToggleSalida">
+              <span>🟠</span>
+              <span>2. REGISTRAR SALIDA</span>
+            </button>
+          </div>
+
+          <!-- FORM ENTRADA (2 COLUMNAS SI EL ESPACIO LO PERMITE) -->
+          <form id="formEntrada" onsubmit="return false;" class="form-grid-2col">
+
+            <!-- CASILLA GAFETE DE GESTIÓN (ANCHO COMPLETO) -->
+            <div class="field-box grid-col-full" style="background: rgba(245, 158, 11, 0.08); border: 1.5px dashed rgba(245, 158, 11, 0.35); border-radius: 10px; padding: 8px 12px;">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 700; color: var(--accent-amber);">
+                <input type="checkbox" id="chkGafeteGestion" style="width: 18px; height: 18px; accent-color: #f59e0b; cursor: pointer;">
+                <span>🏷️ Ingresa con gafete de gestión</span>
+              </label>
+              <div class="sub-lbl" style="margin-top: 3px; margin-left: 26px;">
+                Desactiva el número de gafete asignado y genera un ID único e irrepetible.
+              </div>
+              <div id="gestionTagBox" style="display: none; margin-top: 6px; margin-left: 26px;">
+                <span style="font-size: 0.75rem; color: var(--text-muted);">ID único asignado: </span>
+                <strong id="lblGestionId" class="folio-code" style="color: #f59e0b; font-size: 0.8rem; padding: 2px 8px;">---</strong>
+              </div>
+            </div>
+
+            <!-- 1. Gafete Asignado (Columna 1) -->
+            <div class="field-box">
+              <label class="field-lbl">¿Gafete asignado? <span class="req">*</span></label>
+              <span class="sub-lbl">Si no se le entrega gafete registrar 0</span>
+              <input type="text" class="ctrl-input" id="inGafete" value="1" required>
+            </div>
+
+            <!-- 2. Nombre de la Persona (Columna 2) -->
+            <div class="field-box">
+              <label class="field-lbl">¿Nombre de la persona a ingresar? <span class="req">*</span></label>
+              <span class="sub-lbl">Registrar en MAYÚSCULAS</span>
+              <input type="text" class="ctrl-input" id="inNombre" placeholder="NOMBRE COMPLETO" style="text-transform: uppercase;" required>
+            </div>
+
+            <!-- 3. Empresa Prestadora (Columna 1) -->
+            <div class="field-box">
+              <label class="field-lbl">¿Empresa que prestará servicio? <span class="req">*</span></label>
+              <select class="ctrl-select" id="inEmpresa">
+                <option value="LINC SERVICE">LINC SERVICE</option>
+                <option value="PHS">PHS</option>
+                <option value="DELTA SOLUTION">DELTA SOLUTION</option>
+                <option value="SINSA">SINSA</option>
+                <option value="QUIMERA">QUIMERA</option>
+                <option value="AIRACCSA">AIRACCSA</option>
+                <option value="GUBR">GUBR</option>
+                <option value="VERTICE">VERTICE</option>
+                <option value="JazzCleanner">JazzCleanner</option>
+                <option value="Siae">Siae</option>
+                <option value="RENCLA">RENCLA</option>
+                <option value="TLCOMTEK">TLCOMTEK</option>
+                <option value="MEGA VRF">MEGA VRF</option>
+                <option value="OTRA">OTRA EMPRESA</option>
+              </select>
+              <input type="text" class="ctrl-input" id="inEmpresaOtra" style="display: none; margin-top: 5px;" placeholder="Especifica la empresa...">
+            </div>
+
+            <!-- 4. Acceso (Columna 2) -->
+            <div class="field-box">
+              <label class="field-lbl">¿Acceso por donde ingresa? <span class="req">*</span></label>
+              <select class="ctrl-select" id="inAcceso">
+                <option value="Edison" selected>Edison</option>
+                <option value="Impulso">Impulso</option>
+                <option value="Michelena">Michelena</option>
+                <option value="Simón Bolivar">Simón Bolivar</option>
+                <option value="OTRO">OTRO ACCESO</option>
+              </select>
+              <input type="text" class="ctrl-input" id="inAccesoOtro" style="display: none; margin-top: 5px;" placeholder="Especifica el acceso...">
+            </div>
+
+            <!-- 5. Alarma Incendio (Columna 1) -->
+            <div class="field-box">
+              <label class="field-lbl">¿Actividades activan alarma de incendio? <span class="req">*</span></label>
+              <div class="radio-pill-group">
+                <button type="button" class="radio-pill selected" id="pillAlarmaNo">No</button>
+                <button type="button" class="radio-pill red" id="pillAlarmaSi">Sí (Riesgo)</button>
+              </div>
+            </div>
+
+            <!-- 6. Tipo Trabajo (Columna 2) -->
+            <div class="field-box">
+              <label class="field-lbl">¿Qué tipo de trabajos realizará? <span class="req">*</span></label>
+              <select class="ctrl-select" id="inTrabajo">
+                <option value="Pintura">Pintura</option>
+                <option value="Tablaroca">Tablaroca</option>
+                <option value="Albañilería">Albañilería</option>
+                <option value="Instalaciones electricas">Instalaciones eléctricas</option>
+                <option value="Montaje">Montaje</option>
+                <option value="Acabados">Acabados</option>
+                <option value="Instalación de Cableado">Instalación de Cableado</option>
+                <option value="Mantenimiento preventivo" selected>Mantenimiento preventivo</option>
+                <option value="Residente">Residente</option>
+                <option value="Segurista">Segurista</option>
+                <option value="Evento">Evento</option>
+                <option value="Soldadura">Soldadura</option>
+                <option value="Proveedor">Proveedor</option>
+                <option value="OTRO">OTRO TRABAJO</option>
+              </select>
+              <input type="text" class="ctrl-input" id="inTrabajoOtro" style="display: none; margin-top: 5px;" placeholder="Especifica el trabajo...">
+            </div>
+
+            <!-- 7. Edificio (Columna 1 o 2) -->
+            <div class="field-box grid-col-full">
+              <label class="field-lbl">¿Edificio de las actividades? <span class="req">*</span></label>
+              <select class="ctrl-select" id="inEdificio">
+                <option value="Tienda OXXO">Tienda OXXO</option>
+                <option value="Edificio Rojo / Edison" selected>Edificio Rojo / Edison</option>
+                <option value="Edificio Azul / Administrativo">Edificio Azul / Administrativo</option>
+                <option value="Edificio Amarillo / RH">Edificio Amarillo / RH</option>
+                <option value="Edificio Morado / Almacén">Edificio Morado / Almacén</option>
+                <option value="Edificio Expansión">Edificio Expansión</option>
+                <option value="Edificio Naranja / TI">Edificio Naranja / TI</option>
+                <option value="Edificio Rosa / Anexo TI">Edificio Rosa / Anexo TI</option>
+                <option value="Edificio Verde / Logística - Inovation HUB">Edificio Verde / Logística - Inovation HUB</option>
+                <option value="Edificio Gris / IMMEX">Edificio Gris / IMMEX</option>
+                <option value="Edificio Anexo Edison">Edificio Anexo Edison</option>
+                <option value="Edificio Michelena">Edificio Michelena</option>
+                <option value="Área de Balance">Área de Balance</option>
+                <option value="OTRO">OTRO EDIFICIO</option>
+              </select>
+              <input type="text" class="ctrl-input" id="inEdificioOtro" style="display: none; margin-top: 5px;" placeholder="Especifica el edificio...">
+            </div>
+
+            <!-- 8. Herramientas opcionales en caseta (Ancho completo) -->
+            <div class="field-box grid-col-full">
+              <label class="field-lbl">Herramientas declaradas en caseta (opcional si el contratista no usa el QR)</label>
+              <textarea class="ctrl-textarea" id="inManualTools" rows="2" placeholder="Ej. 1 rotomartillo, 1 escalera, 1 extensión..."></textarea>
+            </div>
+
+            <button type="button" class="btn-action btn-green grid-col-full" id="btnSubmitEntrada">
+              <span>✅</span>
+              <span>REGISTRAR ENTRADA</span>
+            </button>
+          </form>
+
+          <!-- FORM SALIDA -->
+          <form id="formSalida" style="display: none;" onsubmit="return false;">
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">
+              Selecciona el prestador de la lista para registrar su salida y cotejar herramientas:
+            </div>
+
+            <div class="field-box" id="boxSelectActivoSalida">
+              <label class="field-lbl">Prestador actualmente en sitio:</label>
+              <select class="ctrl-select" id="selectActivoSalida">
+                <option value="">-- Seleccionar prestador --</option>
+              </select>
+            </div>
+
+            <!-- Número de gafete que entrega -->
+            <div class="field-box">
+              <label class="field-lbl">¿Número de gafete que entrega? <span class="req">*</span></label>
+              <span class="sub-lbl">Si ingresó con gafete de gestión o no se le dio gafete registrar 0</span>
+              <input type="text" class="ctrl-input" id="inGafeteSalida" value="0" required>
+            </div>
+
+            <!-- Empresa del prestador que sale -->
+            <div class="field-box">
+              <label class="field-lbl">¿De qué Empresa es el prestador que sale? <span class="req">*</span></label>
+              <select class="ctrl-select" id="inEmpresaSalida">
+                <option value="LINC SERVICE">LINC SERVICE</option>
+                <option value="PHS">PHS</option>
+                <option value="DELTA SOLUTION">DELTA SOLUTION</option>
+                <option value="SINSA">SINSA</option>
+                <option value="QUIMERA">QUIMERA</option>
+                <option value="AIRACCSA">AIRACCSA</option>
+                <option value="GUBR">GUBR</option>
+                <option value="VERTICE">VERTICE</option>
+                <option value="JazzCleanner">JazzCleanner</option>
+                <option value="Siae">Siae</option>
+                <option value="RENCLA">RENCLA</option>
+                <option value="TLCOMTEK">TLCOMTEK</option>
+                <option value="MEGA VRF">MEGA VRF</option>
+                <option value="OTRA">OTRA</option>
+              </select>
+            </div>
+
+            <!-- Checklist y Botón QR de herramientas en salida -->
+            <div id="boxToolsSalidaNotice" style="display: none; background: rgba(245, 158, 11, 0.12); border: 1px solid var(--accent-amber); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <strong style="color: var(--accent-amber); font-size: 0.82rem;">⚠️ Cotejo físico de herramientas al salir:</strong>
+                <!-- BOTÓN PARA MOSTRAR QR DE HERRAMIENTAS (SOLO SI TIENE HERRAMIENTAS REGISTRADAS) -->
+                <button type="button" class="btn-qr-tools" id="btnSalidaShowQrTools">
+                  <span>📱</span>
+                  <span>Ver QR de Herramientas</span>
+                </button>
+              </div>
+              <ul id="listToolsSalida" style="margin: 4px 0 0; padding-left: 18px; font-size: 0.78rem; color: var(--text);"></ul>
+            </div>
+
+            <button type="button" class="btn-action btn-amber" id="btnSubmitSalida">
+              <span>🟠</span>
+              <span>REGISTRAR SALIDA</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- PANEL QR (PC / PANTALLA CASETA) — SIEMPRE TAILSCALE -->
+        <div class="qr-panel" id="panelQrPc">
+          <div class="qr-tag">📱 ESCANEA PARA HERRAMIENTAS</div>
+          <div class="folio-code" id="qrFolioDisplay">FOL-...</div>
+          <div class="qr-box" id="qrCanvasBox"></div>
+          <p style="font-size: 0.76rem; color: var(--text-muted); line-height: 1.35; margin: 4px 0;">
+            El contratista escanea este código con su smartphone para declarar su listado de herramientas vía Tailscale.
+          </p>
+
+          <!-- Alerta de herramientas recibidas en vivo vía SSE -->
+          <div id="liveToolsAlert" style="display: none; width: 100%; margin-top: 10px; background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; border-radius: 10px; padding: 10px; text-align: left;">
+            <div style="font-size: 0.78rem; font-weight: 700; color: #34d399; margin-bottom: 4px;">
+              ✅ Herramientas Recibidas en Vivo
+            </div>
+            <ul id="liveToolsUl" style="margin: 0; padding-left: 16px; font-size: 0.74rem; color: var(--text); max-height: 80px; overflow-y: auto;"></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTENIDO TAB 2: ACTIVOS EN INSTALACIONES -->
+      <div id="tabContentActivos" style="display: none;">
+        <input type="text" class="ctrl-input" id="inSearchActivos" placeholder="Filtrar por nombre, compañía, edificio o folio..." style="margin-bottom: 10px;">
+        <div id="activosContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
+      </div>
+
+      <!-- CONTENIDO TAB 3: HISTORIAL -->
+      <div id="tabContentHistorial" style="display: none;">
+        <div class="card-panel" style="max-height: 520px; overflow-y: auto;" id="historialContainer"></div>
+      </div>
+    </div>
+
+    <!-- VISTA FORMULARIO HERRAMIENTAS (CONTRATISTA MÓVIL POR QR) -->
+    <div id="viewHerramientasContratista" style="display: none;">
+      <div class="card-panel" style="max-width: 520px; margin: 0 auto;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+          <div class="header-title-icon" style="background: linear-gradient(135deg, #0284c7, #0369a1);">🧰</div>
+          <div>
+            <h2 style="font-size: 1.15rem; font-weight: 800; margin: 0;">Registro de Herramientas</h2>
+            <div style="font-size: 0.74rem; color: var(--text-muted);">Asegura el registro de tus herramientas antes de ingresar a las instalaciones</div>
+          </div>
+        </div>
+
+        <form id="formHerramientasContratista" onsubmit="return false;">
+          <!-- 1. Folio de acceso -->
+          <div class="field-box">
+            <label class="field-lbl">Folio de acceso <span class="req">*</span></label>
+            <span class="sub-lbl">Folio de registro generado en la caseta de acceso</span>
+            <input type="text" class="ctrl-input" id="inToolFolio" style="font-weight: 800; letter-spacing: 0.04em;" required>
+          </div>
+
+          <!-- 2. Compañía -->
+          <div class="field-box">
+            <label class="field-lbl">¿Compañía a la que pertenece? <span class="req">*</span></label>
+            <input type="text" class="ctrl-input" id="inToolEmpresa" placeholder="Nombre de la empresa" required>
+          </div>
+
+          <!-- 3. Nombre -->
+          <div class="field-box">
+            <label class="field-lbl">¿Nombre de la persona que realiza el registro?</label>
+            <input type="text" class="ctrl-input" id="inToolNombre" placeholder="NOMBRE COMPLETO" style="text-transform: uppercase;">
+          </div>
+
+          <!-- 4. Correo -->
+          <div class="field-box">
+            <label class="field-lbl">¿Correo de la persona que realiza el registro? <span class="req">*</span></label>
+            <input type="email" class="ctrl-input" id="inToolCorreo" placeholder="ejemplo@empresa.com" required>
+          </div>
+
+          <!-- 5. Listado de herramientas -->
+          <div class="field-box">
+            <label class="field-lbl">¿Listado de herramientas que ingresa a las instalaciones? <span class="req">*</span></label>
+            <span class="sub-lbl">(Ejemplo: 2 rodillos, 1 escalera, 1 extensión, 1 rotomartillo...)</span>
+            <textarea class="ctrl-textarea" id="inToolListado" rows="4" placeholder="Escribe tus herramientas aquí..." required></textarea>
+            <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;" id="toolChipsBox"></div>
+          </div>
+
+          <button type="button" class="btn-action btn-green" id="btnSubmitToolsContratista">
+            <span>📥</span>
+            <span>REGISTRAR HERRAMIENTAS</span>
+          </button>
+        </form>
+
+        <!-- TICKET DE ÉXITO -->
+        <div id="toolTicketBox" style="display: none; text-align: center; padding: 20px 10px;">
+          <div style="font-size: 3rem; margin-bottom: 8px;">✅</div>
+          <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--accent-green); margin-bottom: 4px;">Herramientas Registradas</h3>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Tu declaración se vinculó en tiempo real con la caseta de acceso.</p>
+          <div class="folio-code" id="ticketFolio" style="font-size: 1.1rem; padding: 6px 14px; margin-bottom: 10px;">FOL-...</div>
+          <div style="background: var(--card-surface); padding: 12px; border-radius: 12px; text-align: left; margin-bottom: 14px; border: 1px solid var(--border);">
+            <div style="font-size: 0.78rem; color: var(--text-muted);">Empresa: <strong id="ticketEmpresa" style="color: var(--text);">---</strong></div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px;">Herramientas declaradas:</div>
+            <ul id="ticketToolsUl" style="margin: 0; padding-left: 18px; font-size: 0.82rem; color: var(--text);"></ul>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted);">Muestra esta pantalla al personal de seguridad para el cotejo físico de salida.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISTA COTEJO MÓVIL DE HERRAMIENTAS (ESCANEO DE QR EN SALIDA) -->
+    <div id="viewCotejoHerramientas" style="display: none;">
+      <div class="card-panel" style="max-width: 520px; margin: 0 auto;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+          <div class="header-title-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">🔍</div>
+          <div>
+            <h2 style="font-size: 1.15rem; font-weight: 800; margin: 0;">Cotejo Físico de Herramientas</h2>
+            <div style="font-size: 0.74rem; color: var(--text-muted);">Verificación de salida para caseta de seguridad</div>
+          </div>
+        </div>
+
+        <div id="cotejoLoading" style="text-align: center; padding: 2rem; color: var(--text-muted);">Cargando herramientas del contratista...</div>
+
+        <div id="cotejoDetails" style="display: none;">
+          <div style="background: var(--card-surface); padding: 12px; border-radius: 12px; margin-bottom: 14px; border: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <strong id="cotejoNombre" style="font-size: 1rem; color: var(--text);">---</strong>
+              <span id="cotejoFolio" class="folio-code" style="font-size: 0.78rem;">FOL-...</span>
+            </div>
+            <div id="cotejoEmpresa" style="font-size: 0.82rem; color: #38bdf8; font-weight: 700;">---</div>
+            <div id="cotejoInfo" style="font-size: 0.74rem; color: var(--text-muted); margin-top: 4px;">---</div>
+          </div>
+
+          <div style="font-size: 0.82rem; font-weight: 700; margin-bottom: 8px;">
+            Marca cada herramienta conforme la verifiques físicamente:
+          </div>
+          <div id="cotejoChecklist" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px;"></div>
+
+          <div style="text-align: center; padding: 10px; background: rgba(16, 185, 129, 0.12); border: 1px solid var(--accent-green); border-radius: 10px;">
+            <span style="font-size: 0.82rem; font-weight: 700; color: var(--accent-green);">
+              ✅ Cotejo físico completado en caseta
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODAL DE QR DE HERRAMIENTAS (PARA ESCANEAR EN SALIDA) -->
+  <div id="modalQrHerramientas" class="modal-backdrop" style="display: none;">
+    <div class="modal-card">
+      <button type="button" class="modal-close-btn" id="modalCloseBtn">&times;</button>
+      <div style="font-size: 0.75rem; font-weight: 800; color: #38bdf8; letter-spacing: 0.05em; margin-bottom: 4px;">
+        🔍 COTEJO DE HERRAMIENTAS
+      </div>
+      <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 2px;" id="modalContractorName">Prestador</h3>
+      <div id="modalContractorCompany" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Empresa</div>
+      <div class="folio-code" id="modalFolioCode" style="display: inline-block; margin-bottom: 8px;">FOL-...</div>
+
+      <div style="background: #ffffff; padding: 12px; border-radius: 14px; display: inline-flex; justify-content: center; margin: 0 auto 10px auto;">
+        <div id="modalQrCanvas"></div>
+      </div>
+
+      <p style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 10px;">
+        Escanea este código con cualquier teléfono para abrir el checklist interactivo de herramientas de este prestador.
+      </p>
+
+      <div style="background: var(--card-surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px; text-align: left; max-height: 120px; overflow-y: auto;">
+        <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px;">HERRAMIENTAS DECLARADAS:</div>
+        <ul id="modalToolsList" style="margin: 0; padding-left: 18px; font-size: 0.76rem; color: var(--text);"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOCK DE NAVEGACIÓN STANDALONE MÓVIL -->
+  <div class="dock-wrapper miniapps-dock-wrapper" id="miniappsDockWrapper">
+    <nav class="dock-bar miniapps-dock-bar">
+      <a href="./?app=cdi" class="dock-btn" title="CDI">
+        <div class="dock-icon icon-cdi">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 12h10M12 7v10"/></svg>
+        </div>
+        <span>CDI</span>
+      </a>
+      <a href="checador-movil.html" class="dock-btn" title="Checador">
+        <div class="dock-icon icon-checador">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <span>Checador</span>
+      </a>
+      <a href="recorrido-movil.html" class="dock-btn" title="Recorridos">
+        <div class="dock-icon icon-recorridos">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
+        </div>
+        <span>Recorridos</span>
+      </a>
+      <a href="bitacora-movil.html" class="dock-btn" title="Bitácora">
+        <div class="dock-icon icon-bitacora">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <span>Bitácora</span>
+      </a>
+      <a href="prestadores-movil.html" class="dock-btn active" title="Prestadores">
+        <div class="dock-icon icon-prestadores">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <span>Prestadores</span>
+      </a>
+    </nav>
+  </div>
+
+  <script>
+    (function() {
+      // 1. CONSTANTE DE TAILSCALE (SIEMPRE MEDIANTE TAILSCALE PARA QR)
+      const TAILSCALE_ORIGIN = 'https://oxosd450mlh.taile94978.ts.net';
+
+      // Resolver Backend API local vs Tailscale
+      const resolveBackend = () => {
+        const p = new URLSearchParams(window.location.search);
+        const qB = p.get('backend') || p.get('api');
+        if (qB) return qB.replace(/\/+$/, '');
+        const h = window.location.hostname;
+        if (h === 'localhost' || h === '127.0.0.1') return 'http://127.0.0.1:7001';
+        if (h.startsWith('10.') || h.startsWith('192.168.') || /^172\.(1[6-9]|2\d|3[01])\./.test(h)) return 'http://' + h + ':7001';
+        return TAILSCALE_ORIGIN;
+      };
+
+      const BACKEND_BASE = resolveBackend();
+
+      const getDeviceUuid = () => {
+        let id = localStorage.getItem('regas_cdi_device_uuid');
+        if (!id) {
+          id = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 8);
+          localStorage.setItem('regas_cdi_device_uuid', id);
+        }
+        return id;
+      };
+
+      // Sonido sintetizado
+      const playBeep = (freq = 880, dur = 0.1) => {
+        try {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContext) return;
+          const ctx = new AudioContext();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.frequency.setValueAtTime(freq, ctx.currentTime);
+          gain.gain.setValueAtTime(0.1, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + dur);
+        } catch(e) {}
+      };
+
+      // 2. GESTIÓN INTEGRAL DE MODO CLARO / OSCURO
+      const applyTheme = (theme) => {
+        const isLight = (theme === 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+        document.body.setAttribute('data-theme', theme);
+        if (document.body) {
+          document.body.classList.toggle('theme-light', isLight);
+        }
+        const btnToggle = document.getElementById('btnThemeToggle');
+        if (btnToggle) {
+          btnToggle.textContent = isLight ? '🌙' : '☀️';
+          btnToggle.title = isLight ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro';
+        }
+        try { localStorage.setItem('miniapps_theme', theme); } catch(e) {}
+      };
+
+      const getInitialTheme = () => {
+        try {
+          const urlTheme = new URLSearchParams(window.location.search).get('theme');
+          if (urlTheme === 'light' || urlTheme === 'dark') return urlTheme;
+          return localStorage.getItem('miniapps_theme') || 'dark';
+        } catch(e) {
+          return 'dark';
+        }
+      };
+
+      applyTheme(getInitialTheme());
+
+      document.getElementById('btnThemeToggle').addEventListener('click', () => {
+        playBeep(750, 0.05);
+        const curTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        applyTheme(curTheme);
+      });
+
+      // Escuchar cambios de tema enviados por la ventana padre (React shell de Mini Apps)
+      window.addEventListener('message', (e) => {
+        if (e.data && e.data.type === 'miniapps_theme' && e.data.theme) {
+          applyTheme(e.data.theme);
+        }
+      });
+
+      // Reloj en tiempo real
+      setInterval(() => {
+        const el = document.getElementById('headerClock');
+        if (el) el.textContent = new Date().toLocaleTimeString();
+      }, 1000);
+
+      // Estado
+      const urlParams = new URLSearchParams(window.location.search);
+      const isToolMode = urlParams.get('action') === 'herramientas' || urlParams.get('mode') === 'herramientas';
+      const isCotejoMode = urlParams.get('action') === 'ver_herramientas' || urlParams.get('action') === 'cotejo';
+      let currentFolio = '';
+      let alarmaIncendioVal = 'No';
+      let activosCache = [];
+      let generatedGestionId = '';
+
+      // Vistas
+      const viewLocked = document.getElementById('viewLocked');
+      const viewMain = document.getElementById('viewMain');
+      const viewTools = document.getElementById('viewHerramientasContratista');
+      const viewCotejo = document.getElementById('viewCotejoHerramientas');
+
+      // 3. SEGURIDAD (BLOQUEO POR DEFECTO / DESBLOQUEO DESDE REGAS 3)
+      const checkSecurityAccess = async () => {
+        if (isToolMode) {
+          // Contratista llenando herramientas en smartphone
+          viewTools.style.display = 'block';
+          initToolFormContratista();
+          return;
+        }
+
+        if (isCotejoMode) {
+          // Vista de verificación física de herramientas por QR
+          viewCotejo.style.display = 'block';
+          initCotejoView(urlParams.get('folio'));
+          return;
+        }
+
+        const devId = getDeviceUuid();
+        document.getElementById('lockedDevId').textContent = 'ID de Dispositivo: ' + devId;
+
+        try {
+          const resp = await fetch(BACKEND_BASE + '/api/cdi/devices/features?deviceId=' + encodeURIComponent(devId));
+          if (resp.ok) {
+            const data = await resp.json();
+            if (data && data.features) {
+              localStorage.setItem('regas_cdi_device_features', JSON.stringify(data.features));
+              if (data.features.prestadores === true) {
+                unlockApp();
+                return;
+              }
+            }
+          }
+        } catch(e) {}
+
+        try {
+          const raw = localStorage.getItem('regas_cdi_device_features');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && parsed.prestadores === true) {
+              unlockApp();
+              return;
+            }
+          }
+        } catch(e) {}
+
+        viewLocked.style.display = 'block';
+      };
+
+      const unlockApp = () => {
+        viewLocked.style.display = 'none';
+        viewMain.style.display = 'block';
+        initMainApp();
+      };
+
+      // Identificar Dispositivo en RegAs 3
+      document.getElementById('btnIdentifyDev').addEventListener('click', async () => {
+        playBeep(1200, 0.15);
+        const btn = document.getElementById('btnIdentifyDev');
+        btn.textContent = 'Enviando señal sonora a RegAs...';
+        btn.disabled = true;
+        try {
+          await fetch(BACKEND_BASE + '/api/cdi/devices/identify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ deviceId: getDeviceUuid(), timestamp: Date.now() })
+          });
+          playBeep(1500, 0.2);
+          alert('🔔 Señal emitida a RegAs 3. Pide al operador en CCO que palomee "🛠️ Prestadores" para tu dispositivo.');
+        } catch(err) {
+          alert('Error contactando RegAs: ' + err.message);
+        }
+        btn.innerHTML = '<span>🔔</span><span>Identificar Dispositivo en RegAs 3</span>';
+        btn.disabled = false;
+      });
+
+      // 4. INICIALIZACIÓN DE LA APLICACIÓN PRINCIPAL
+      const initMainApp = async () => {
+        loadStats();
+        loadNextFolio();
+        loadActivos();
+        initSse();
+      };
+
+      const loadNextFolio = async () => {
+        try {
+          const res = await fetch(BACKEND_BASE + '/api/prestadores/folio-disponible');
+          if (res.ok) {
+            const data = await res.json();
+            currentFolio = data.folio;
+          }
+        } catch(e) {
+          const d = new Date();
+          const pad = n => String(n).padStart(2, '0');
+          currentFolio = `FOL-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(Math.floor(Math.random()*900)+100, 4)}`;
+        }
+        document.getElementById('qrFolioDisplay').textContent = currentFolio;
+        renderQr();
+      };
+
+      // GENERAR QR EN PANTALLA (SIEMPRE TAILSCALE)
+      const renderQr = () => {
+        const box = document.getElementById('qrCanvasBox');
+        if (!box) return;
+        box.innerHTML = '';
+
+        const emp = document.getElementById('inEmpresa').value;
+        const nom = document.getElementById('inNombre').value;
+        // URL siempre mediante Tailscale Funnel para acceso universal
+        const qrUrl = `${TAILSCALE_ORIGIN}/prestadores-movil.html?action=herramientas&folio=${encodeURIComponent(currentFolio)}&empresa=${encodeURIComponent(emp)}&nombre=${encodeURIComponent(nom)}`;
+
+        if (window.QRCode) {
+          new QRCode(box, {
+            text: qrUrl,
+            width: 170,
+            height: 170,
+            colorDark: '#0f172a',
+            colorLight: '#ffffff'
+          });
+        }
+      };
+
+      // MANEJO DE CASILLA "GAFETE DE GESTIÓN"
+      const chkGestion = document.getElementById('chkGafeteGestion');
+      const inGafete = document.getElementById('inGafete');
+      const gestionTagBox = document.getElementById('gestionTagBox');
+      const lblGestionId = document.getElementById('lblGestionId');
+
+      chkGestion.addEventListener('change', (e) => {
+        playBeep(700, 0.05);
+        if (e.target.checked) {
+          // Generar ID aleatorio e irrepetible
+          const randomPart = Date.now().toString(36).toUpperCase() + '-' + Math.floor(1000 + Math.random() * 9000);
+          generatedGestionId = `GEST-${randomPart}`;
+          lblGestionId.textContent = generatedGestionId;
+          gestionTagBox.style.display = 'block';
+          inGafete.value = generatedGestionId;
+          inGafete.disabled = true;
+        } else {
+          generatedGestionId = '';
+          gestionTagBox.style.display = 'none';
+          inGafete.disabled = false;
+          inGafete.value = '1';
+        }
+      });
+
+      // TOGGLES OTRO ACCESO / OTRA EMPRESA / OTRO EDIFICIO / OTRO TRABAJO
+      document.getElementById('inAcceso').addEventListener('change', (e) => {
+        document.getElementById('inAccesoOtro').style.display = e.target.value === 'OTRO' ? 'block' : 'none';
+      });
+      document.getElementById('inEmpresa').addEventListener('change', (e) => {
+        document.getElementById('inEmpresaOtra').style.display = e.target.value === 'OTRA' ? 'block' : 'none';
+        renderQr();
+      });
+      document.getElementById('inTrabajo').addEventListener('change', (e) => {
+        document.getElementById('inTrabajoOtro').style.display = e.target.value === 'OTRO' ? 'block' : 'none';
+      });
+      document.getElementById('inEdificio').addEventListener('change', (e) => {
+        document.getElementById('inEdificioOtro').style.display = e.target.value === 'OTRO' ? 'block' : 'none';
+      });
+      document.getElementById('inNombre').addEventListener('input', (e) => {
+        e.target.value = e.target.value.toUpperCase();
+        renderQr();
+      });
+
+      // Alarma de incendio pills
+      document.getElementById('pillAlarmaSi').addEventListener('click', () => {
+        alarmaIncendioVal = 'Si';
+        document.getElementById('pillAlarmaSi').classList.add('selected');
+        document.getElementById('pillAlarmaNo').classList.remove('selected');
+      });
+      document.getElementById('pillAlarmaNo').addEventListener('click', () => {
+        alarmaIncendioVal = 'No';
+        document.getElementById('pillAlarmaNo').classList.add('selected');
+        document.getElementById('pillAlarmaSi').classList.remove('selected');
+      });
+
+      // Pestañas
+      document.getElementById('tabBtnNuevo').addEventListener('click', () => switchTab('nuevo'));
+      document.getElementById('tabBtnActivos').addEventListener('click', () => switchTab('activos'));
+      document.getElementById('tabBtnHistorial').addEventListener('click', () => switchTab('historial'));
+
+      const switchTab = (tab) => {
+        playBeep(700, 0.05);
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tabContentNuevo').style.display = tab === 'nuevo' ? 'grid' : 'none';
+        document.getElementById('tabContentActivos').style.display = tab === 'activos' ? 'block' : 'none';
+        document.getElementById('tabContentHistorial').style.display = tab === 'historial' ? 'block' : 'none';
+
+        if (tab === 'nuevo') document.getElementById('tabBtnNuevo').classList.add('active');
+        if (tab === 'activos') {
+          document.getElementById('tabBtnActivos').classList.add('active');
+          loadActivos();
+        }
+        if (tab === 'historial') {
+          document.getElementById('tabBtnHistorial').classList.add('active');
+          loadHistorial();
+        }
+      };
+
+      // Toggle Entrada / Salida
+      document.getElementById('btnToggleEntrada').addEventListener('click', () => {
+        playBeep(700, 0.05);
+        document.getElementById('btnToggleEntrada').classList.add('active-entrada');
+        document.getElementById('btnToggleSalida').classList.remove('active-salida');
+        document.getElementById('formEntrada').style.display = 'grid';
+        document.getElementById('formSalida').style.display = 'none';
+        document.getElementById('panelQrPc').style.display = 'flex';
+      });
+
+      document.getElementById('btnToggleSalida').addEventListener('click', () => {
+        playBeep(600, 0.05);
+        document.getElementById('btnToggleSalida').classList.add('active-salida');
+        document.getElementById('btnToggleEntrada').classList.remove('active-entrada');
+        document.getElementById('formEntrada').style.display = 'none';
+        document.getElementById('formSalida').style.display = 'block';
+        document.getElementById('panelQrPc').style.display = 'none';
+        loadActivosSalidaSelect();
+      });
+
+      // REGISTRAR ENTRADA
+      document.getElementById('btnSubmitEntrada').addEventListener('click', async () => {
+        const nom = document.getElementById('inNombre').value.trim();
+        if (!nom) {
+          alert('Por favor ingresa el nombre de la persona a ingresar.');
+          return;
+        }
+        const empVal = document.getElementById('inEmpresa').value;
+        const emp = empVal === 'OTRA' ? document.getElementById('inEmpresaOtra').value.trim() : empVal;
+        if (!emp) {
+          alert('Por favor especifica la compañía prestadora.');
+          return;
+        }
+
+        const isGestion = chkGestion.checked;
+        const gafeteVal = isGestion ? generatedGestionId : document.getElementById('inGafete').value.trim();
+        if (!gafeteVal) {
+          alert('Ingresa el número de gafete asignado o activa gafete de gestión.');
+          return;
+        }
+
+        const accVal = document.getElementById('inAcceso').value;
+        const acc = accVal === 'OTRO' ? (document.getElementById('inAccesoOtro').value.trim() || 'OTRO ACCESO') : accVal;
+
+        const trabVal = document.getElementById('inTrabajo').value;
+        const trab = trabVal === 'OTRO' ? document.getElementById('inTrabajoOtro').value.trim() : trabVal;
+
+        const edVal = document.getElementById('inEdificio').value;
+        const ed = edVal === 'OTRO' ? document.getElementById('inEdificioOtro').value.trim() : edVal;
+
+        const manualTools = document.getElementById('inManualTools').value.trim();
+
+        const payload = {
+          folio: currentFolio,
+          nombre: nom,
+          empresa: emp,
+          acceso: acc,
+          gafeteAsignado: isGestion ? gafeteVal : (parseInt(gafeteVal, 10) || 0),
+          esGafeteGestion: isGestion,
+          alarmaIncendio: alarmaIncendioVal,
+          tipoTrabajos: trab,
+          edificio: ed,
+          herramientasRaw: manualTools,
+          herramientas: manualTools ? manualTools.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean) : []
+        };
+
+        try {
+          const resp = await fetch(BACKEND_BASE + '/api/prestadores/registro', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (resp.ok) {
+            playBeep(1200, 0.2);
+            alert(`✅ Ingreso registrado exitosamente con Folio ${currentFolio}!`);
+            document.getElementById('inNombre').value = '';
+            document.getElementById('inManualTools').value = '';
+            chkGestion.checked = false;
+            inGafete.disabled = false;
+            inGafete.value = '1';
+            gestionTagBox.style.display = 'none';
+            document.getElementById('liveToolsAlert').style.display = 'none';
+            loadStats();
+            loadNextFolio();
+            loadActivos();
+          } else {
+            const err = await resp.json();
+            alert('Error al registrar: ' + (err.error || 'Fallo en servidor'));
+          }
+        } catch(e) {
+          alert('Error de conexión: ' + e.message);
+        }
+      });
+
+      // REGISTRAR SALIDA MANUAL (TAB FORMULARIO SALIDA)
+      document.getElementById('btnSubmitSalida').addEventListener('click', async () => {
+        const select = document.getElementById('selectActivoSalida');
+        const selectedFolio = select.value;
+        if (!selectedFolio) {
+          alert('Selecciona al prestador de la lista de activos.');
+          return;
+        }
+
+        const match = activosCache.find(a => a.folio === selectedFolio);
+        if (match && match.herramientasCount > 0) {
+          const confirmar = confirm(`⚠️ Atención: ${match.nombre} declaró ${match.herramientasCount} herramienta(s) al entrar.\n¿Ya fueron cotejadas físicamente en la caseta?`);
+          if (!confirmar) return;
+        }
+
+        const gaf = document.getElementById('inGafeteSalida').value;
+        const empVal = document.getElementById('inEmpresaSalida').value;
+
+        const payload = {
+          folio: selectedFolio,
+          gafeteEntrega: parseInt(gaf || 0, 10) || gaf,
+          empresaSale: empVal
+        };
+
+        try {
+          const resp = await fetch(BACKEND_BASE + '/api/prestadores/salida', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (resp.ok) {
+            playBeep(900, 0.2);
+            alert('🚪 Salida registrada correctamente.');
+            document.getElementById('boxToolsSalidaNotice').style.display = 'none';
+            loadStats();
+            loadActivos();
+            loadActivosSalidaSelect();
+          } else {
+            const err = await resp.json();
+            alert('Error en salida: ' + (err.error || 'Fallo'));
+          }
+        } catch(e) {
+          alert('Error de conexión: ' + e.message);
+        }
+      });
+
+      // SALIDA RÁPIDA DIRECTA EN INSTALACIONES (COMO EN REGAS 3)
+      window.ejecutarSalidaRapidaDirecta = async (folio) => {
+        playBeep(700, 0.05);
+        const match = activosCache.find(a => a.folio === folio);
+        if (!match) return;
+
+        if (match.herramientasCount > 0) {
+          const conf = confirm(`⚠️ ATENCIÓN: ${match.nombre} (${match.empresa})\nIngresó con ${match.herramientasCount} herramienta(s) registradas:\n\n• ${(match.herramientas || []).join('\n• ')}\n\n¿Ya fueron cotejadas físicamente antes de salir?`);
+          if (!conf) return;
+        } else {
+          const conf = confirm(`¿Confirmar salida rápida para ${match.nombre} (${match.empresa})?`);
+          if (!conf) return;
+        }
+
+        try {
+          const resp = await fetch(BACKEND_BASE + '/api/prestadores/salida', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              folio: match.folio,
+              gafeteEntrega: match.gafeteAsignado || 0,
+              empresaSale: match.empresa,
+              observacionesSalida: 'Salida rápida directa desde instalaciones'
+            })
+          });
+
+          if (resp.ok) {
+            playBeep(1100, 0.2);
+            alert(`🚪 Salida registrada para ${match.nombre}!`);
+            loadStats();
+            loadActivos();
+          } else {
+            const err = await resp.json();
+            alert('Error al registrar salida rápida: ' + (err.error || 'Fallo'));
+          }
+        } catch(err) {
+          alert('Error de conexión: ' + err.message);
+        }
+      };
+
+      // BOTÓN QR DE HERRAMIENTAS EN SALIDA
+      document.getElementById('btnSalidaShowQrTools').addEventListener('click', () => {
+        const select = document.getElementById('selectActivoSalida');
+        if (select.value) {
+          abrirModalQrHerramientas(select.value);
+        }
+      });
+
+      // MODAL DE QR DE HERRAMIENTAS PARA COTEJO FÍSICO
+      window.abrirModalQrHerramientas = (folio) => {
+        playBeep(850, 0.08);
+        const match = activosCache.find(a => a.folio === folio);
+        if (!match) return;
+
+        document.getElementById('modalContractorName').textContent = match.nombre;
+        document.getElementById('modalContractorCompany').textContent = match.empresa + ' • ' + match.edificio;
+        document.getElementById('modalFolioCode').textContent = match.folio;
+
+        const toolsUl = document.getElementById('modalToolsList');
+        toolsUl.innerHTML = (match.herramientas || []).map(t => `<li>${t}</li>`).join('');
+
+        const qrBox = document.getElementById('modalQrCanvas');
+        qrBox.innerHTML = '';
+        // QR URL siempre mediante Tailscale
+        const cotejoUrl = `${TAILSCALE_ORIGIN}/prestadores-movil.html?action=ver_herramientas&folio=${encodeURIComponent(match.folio)}`;
+
+        if (window.QRCode) {
+          new QRCode(qrBox, {
+            text: cotejoUrl,
+            width: 180,
+            height: 180,
+            colorDark: '#0f172a',
+            colorLight: '#ffffff'
+          });
+        }
+
+        document.getElementById('modalQrHerramientas').style.display = 'flex';
+      };
+
+      document.getElementById('modalCloseBtn').addEventListener('click', () => {
+        document.getElementById('modalQrHerramientas').style.display = 'none';
+      });
+
+      // Estadísticas
+      const loadStats = async () => {
+        try {
+          const resp = await fetch(BACKEND_BASE + '/api/prestadores/stats');
+          if (resp.ok) {
+            const d = await resp.json();
+            const s = d.stats || {};
+            document.getElementById('statAdentro').textContent = s.activosDentro || 0;
+            document.getElementById('statSalidas').textContent = s.totalSalidas || 0;
+            document.getElementById('statTools').textContent = s.conHerramientas || 0;
+            document.getElementById('statIncendio').textContent = s.conRiesgoAlarma || 0;
+            document.getElementById('countActivosBadge').textContent = s.activosDentro || 0;
+          }
+        } catch(e) {}
+      };
+
+      // Activos en instalaciones
+      const loadActivos = async () => {
+        try {
+          const resp = await fetch(BACKEND_BASE + '/api/prestadores/activos');
+          if (resp.ok) {
+            const d = await resp.json();
+            activosCache = d.activos || [];
+            renderActivosList(activosCache);
+            loadActivosSalidaSelect();
+          }
+        } catch(e) {}
+      };
+
+      const renderActivosList = (list) => {
+        const container = document.getElementById('activosContainer');
+        if (!container) return;
+        if (list.length === 0) {
+          container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 2.5rem;">No hay contratistas adentro en este momento.</div>';
+          return;
+        }
+
+        container.innerHTML = list.map(item => {
+          const hasTools = (item.herramientasCount > 0 || (item.herramientas && item.herramientas.length > 0));
+          return `
+            <div style="background: var(--card-bg); border: 1px solid var(--border-card); box-shadow: var(--shadow); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <strong style="font-size: 0.94rem; color: var(--text);">${item.nombre}</strong>
+                <span class="folio-code" style="font-size: 0.74rem; padding: 2px 7px;">${item.folio}</span>
+              </div>
+              <div style="font-size: 0.8rem; color: #38bdf8; font-weight: 700;">
+                ${item.empresa} • Gafete: ${item.esGafeteGestion ? '🏷️ GESTIÓN' : ('#' + (item.gafeteAsignado || 0))}
+              </div>
+              <div style="font-size: 0.74rem; color: var(--text-muted);">
+                ${item.edificio} • ${item.tipoTrabajos} • Entrada: ${item.horaEntrada || item.hora} (${item.acceso})
+              </div>
+
+              ${hasTools ? `
+                <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid var(--accent-green); border-radius: 8px; padding: 6px 10px; font-size: 0.75rem; color: var(--accent-green);">
+                  🧰 Herramientas registradas (${item.herramientasCount}): ${(item.herramientas || []).join(', ')}
+                </div>
+              ` : '<div style="font-size: 0.72rem; color: var(--text-dim);">Sin herramientas declaradas</div>'}
+
+              <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 6px; border-top: 1px solid var(--border); padding-top: 8px;">
+                ${hasTools ? `
+                  <button type="button" class="btn-qr-tools" onclick="abrirModalQrHerramientas('${item.folio}')">
+                    <span>📱</span>
+                    <span>QR Cotejo</span>
+                  </button>
+                ` : ''}
+                <!-- BOTÓN SALIDA RÁPIDA DIRECTA (COMO REGAS 3) -->
+                <button type="button" class="btn-salida-rapida" onclick="ejecutarSalidaRapidaDirecta('${item.folio}')">
+                  <span>🚪</span>
+                  <span>Salida Rápida</span>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      };
+
+      // Select de activos en formulario de salida
+      const loadActivosSalidaSelect = () => {
+        const select = document.getElementById('selectActivoSalida');
+        if (!select) return;
+        select.innerHTML = '<option value="">-- Seleccionar prestador en instalaciones --</option>' +
+          activosCache.map(a => `<option value="${a.folio}">${a.nombre} (${a.empresa}) - ${a.esGafeteGestion ? 'Gafete Gestión' : 'Gafete #' + (a.gafeteAsignado || 0)}</option>`).join('');
+
+        select.onchange = (e) => {
+          const match = activosCache.find(a => a.folio === e.target.value);
+          if (match) {
+            document.getElementById('inGafeteSalida').value = match.esGafeteGestion ? 0 : (match.gafeteAsignado || 0);
+            document.getElementById('inEmpresaSalida').value = match.empresa;
+            if (match.herramientas && match.herramientas.length > 0) {
+              document.getElementById('boxToolsSalidaNotice').style.display = 'block';
+              document.getElementById('listToolsSalida').innerHTML = match.herramientas.map(t => `<li>${t}</li>`).join('');
+            } else {
+              document.getElementById('boxToolsSalidaNotice').style.display = 'none';
+            }
+          }
+        };
+      };
+
+      // Historial
+      const loadHistorial = async () => {
+        const container = document.getElementById('historialContainer');
+        container.innerHTML = '<div style="color: var(--text-muted); padding: 1rem; text-align: center;">Cargando historial...</div>';
+        try {
+          const resp = await fetch(BACKEND_BASE + '/api/prestadores/registros');
+          if (resp.ok) {
+            const d = await resp.json();
+            const list = d.registros || [];
+            if (list.length === 0) {
+              container.innerHTML = '<div style="color: var(--text-muted); padding: 1rem; text-align: center;">Sin registros históricos.</div>';
+              return;
+            }
+            container.innerHTML = list.map(item => `
+              <div style="border-bottom: 1px solid var(--border); padding: 8px 0;">
+                <div style="display: flex; justify-content: space-between;">
+                  <strong style="font-size: 0.85rem; color: var(--text);">${item.nombre}</strong>
+                  <span style="font-size: 0.7rem; font-weight: 700; color: ${item.estatus === 'DENTRO' ? 'var(--accent-green)' : 'var(--accent-amber)'};">${item.estatus}</span>
+                </div>
+                <div style="font-size: 0.74rem; color: var(--text-muted);">${item.empresa} • Folio: ${item.folio}</div>
+                <div style="font-size: 0.7rem; color: var(--text-dim);">${item.fecha} | Entrada: ${item.horaEntrada || item.hora} ${item.horaSalida ? '| Salida: ' + item.horaSalida : ''}</div>
+              </div>
+            `).join('');
+          }
+        } catch(e) {
+          container.innerHTML = '<div style="color: var(--accent-red); padding: 1rem;">Error cargando historial.</div>';
+        }
+      };
+
+      // 5. VISTA CONTRATISTA MÓVIL (REGISTRO DE HERRAMIENTAS POR QR)
+      const initToolFormContratista = () => {
+        document.getElementById('inToolFolio').value = urlParams.get('folio') || '';
+        document.getElementById('inToolEmpresa').value = urlParams.get('empresa') || '';
+        document.getElementById('inToolNombre').value = urlParams.get('nombre') || '';
+
+        const chips = [
+          '1 Taladro inalámbrico',
+          '1 Escalera de tijera',
+          '1 Extensión 20m uso rudo',
+          '1 Caja de herramientas',
+          '1 Multímetro',
+          '1 Rotomartillo',
+          '1 Esmeril angular',
+          '1 Cautín eléctrico',
+          '1 Juego de llaves',
+          '1 Cinta métrica'
+        ];
+
+        const chipsBox = document.getElementById('toolChipsBox');
+        chipsBox.innerHTML = chips.map(c => `
+          <button type="button" style="background: var(--card-surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 4px 8px; font-size: 0.72rem; cursor: pointer;" onclick="addToolChip('${c}')">+ ${c}</button>
+        `).join('');
+
+        window.addToolChip = (text) => {
+          playBeep(800, 0.05);
+          const ta = document.getElementById('inToolListado');
+          ta.value = ta.value ? ta.value + '\n' + text : text;
+        };
+
+        document.getElementById('btnSubmitToolsContratista').addEventListener('click', async () => {
+          const folio = document.getElementById('inToolFolio').value.trim();
+          const email = document.getElementById('inToolCorreo').value.trim();
+          const listado = document.getElementById('inToolListado').value.trim();
+          if (!folio) { alert('El folio de acceso es requerido.'); return; }
+          if (!email || !email.includes('@')) { alert('Ingresa un correo electrónico válido.'); return; }
+          if (!listado) { alert('Ingresa el listado de herramientas.'); return; }
+
+          const payload = {
+            folio,
+            empresa: document.getElementById('inToolEmpresa').value.trim(),
+            nombre: document.getElementById('inToolNombre').value.trim().toUpperCase(),
+            correo: email,
+            listadoHerramientas: listado,
+            origen: 'smartphone_qr'
+          };
+
+          try {
+            const resp = await fetch(BACKEND_BASE + '/api/prestadores/herramientas', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            if (resp.ok) {
+              const res = await resp.json();
+              playBeep(1200, 0.25);
+              document.getElementById('formHerramientasContratista').style.display = 'none';
+              document.getElementById('toolTicketBox').style.display = 'block';
+              document.getElementById('ticketFolio').textContent = res.folio;
+              document.getElementById('ticketEmpresa').textContent = payload.empresa || 'Prestador';
+              document.getElementById('ticketToolsUl').innerHTML = (res.herramientas || []).map(t => `<li>${t}</li>`).join('');
+            } else {
+              const err = await resp.json();
+              alert('Error al registrar: ' + (err.error || 'Fallo'));
+            }
+          } catch(e) {
+            alert('Error de conexión: ' + e.message);
+          }
+        });
+      };
+
+      // 6. VISTA COTEJO MÓVIL (CUANDO EL GUARDIA ESCANEA EL QR DE SALIDA)
+      const initCotejoView = async (folio) => {
+        if (!folio) {
+          document.getElementById('cotejoLoading').textContent = 'Folio de cotejo no especificado.';
+          return;
+        }
+
+        try {
+          const resp = await fetch(BACKEND_BASE + `/api/prestadores/herramientas/${encodeURIComponent(folio)}`);
+          if (resp.ok) {
+            const data = await resp.json();
+            document.getElementById('cotejoLoading').style.display = 'none';
+            document.getElementById('cotejoDetails').style.display = 'block';
+
+            document.getElementById('cotejoNombre').textContent = (data.prestador && data.prestador.nombre) || data.info?.nombre || 'Prestador de Servicio';
+            document.getElementById('cotejoFolio').textContent = data.folio;
+            document.getElementById('cotejoEmpresa').textContent = (data.prestador && data.prestador.empresa) || data.info?.empresa || '---';
+            document.getElementById('cotejoInfo').textContent = `Ingreso: ${data.prestador?.horaEntrada || '---'} | Edificio: ${data.prestador?.edificio || '---'}`;
+
+            const tools = data.herramientas || [];
+            const checkList = document.getElementById('cotejoChecklist');
+            if (tools.length === 0) {
+              checkList.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem;">Sin herramientas registradas para este folio.</div>';
+            } else {
+              checkList.innerHTML = tools.map((t, idx) => `
+                <label style="display: flex; align-items: center; gap: 10px; background: var(--card-surface); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; cursor: pointer;">
+                  <input type="checkbox" id="chkCotejo_${idx}" style="width: 20px; height: 20px; accent-color: #10b981; cursor: pointer;">
+                  <span style="font-size: 0.84rem; font-weight: 600; color: var(--text);">${t}</span>
+                </label>
+              `).join('');
+            }
+          } else {
+            document.getElementById('cotejoLoading').textContent = 'No se encontraron herramientas registradas para este folio.';
+          }
+        } catch(e) {
+          document.getElementById('cotejoLoading').textContent = 'Error de conexión: ' + e.message;
+        }
+      };
+
+      // 7. EVENTOS SSE EN TIEMPO REAL
+      const initSse = () => {
+        try {
+          const sse = new EventSource(BACKEND_BASE + '/api/events');
+          sse.addEventListener('prestadores_herramientas_vinculadas', (e) => {
+            playBeep(1400, 0.3);
+            try {
+              const d = JSON.parse(e.data);
+              document.getElementById('liveToolsAlert').style.display = 'block';
+              document.getElementById('liveToolsUl').innerHTML = (d.herramientas || []).map(t => `<li>${t}</li>`).join('');
+              loadStats();
+              loadActivos();
+            } catch(err) {}
+          });
+          sse.addEventListener('prestadores_nuevo_ingreso', () => { loadStats(); loadActivos(); });
+          sse.addEventListener('prestadores_salida', () => { loadStats(); loadActivos(); });
+          sse.addEventListener('cdi_force_reload', (e) => {
+            try {
+              const d = JSON.parse(e.data);
+              const myDev = getDeviceUuid();
+              if (d && (d.targetDeviceId === myDev || d.targetDeviceId === 'all')) {
+                window.location.reload();
+              }
+            } catch(err) {}
+          });
+        } catch(e) {}
+      };
+
+      // Iniciar comprobación de seguridad
+      checkSecurityAccess();
+    })();
+  </script>
+</body>
+</html>

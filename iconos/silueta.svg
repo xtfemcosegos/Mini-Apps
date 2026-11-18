@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 150" width="100%" height="100%">
+  <defs>
+    <!-- Fondo oscuro contrastante para resaltar el uniforme blanco -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <!-- Gradiente de la cabeza silueta -->
+    <linearGradient id="headGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#cbd5e1"/>
+      <stop offset="100%" stop-color="#94a3b8"/>
+    </linearGradient>
+    <!-- Gradiente rojo para detalles del uniforme -->
+    <linearGradient id="redGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#b91c1c"/>
+    </linearGradient>
+    <!-- Gradiente blanco de la camisa -->
+    <linearGradient id="shirtGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fondo -->
+  <rect width="120" height="150" fill="url(#bgGrad)"/>
+
+  <!-- Cabeza silueta sencilla -->
+  <circle cx="60" cy="46" r="20" fill="url(#headGrad)"/>
+
+  <!-- Cuello silueta -->
+  <path d="M52 62 L68 62 L70 76 L50 76 Z" fill="#94a3b8"/>
+
+  <!-- Cuerpo / Camisa Blanca de Guardia -->
+  <path d="M12 120 C14 100, 30 78, 48 74 L72 74 C90 78, 106 100, 108 120 L108 150 L12 150 Z" fill="url(#shirtGrad)"/>
+
+  <!-- Charreteras / Hombreras Rojas con botón dorado -->
+  <!-- Hombrera izquierda -->
+  <path d="M22 92 L42 80 L44 86 L24 98 Z" fill="url(#redGrad)"/>
+  <circle cx="41" cy="83" r="2" fill="#fbbf24"/>
+  <!-- Hombrera derecha -->
+  <path d="M98 92 L78 80 L76 86 L96 98 Z" fill="url(#redGrad)"/>
+  <circle cx="79" cy="83" r="2" fill="#fbbf24"/>
+
+  <!-- Cuello de camisa blanca doblada -->
+  <polygon points="60,86 48,74 58,74" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.75"/>
+  <polygon points="60,86 72,74 62,74" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.75"/>
+
+  <!-- Corbata Roja de Guardia -->
+  <polygon points="57,84 63,84 65,90 60,122 55,90" fill="url(#redGrad)"/>
+  <!-- Nudo de corbata roja -->
+  <polygon points="56,82 64,82 62,88 58,88" fill="#dc2626"/>
+
+  <!-- Placa / Escudo de Seguridad Rojo con detalle dorado en el pecho -->
+  <path d="M78 96 L88 96 L88 104 C88 109, 83 113, 83 113 C83 113, 78 109, 78 104 Z" fill="url(#redGrad)" stroke="#fbbf24" stroke-width="1"/>
+  <circle cx="83" cy="102" r="2" fill="#fbbf24"/>
+</svg>
